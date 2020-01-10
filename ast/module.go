@@ -6,6 +6,9 @@ import (
 )
 
 type Module struct {
+	implWastDirective
+	implWastExecute
+	implQuoteModule
 	Name OptionId
 	Kind ModuleKind
 }
