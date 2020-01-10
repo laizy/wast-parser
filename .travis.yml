@@ -1,0 +1,15 @@
+dist: bionic
+
+language: go
+
+go_import_path: github.com/ontio/wast-parser
+
+os:
+  - linux
+
+go:
+  - 1.12.x
+
+script:
+  - bash ./.travis.gofmt.sh
+  - bash ./.travis.gotest.sh
