@@ -10,17 +10,17 @@ import (
 )
 
 type TokenType byte
+
 const (
 	LParenType TokenType = iota
- RParenType
-StringType
-IntegerType
-FloatType
-KeywordType
-IdType
-ReservedType
+	RParenType
+	StringType
+	IntegerType
+	FloatType
+	KeywordType
+	IdType
+	ReservedType
 )
-
 
 type Lexer struct {
 	buf *bytes.Buffer
@@ -79,7 +79,6 @@ func (self Identifier) Type() TokenType {
 	return IdType
 }
 
-
 type Keyword struct {
 	Val string
 }
@@ -113,7 +112,6 @@ func (self Integer) Type() TokenType {
 	return IntegerType
 }
 
-
 func (self Integer) String() string {
 	if self.Hex {
 		return "0x" + self.Val
@@ -122,7 +120,7 @@ func (self Integer) String() string {
 	return self.Val
 }
 
-func (self *Integer)ToUint(bitSize int) (uint64, error) {
+func (self *Integer) ToUint(bitSize int) (uint64, error) {
 	base := 10
 	if self.Hex {
 		base = 16
@@ -131,7 +129,7 @@ func (self *Integer)ToUint(bitSize int) (uint64, error) {
 	return strconv.ParseUint(self.Val, base, bitSize)
 }
 
-func (self *Integer)ToInt(bitSize int) (int64, error) {
+func (self *Integer) ToInt(bitSize int) (int64, error) {
 	base := 10
 	if self.Hex {
 		base = 16

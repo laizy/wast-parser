@@ -7,7 +7,6 @@ import (
 	"io"
 )
 
-
 type Parse interface {
 	Parse(parser *ParserBuffer) error
 }
@@ -21,7 +20,7 @@ func NewParserBuffer(input string) (*ParserBuffer, error) {
 	lex := lexer.NewLexer(input)
 	var tokens []lexer.Token
 	for lex.Eof() == false {
-		token , err := lex.Parse()
+		token, err := lex.Parse()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -32,23 +31,23 @@ func NewParserBuffer(input string) (*ParserBuffer, error) {
 		tokens = append(tokens, token)
 	}
 
-	return &ParserBuffer{ tokens:tokens, curr:0 }, nil
+	return &ParserBuffer{tokens: tokens, curr: 0}, nil
 }
 
-func (self *ParserBuffer)Empty() bool {
+func (self *ParserBuffer) Empty() bool {
 	token := self.PeekToken()
 
 	return token == nil || token.Type() == lexer.RParenType
 }
 
-func (self *ParserBuffer)Cursor() Cursor {
+func (self *ParserBuffer) Cursor() Cursor {
 	return Cursor{
-		parser:self,
-		curr:self.curr,
+		parser: self,
+		curr:   self.curr,
 	}
 }
 
-func (self *ParserBuffer)ExpectString() (string, error) {
+func (self *ParserBuffer) ExpectString() (string, error) {
 	cursor := self.Cursor()
 	str := cursor.String()
 	if str == "" {
@@ -61,7 +60,7 @@ func (self *ParserBuffer)ExpectString() (string, error) {
 
 func (self *ParserBuffer) ExpectKeywordMatch(expect string) error {
 	kw, err := self.ExpectKeyword()
-	if err != nil  {
+	if err != nil {
 		return err
 	}
 	if kw != expect {
@@ -130,11 +129,11 @@ func (self *ParserBuffer) ExpectUint32() (uint32, error) {
 		return 0, err
 	}
 
-	value, err :=  val.ToUint(32)
+	value, err := val.ToUint(32)
 	return uint32(value), err
 }
 
-func (self *ParserBuffer)StepBack(num int) {
+func (self *ParserBuffer) StepBack(num int) {
 	if self.curr < num {
 		panic("step back error")
 	}
@@ -148,7 +147,7 @@ func (self *ParserBuffer) ExpectUint64() (uint64, error) {
 		return 0, err
 	}
 
-	return  val.ToUint(64)
+	return val.ToUint(64)
 }
 
 func (self *ParserBuffer) PeekKeyword() (string, error) {
@@ -161,7 +160,7 @@ func (self *ParserBuffer) PeekUint32() bool {
 	return err == nil
 }
 
-func (self *ParserBuffer)ReadToken() lexer.Token {
+func (self *ParserBuffer) ReadToken() lexer.Token {
 	if self.curr >= len(self.tokens) {
 		return nil
 	}
@@ -171,7 +170,7 @@ func (self *ParserBuffer)ReadToken() lexer.Token {
 	return token
 }
 
-func (self *ParserBuffer)PeekToken() lexer.Token {
+func (self *ParserBuffer) PeekToken() lexer.Token {
 	if self.curr < len(self.tokens) {
 		return self.tokens[self.curr]
 	}
@@ -179,19 +178,19 @@ func (self *ParserBuffer)PeekToken() lexer.Token {
 	return nil
 }
 
-func (self *ParserBuffer)clone() *ParserBuffer {
+func (self *ParserBuffer) clone() *ParserBuffer {
 	return &ParserBuffer{
-		tokens:self.tokens,
-		curr: self.curr,
+		tokens: self.tokens,
+		curr:   self.curr,
 	}
 }
 
-func (self *ParserBuffer)PeekParse(value Parse) bool {
+func (self *ParserBuffer) PeekParse(value Parse) bool {
 	ps := self.clone()
 	return value.Parse(ps) == nil
 }
 
-func (self *ParserBuffer)TryParse(value Parse) error {
+func (self *ParserBuffer) TryParse(value Parse) error {
 	ps := self.clone()
 	err := value.Parse(ps)
 	if err != nil {
@@ -202,7 +201,7 @@ func (self *ParserBuffer)TryParse(value Parse) error {
 	return nil
 }
 
-func (self *ParserBuffer)Peek2Token() lexer.Token {
+func (self *ParserBuffer) Peek2Token() lexer.Token {
 	if self.curr+1 < len(self.tokens) {
 		return self.tokens[self.curr+1]
 	}
@@ -210,8 +209,7 @@ func (self *ParserBuffer)Peek2Token() lexer.Token {
 	return nil
 }
 
-
-func (self *ParserBuffer)TryGetId() string {
+func (self *ParserBuffer) TryGetId() string {
 	cursor := self.Cursor()
 	id := cursor.Id()
 	if id == "" {
@@ -222,7 +220,7 @@ func (self *ParserBuffer)TryGetId() string {
 	return id
 }
 
-func (self *ParserBuffer)Parens(fn func (ps *ParserBuffer) error) error {
+func (self *ParserBuffer) Parens(fn func(ps *ParserBuffer) error) error {
 	err := self.ExpectLParen()
 	if err != nil {
 		return err
@@ -243,17 +241,17 @@ func (self *ParserBuffer)Parens(fn func (ps *ParserBuffer) error) error {
 
 type Cursor struct {
 	parser *ParserBuffer
-	curr int
+	curr   int
 }
 
-func (self *Cursor)Clone() *Cursor {
+func (self *Cursor) Clone() *Cursor {
 	return &Cursor{
 		parser: self.parser,
-		curr: self.curr,
+		curr:   self.curr,
 	}
 }
 
-func (self *Cursor)readToken() lexer.Token {
+func (self *Cursor) readToken() lexer.Token {
 	if self.curr >= len(self.parser.tokens) {
 		return nil
 	}
@@ -263,7 +261,7 @@ func (self *Cursor)readToken() lexer.Token {
 	return token
 }
 
-func (self *Cursor)ExpectLparen() error {
+func (self *Cursor) ExpectLparen() error {
 	token := self.readToken()
 	if token == nil {
 		return errors.New("expect lparen, got eof")
@@ -275,7 +273,7 @@ func (self *Cursor)ExpectLparen() error {
 	return nil
 }
 
-func (self *Cursor)ExpectRparen() error {
+func (self *Cursor) ExpectRparen() error {
 	token := self.readToken()
 	if token == nil {
 		return errors.New("expect rparen, got eof")
@@ -287,7 +285,7 @@ func (self *Cursor)ExpectRparen() error {
 	return nil
 }
 
-func (self *Cursor)Keyword() string {
+func (self *Cursor) Keyword() string {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.Keyword); ok {
 			return t.Val
@@ -297,7 +295,7 @@ func (self *Cursor)Keyword() string {
 	return ""
 }
 
-func (self *Cursor)Id() string {
+func (self *Cursor) Id() string {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.Identifier); ok {
 			return string(t.Val[1:])
@@ -307,7 +305,7 @@ func (self *Cursor)Id() string {
 	return ""
 }
 
-func (self *Cursor)Integer() (val lexer.Integer, err error) {
+func (self *Cursor) Integer() (val lexer.Integer, err error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.Integer); ok {
 			return t, nil
@@ -326,9 +324,3 @@ func (self *Cursor) String() string {
 
 	return ""
 }
-
-
-
-
-
-

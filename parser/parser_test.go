@@ -17,10 +17,9 @@ func TestParser(t *testing.T) {
 )
 `)
 
-if err!= nil {
-	fmt.Printf("error: %s", err)
-}
+	if err != nil {
+		fmt.Printf("error: %s", err)
+	}
 
 	fmt.Printf("tokens: %v", parser)
 }
-
