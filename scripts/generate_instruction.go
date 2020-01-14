@@ -122,7 +122,7 @@ func (self Instruction) generateFields() string {
 		ty := field.Type
 		if strings.HasPrefix(ty, "MemArg") {
 			ty = "MemArg"
-		}
+	}
 		fields = append(fields, fmt.Sprintf("%s %s", field.Name, ty))
 	}
 
@@ -143,9 +143,9 @@ func (self Instruction) generateParseBody() string {
 			if strings.HasPrefix(field.Type, "MemArg") {
 				body += parseMemArg(field.Name, field.Type)
 			} else {
-				body += parseGeneral(field.Name)
-			}
+			body += parseGeneral(field.Name)
 		}
+	}
 	}
 
 	return body
