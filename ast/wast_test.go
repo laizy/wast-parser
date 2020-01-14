@@ -18,6 +18,10 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	fnames = []string{
+		"../tests/spectestdata/data.wast",
+		"../tests/spectestdata/address.wast",
+	}
 	for _, name := range fnames {
 		if !strings.HasSuffix(name, ".wast") {
 			continue

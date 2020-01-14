@@ -74,6 +74,12 @@ type AssertInvalidDirective struct {
 	Msg string
 }
 
+type AssertUnlinkableDirective struct {
+	implWastDirective
+	Module Module
+	Msg    string
+}
+
 type AssertMalformedDirective struct {
 	implWastDirective
 	Module QuoteModule
@@ -283,6 +289,17 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 		}
 
 		return ret, nil
+	case "assert_unlinkable":
+		var result AssertUnlinkableDirective
+		err = ps.Parens(result.Module.Parse)
+		if err != nil {
+			return nil, err
+		}
+		result.Msg, err = ps.ExpectString()
+		if err != nil {
+			return nil, err
+		}
+		return result, nil
 	default:
 		return nil, fmt.Errorf("parse wast directive error: unexpected keyword %s", kw)
 	}
