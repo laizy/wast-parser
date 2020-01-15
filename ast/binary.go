@@ -39,27 +39,30 @@ func (self *Module) Encode() ([]byte, error) {
 	var data []Section
 
 	for _, field := range fields {
-		if ty, ok := field.(Type); ok {
-			types = append(types, ty)
-		} else if imp, ok := field.(Import); ok {
-			imports = append(imports, imp)
-		} else if fun, ok := field.(Func); ok {
-			funcsTypes = append(funcs, fun.Type)
-			funcs = append(funcs, fun.Type)
-		} else if table, ok := field.(Table); ok {
-			tables = append(tables, table)
-		} else if mem, ok := field.(Memory); ok {
-			memories = append(memories, mem)
-		} else if global, ok := field.(Global); ok {
-			globals = append(globals, global)
-		} else if val, ok := field.(Export); ok {
-			exports = append(exports, val)
-		} else if val, ok := field.(StartField); ok {
-			start = append(start, val)
-		} else if val, ok := field.(Elem); ok {
-			elem = append(elem, val)
-		} else if val, ok := field.(Data); ok {
-			data = append(data, val)
+		switch field.(type) {
+		case Type:
+			types = append(types, field.(Type))
+		case Import:
+			imports = append(imports, field.(Import))
+		case Func:
+			funcsTypes = append(funcsTypes, field.(Func).Type)
+			funcs = append(funcs, field.(Func))
+		case Table:
+			tables = append(tables, field.(Table))
+		case Memory:
+			memories = append(memories, field.(Memory))
+		case Global:
+			globals = append(globals, field.(Global))
+		case Export:
+			exports = append(exports, field.(Export))
+		case StartField:
+			start = append(start, field.(StartField))
+		case Elem:
+			elem = append(elem, field.(Elem))
+		case Data:
+			data = append(data, field.(Data))
+		default:
+			return nil, errors.New("err section")
 		}
 	}
 
@@ -441,65 +444,6 @@ func (t Elem) Encode(w io.Writer) error {
 	default:
 		return errors.New("error Elem Kind")
 	}
-	//
-
-	if active, ok := t.Kind.(ElemKindActive); ok {
-		if !active.Table.Isnum {
-			return errors.New("expect num in Elem kind")
-		}
-
-		if _, ok := t.Payload.(ElemPayloadIndices); ok {
-			if active.Table.Num == 0 && !t.forceNonZero {
-				if err := writeByte(w, byte(0x00)); err != nil {
-					return err
-				}
-				return active.Offset.Encode(w)
-			} else {
-				if err := writeByte(w, byte(0x02)); err != nil {
-					return err
-				}
-				if err := active.Table.Encode(w); err != nil {
-					return err
-				}
-				if err := active.Offset.Encode(w); err != nil {
-					return err
-				}
-				if err := writeByte(w, byte(0x00)); err != nil {
-					return err
-				}
-			}
-		} else if expr, ok := t.Payload.(ElemPayloadExprs); ok {
-			if active.Table.Num == 0 && expr.Type == FuncRef {
-				if err := writeByte(w, byte(0x04)); err != nil {
-					return err
-				}
-
-				return active.Offset.Encode(w)
-			}
-		} else {
-			return errors.New("error Elem payload Kind")
-		}
-	} else if _, ok := t.Kind.(ElemKindPassive); ok {
-		if _, ok := t.Payload.(ElemPayloadIndices); ok {
-			if err := writeByte(w, byte(0x01)); err != nil {
-				return err
-			}
-			if err := writeByte(w, byte(0x00)); err != nil {
-				return err
-			}
-		} else if expr, ok := t.Payload.(ElemPayloadExprs); ok {
-			if err := writeByte(w, byte(0x05)); err != nil {
-				return err
-			}
-
-			if err := expr.Type.Encode(w); err != nil {
-				return err
-			}
-
-		}
-	} else {
-		return errors.New("error Elem Kind")
-	}
 
 	if err := t.Payload.Encode(w); err != nil {
 		return err
@@ -527,7 +471,47 @@ func (t ElemPayloadExprs) Encode(w io.Writer) error {
 }
 
 func (t Data) Encode(w io.Writer) error {
-	// todo
+	switch t.Kind.(type) {
+	case DataKindPassive:
+		if err := writeByte(w, byte(0x01)); err != nil {
+			return err
+		}
+	case DataKindActive:
+		active, _ := t.Kind.(DataKindActive)
+		if active.Memory.Isnum && active.Memory.Num == 0 {
+			if err := writeByte(w, byte(0x00)); err != nil {
+				return err
+			}
+		} else {
+			if err := writeByte(w, byte(0x02)); err != nil {
+				return err
+			}
+
+			if err := active.Memory.Encode(w); err != nil {
+				return err
+			}
+		}
+
+	default:
+		return errors.New("error data kind")
+	}
+
+	var l uint32
+	for _, v := range t.Val {
+		l = l + uint32(len(v))
+	}
+
+	if _, err := leb128.WriteVarUint32(w, l); err != nil {
+		return err
+	}
+
+	for _, v := range t.Val {
+		_, err := w.Write(v)
+		if err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
