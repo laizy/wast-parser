@@ -96,7 +96,7 @@ type MemoryKindInline struct {
 }
 
 func (self *MemoryKindInline) parseMemoryKindBody(ps *parser.ParserBuffer) error {
-    data := make([][]byte, 0)
+	data := make([][]byte, 0)
 	for !ps.Empty() {
 		str, err := ps.ExpectString()
 		if err != nil {

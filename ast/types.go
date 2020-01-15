@@ -280,18 +280,24 @@ func (self *TypeUse) ParseNoNames(ps *parser.ParserBuffer) error {
 }
 
 func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allow_names bool) error {
-    if matchKeyword(ps.Peek2Token(), "type") {
-    	err := ps.Parens(func(ps *parser.ParserBuffer) error {
-    		return self.Type.Parse(ps)
+	if matchKeyword(ps.Peek2Token(), "type") {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
+			err := self.Type.Parse(ps)
+			if err != nil {
+				return err
+			}
+			self.Index.Parse(ps)
+			return nil
 		})
-    	if err != nil {
-    		return err
+		if err != nil {
+			return err
 		}
 	}
 	ft := FunctionType{}
 	if matchKeyword(ps.Peek2Token(), "param") || matchKeyword(ps.Peek2Token(), "result") {
-		ft.Parse()
+		return ft.ParseBody(ps)
 	}
+	return nil
 }
 
 func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {

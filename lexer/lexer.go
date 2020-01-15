@@ -191,7 +191,7 @@ func (self *FloatVal) ToFloat32() (uint32, error) {
 		if self.exponent != "" {
 			s += "e" + self.decimal
 		}
-		f, err := strconv.ParseFloat(s,32)
+		f, err := strconv.ParseFloat(s, 32)
 		if err != nil {
 			return 0, err
 		}

@@ -295,19 +295,14 @@ func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 }
 
 type BlockType struct {
-	Label Id
+	Label OptionId
 	Ty    TypeUse
 }
 
 func (self *BlockType) Parse(ps *parser.ParserBuffer) error {
-	var id Id
-	err := id.Parse(ps)
-	if err != nil {
-		return err
-	}
-	self.Label = id
+	self.Label.Parse(ps)
 	ty := TypeUse{}
-	err = ty.ParseNoNames(ps)
+	err := ty.ParseNoNames(ps)
 	if err != nil {
 		return err
 	}

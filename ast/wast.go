@@ -24,11 +24,8 @@ type Wast struct {
 
 func (self *Wast) Parse(ps *parser.ParserBuffer) error {
 	if isWastDirectiveToken(ps.Peek2Token()) {
-		i:=0
 		for !ps.Empty() {
 			err := ps.Parens(func(ps *parser.ParserBuffer) error {
-				fmt.Printf("i:%d \n", i)
-				i++
 				dir, err := parseWastDirective(ps)
 				if err != nil {
 					return err

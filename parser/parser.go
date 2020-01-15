@@ -365,3 +365,22 @@ func (self *Cursor) String() (string, error) {
 
 	return "", errors.New("expect string token")
 }
+
+func (self *ParserBuffer) Dump() string {
+	tokens := self.tokens[self.curr:]
+
+	result := ""
+	for _, t := range tokens {
+		result += " " + t.String()
+	}
+	return result
+}
+
+func (self *ParserBuffer) DumpToStdout() {
+	str := self.Dump()
+	if len(str) > 100 {
+		str = str[:100]
+	}
+
+	fmt.Println(str)
+}

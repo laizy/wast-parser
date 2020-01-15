@@ -148,10 +148,10 @@ func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
 	}
 	self.Labels = append(self.Labels, index)
 	for !ps.Empty() {
+
 		var index Index
-		err := index.Parse(ps)
-		if err != nil {
-			return err
+		if ps.TryParse(&index) != nil {
+			break
 		}
 
 		self.Labels = append(self.Labels, index)
