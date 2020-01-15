@@ -10,7 +10,11 @@ import (
 	"github.com/go-interpreter/wagon/wasm/leb128"
 )
 
-func (self *Module) Encode() []byte {
+type Section interface {
+	Encode(w io.Writer) error
+}
+
+func (self *Module) Encode() ([]byte, error) {
 	var fields []ModuleField
 	if t, ok := self.Kind.(ModuleKindText); ok {
 		fields = t.Fields
@@ -18,18 +22,21 @@ func (self *Module) Encode() []byte {
 
 	magic := []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
 	buf := new(bytes.Buffer)
-	buf.Write(magic)
+	if _, err := buf.Write(magic); err != nil {
+		return nil, err
+	}
 
-	var types []Type
-	var imports []Import
-	var funcs []Func
-	var tables []Table
-	var memories []Memory
-	var globals []Global
-	var exports []Export
-	var start []StartField
-	var elem []Elem
-	var data []Data
+	var types []Section
+	var imports []Section
+	var funcs []Section
+	var funcsTypes []Section
+	var tables []Section
+	var memories []Section
+	var globals []Section
+	var exports []Section
+	var start []Section
+	var elem []Section
+	var data []Section
 
 	for _, field := range fields {
 		if ty, ok := field.(Type); ok {
@@ -37,7 +44,8 @@ func (self *Module) Encode() []byte {
 		} else if imp, ok := field.(Import); ok {
 			imports = append(imports, imp)
 		} else if fun, ok := field.(Func); ok {
-			funcs = append(funcs, fun)
+			funcsTypes = append(funcs, fun.Type)
+			funcs = append(funcs, fun.Type)
 		} else if table, ok := field.(Table); ok {
 			tables = append(tables, table)
 		} else if mem, ok := field.(Memory); ok {
@@ -55,7 +63,63 @@ func (self *Module) Encode() []byte {
 		}
 	}
 
-	return buf.Bytes()
+	SectionList(0x1, types, buf)
+	SectionList(0x2, imports, buf)
+	SectionList(0x3, funcsTypes, buf)
+	SectionList(0x4, tables, buf)
+	SectionList(0x5, memories, buf)
+	SectionList(0x6, globals, buf)
+	SectionList(0x7, exports, buf)
+	SectionList(0x8, start, buf)
+	SectionList(0x9, elem, buf)
+	SectionList(0xa, funcs, buf)
+	SectionList(0xb, data, buf)
+
+	return buf.Bytes(), nil
+}
+
+func SectionList(id byte, l []Section, w io.Writer) error {
+	if len(l) == 0 {
+		return nil
+	}
+
+	tmp := new(bytes.Buffer)
+	if err := ListEncode(l, tmp); err != nil {
+		return err
+	}
+
+	if err := writeByte(w, id); err != nil {
+		return err
+	}
+
+	if err := BytesEncode(tmp.Bytes(), w); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ListEncode(l []Section, w io.Writer) error {
+	if _, err := leb128.WriteVarUint32(w, uint32(len(l))); err != nil {
+		return err
+	}
+
+	for _, s := range l {
+		s.Encode(w)
+	}
+
+	return nil
+}
+
+func BytesEncode(b []byte, w io.Writer) error {
+	if _, err := leb128.WriteVarUint32(w, uint32(len(b))); err != nil {
+		return err
+	}
+
+	if _, err := w.Write(b); err != nil {
+		return err
+	}
+	return nil
 }
 
 const TypeFunc uint8 = 0x60
@@ -87,7 +151,11 @@ func (t ValType) Encode(w io.Writer) error {
 	return err
 }
 
-func (g *GlobalValType) Encode(w io.Writer) error {
+func (t Type) Encode(w io.Writer) error {
+	return t.Func.Encode(w)
+}
+
+func (g GlobalValType) Encode(w io.Writer) error {
 	if err := g.Type.Encode(w); err != nil {
 		return err
 	}
@@ -112,7 +180,7 @@ func (t TableElemType) Encode(w io.Writer) error {
 	return vt.Encode(w)
 }
 
-func (f *FunctionType) Encode(w io.Writer) error {
+func (f FunctionType) Encode(w io.Writer) error {
 	err := writeByte(w, 0x60)
 	if err != nil {
 		return err
@@ -174,7 +242,7 @@ func (t Limits) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *TableType) Encode(w io.Writer) error {
+func (t TableType) Encode(w io.Writer) error {
 	if err := t.Elem.Encode(w); err != nil {
 		return err
 	}
@@ -186,7 +254,7 @@ func (t *TableType) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *MemoryType) Encode(w io.Writer) error {
+func (t MemoryType) Encode(w io.Writer) error {
 	if err := t.Limits.Encode(w); err != nil {
 		return err
 	}
@@ -194,7 +262,7 @@ func (t *MemoryType) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *Table) Encode(w io.Writer) error {
+func (t Table) Encode(w io.Writer) error {
 	// check why can not zero
 	if len(t.Exports.Names) == 0 {
 		return errors.New("Name should not empty")
@@ -207,7 +275,7 @@ func (t *Table) Encode(w io.Writer) error {
 	return errors.New("TableKind should be normal during encoding")
 }
 
-func (t *Memory) Encode(w io.Writer) error {
+func (t Memory) Encode(w io.Writer) error {
 	if mem, ok := t.Kind.(*MemoryKindNormal); ok {
 		err := mem.Type.Encode(w)
 		if err != nil {
@@ -220,7 +288,7 @@ func (t *Memory) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *Import) Encode(w io.Writer) error {
+func (t Import) Encode(w io.Writer) error {
 	if err := writeStringUint(w, t.Module); err != nil {
 		return err
 	}
@@ -256,7 +324,7 @@ func (t *Import) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *Global) Encode(w io.Writer) error {
+func (t Global) Encode(w io.Writer) error {
 	// check why can not zero
 	if len(t.Exports.Names) == 0 {
 		return errors.New("Name should not empty")
@@ -275,7 +343,7 @@ func (t *Global) Encode(w io.Writer) error {
 	return exp.Expr.Encode(w)
 }
 
-func (t *Export) Encode(w io.Writer) error {
+func (t Export) Encode(w io.Writer) error {
 	if err := writeStringUint(w, t.Name); err != nil {
 		return err
 	}
@@ -291,32 +359,210 @@ func (t *Export) Encode(w io.Writer) error {
 	return nil
 }
 
-func (t *Elem) Encode(w io.Writer) error {
+func (t Elem) Encode(w io.Writer) error {
+	switch t.Kind.(type) {
+	case ElemKindActive:
+		active, _ := t.Kind.(ElemKindActive)
+		if !active.Table.Isnum {
+			return errors.New("expect num in Elem kind")
+		}
+
+		switch t.Payload.(type) {
+		case ElemPayloadIndices:
+			if active.Table.Num == 0 && !t.forceNonZero {
+				if err := writeByte(w, byte(0x00)); err != nil {
+					return err
+				}
+				if err := active.Offset.Encode(w); err != nil {
+					return err
+				}
+			} else {
+				if err := writeByte(w, byte(0x02)); err != nil {
+					return err
+				}
+				if err := active.Table.Encode(w); err != nil {
+					return err
+				}
+				if err := active.Offset.Encode(w); err != nil {
+					return err
+				}
+				if err := writeByte(w, byte(0x00)); err != nil {
+					return err
+				}
+			}
+		case ElemPayloadExprs:
+			expr, _ := t.Payload.(ElemPayloadExprs)
+			if active.Table.Num == 0 && expr.Type == FuncRef {
+				if err := writeByte(w, byte(0x04)); err != nil {
+					return err
+				}
+
+				if err := active.Offset.Encode(w); err != nil {
+					return err
+				}
+			} else {
+				if err := writeByte(w, byte(0x06)); err != nil {
+					return err
+				}
+
+				if err := active.Table.Encode(w); err != nil {
+					return err
+				}
+				if err := active.Offset.Encode(w); err != nil {
+					return err
+				}
+				if err := expr.Type.Encode(w); err != nil {
+					return err
+				}
+			}
+		default:
+			return errors.New("error Elem payload Kind")
+		}
+	case ElemKindPassive:
+		switch t.Payload.(type) {
+		case ElemPayloadIndices:
+			if err := writeByte(w, byte(0x01)); err != nil {
+				return err
+			}
+			if err := writeByte(w, byte(0x00)); err != nil {
+				return err
+			}
+		case ElemPayloadExprs:
+			expr, _ := t.Payload.(ElemPayloadExprs)
+			if err := writeByte(w, byte(0x05)); err != nil {
+				return err
+			}
+			if err := expr.Type.Encode(w); err != nil {
+				return err
+			}
+		default:
+			return errors.New("error Elem payload Kind")
+		}
+	default:
+		return errors.New("error Elem Kind")
+	}
+	//
+
+	if active, ok := t.Kind.(ElemKindActive); ok {
+		if !active.Table.Isnum {
+			return errors.New("expect num in Elem kind")
+		}
+
+		if _, ok := t.Payload.(ElemPayloadIndices); ok {
+			if active.Table.Num == 0 && !t.forceNonZero {
+				if err := writeByte(w, byte(0x00)); err != nil {
+					return err
+				}
+				return active.Offset.Encode(w)
+			} else {
+				if err := writeByte(w, byte(0x02)); err != nil {
+					return err
+				}
+				if err := active.Table.Encode(w); err != nil {
+					return err
+				}
+				if err := active.Offset.Encode(w); err != nil {
+					return err
+				}
+				if err := writeByte(w, byte(0x00)); err != nil {
+					return err
+				}
+			}
+		} else if expr, ok := t.Payload.(ElemPayloadExprs); ok {
+			if active.Table.Num == 0 && expr.Type == FuncRef {
+				if err := writeByte(w, byte(0x04)); err != nil {
+					return err
+				}
+
+				return active.Offset.Encode(w)
+			}
+		} else {
+			return errors.New("error Elem payload Kind")
+		}
+	} else if _, ok := t.Kind.(ElemKindPassive); ok {
+		if _, ok := t.Payload.(ElemPayloadIndices); ok {
+			if err := writeByte(w, byte(0x01)); err != nil {
+				return err
+			}
+			if err := writeByte(w, byte(0x00)); err != nil {
+				return err
+			}
+		} else if expr, ok := t.Payload.(ElemPayloadExprs); ok {
+			if err := writeByte(w, byte(0x05)); err != nil {
+				return err
+			}
+
+			if err := expr.Type.Encode(w); err != nil {
+				return err
+			}
+
+		}
+	} else {
+		return errors.New("error Elem Kind")
+	}
+
+	if err := t.Payload.Encode(w); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (t *ElemPayloadIndices) Encode(w io.Writer) error {
+func (t ElemPayloadIndices) Encode(w io.Writer) error {
+	var indices []Section
+	for _, i := range t.Indices {
+		indices = append(indices, i)
+	}
+
+	if err := ListEncode(indices, w); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (t *ElemPayloadExprs) Encode(w io.Writer) error {
+func (t ElemPayloadExprs) Encode(w io.Writer) error {
+	// to do
 	return nil
 }
 
-func (t *Data) Encode(w io.Writer) error {
+func (t Data) Encode(w io.Writer) error {
+	// todo
 	return nil
 }
 
-func (t *Func) Encode(w io.Writer) error {
+func (t Func) Encode(w io.Writer) error {
+	// to do
 	return nil
 }
 
-func (t *Expression) Encode(w io.Writer) error {
+func (t Expression) Encode(w io.Writer) error {
+	// to do
 	return nil
 }
 
-func (t *TypeUse) Encode(w io.Writer) error {
+func (t TypeUse) Encode(w io.Writer) error {
 	return t.Index.Encode(w)
+}
+
+func (t StartField) Encode(w io.Writer) error {
+	return nil
+}
+
+func (self ImportFunc) Encode(w io.Writer) error {
+	return self.TypeUse.Encode(w)
+}
+
+func (self ImportGlobal) Encode(w io.Writer) error {
+	return self.Global.Encode(w)
+}
+
+func (self ImportMemory) Encode(w io.Writer) error {
+	return self.Mem.Encode(w)
+}
+
+func (self ImportTable) Encode(w io.Writer) error {
+	return self.Table.Encode(w)
 }
 
 func (t Index) Encode(w io.Writer) error {
@@ -329,7 +575,7 @@ func (t Index) Encode(w io.Writer) error {
 	return fmt.Errorf("unresolved index in emission %s", t.Id.Name)
 }
 
-func (t *OptionIndex) Encode(w io.Writer) error {
+func (t OptionIndex) Encode(w io.Writer) error {
 	return t.ToIndex().Encode(w)
 }
 
