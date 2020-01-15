@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/ontio/wast-parser/parser"
+import (
+	"fmt"
+
+	"github.com/ontio/wast-parser/parser"
+)
 
 type Block struct {
 	BlockType BlockType
@@ -41,7 +45,21 @@ type Else struct {
 }
 
 func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
-	err := self.Id.Parse(ps)
+	self.Id.Parse(ps)
+
+	return nil
+}
+
+func (self *Else) String() string {
+	return "else"
+}
+
+type Loop struct {
+	BlockType BlockType
+}
+
+func (self *Loop) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.BlockType.Parse(ps)
 	if err != nil {
 		return err
 	}
@@ -49,8 +67,22 @@ func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *Else) String() string {
-	return "else"
+func (self *Loop) String() string {
+	return "loop"
+}
+
+type End struct {
+	Id OptionId
+}
+
+func (self *End) parseInstrBody(ps *parser.ParserBuffer) error {
+	self.Id.Parse(ps)
+
+	return nil
+}
+
+func (self *End) String() string {
+	return "end"
 }
 
 type Unreachable struct {
@@ -354,6 +386,397 @@ func (self *TableSet) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *TableSet) String() string {
 	return "table.set"
+}
+
+type I32Load struct {
+	MemArg MemArg
+}
+
+func (self *I32Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load) String() string {
+	return "i32.load"
+}
+
+type I64Load struct {
+	MemArg MemArg
+}
+
+func (self *I64Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load) String() string {
+	return "i64.load"
+}
+
+type F32Load struct {
+	MemArg MemArg
+}
+
+func (self *F32Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F32Load) String() string {
+	return "f32.load"
+}
+
+type F64Load struct {
+	MemArg MemArg
+}
+
+func (self *F64Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F64Load) String() string {
+	return "f64.load"
+}
+
+type I32Load8s struct {
+	MemArg MemArg
+}
+
+func (self *I32Load8s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load8s) String() string {
+	return "i32.load8_s"
+}
+
+type I32Load8u struct {
+	MemArg MemArg
+}
+
+func (self *I32Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load8u) String() string {
+	return "i32.load8_u"
+}
+
+type I32Load16s struct {
+	MemArg MemArg
+}
+
+func (self *I32Load16s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load16s) String() string {
+	return "i32.load16_s"
+}
+
+type I32Load16u struct {
+	MemArg MemArg
+}
+
+func (self *I32Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load16u) String() string {
+	return "i32.load16_u"
+}
+
+type I64Load8s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load8s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load8s) String() string {
+	return "i64.load8_s"
+}
+
+type I64Load8u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load8u) String() string {
+	return "i64.load8_u"
+}
+
+type I64Load16s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load16s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load16s) String() string {
+	return "i64.load16_s"
+}
+
+type I64Load16u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load16u) String() string {
+	return "i64.load16_u"
+}
+
+type I64Load32s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load32s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load32s) String() string {
+	return "i64.load32_s"
+}
+
+type I64Load32u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load32u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load32u) String() string {
+	return "i64.load32_u"
+}
+
+type I32Store struct {
+	MemArg MemArg
+}
+
+func (self *I32Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store) String() string {
+	return "i32.store"
+}
+
+type I64Store struct {
+	MemArg MemArg
+}
+
+func (self *I64Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store) String() string {
+	return "i64.store"
+}
+
+type F32Store struct {
+	MemArg MemArg
+}
+
+func (self *F32Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F32Store) String() string {
+	return "f32.store"
+}
+
+type F64Store struct {
+	MemArg MemArg
+}
+
+func (self *F64Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F64Store) String() string {
+	return "f64.store"
+}
+
+type I32Store8 struct {
+	MemArg MemArg
+}
+
+func (self *I32Store8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store8) String() string {
+	return "i32.store8"
+}
+
+type I32Store16 struct {
+	MemArg MemArg
+}
+
+func (self *I32Store16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store16) String() string {
+	return "i32.store16"
+}
+
+type I64Store8 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store8) String() string {
+	return "i64.store8"
+}
+
+type I64Store16 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store16) String() string {
+	return "i64.store16"
+}
+
+type I64Store32 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store32) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store32) String() string {
+	return "i64.store32"
 }
 
 type MemorySize struct {
@@ -2262,6 +2685,1174 @@ func (self *I64Extend32S) String() string {
 	return "i64.extend32_s"
 }
 
+type AtomicNotify struct {
+	MemArg MemArg
+}
+
+func (self *AtomicNotify) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *AtomicNotify) String() string {
+	return "atomic.notify"
+}
+
+type I32AtomicWait struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicWait) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicWait) String() string {
+	return "i32.atomic.wait"
+}
+
+type I64AtomicWait struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicWait) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicWait) String() string {
+	return "i64.atomic.wait"
+}
+
+type AtomicFence struct {
+}
+
+func (self *AtomicFence) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *AtomicFence) String() string {
+	return "atomic.fence"
+}
+
+type I32AtomicLoad struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicLoad) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicLoad) String() string {
+	return "i32.atomic.load"
+}
+
+type I64AtomicLoad struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicLoad) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicLoad) String() string {
+	return "i64.atomic.load"
+}
+
+type I32AtomicLoad8u struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicLoad8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicLoad8u) String() string {
+	return "i32.atomic.load8_u"
+}
+
+type I32AtomicLoad16u struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicLoad16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicLoad16u) String() string {
+	return "i32.atomic.load16_u"
+}
+
+type I64AtomicLoad8u struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicLoad8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicLoad8u) String() string {
+	return "i64.atomic.load8_u"
+}
+
+type I64AtomicLoad16u struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicLoad16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicLoad16u) String() string {
+	return "i64.atomic.load16_u"
+}
+
+type I64AtomicLoad32u struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicLoad32u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicLoad32u) String() string {
+	return "i64.atomic.load32_u"
+}
+
+type I32AtomicStore struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicStore) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicStore) String() string {
+	return "i32.atomic.store"
+}
+
+type I64AtomicStore struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicStore) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicStore) String() string {
+	return "i64.atomic.store"
+}
+
+type I32AtomicStore8 struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicStore8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicStore8) String() string {
+	return "i32.atomic.store8"
+}
+
+type I32AtomicStore16 struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicStore16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicStore16) String() string {
+	return "i32.atomic.store16"
+}
+
+type I64AtomicStore8 struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicStore8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicStore8) String() string {
+	return "i64.atomic.store8"
+}
+
+type I64AtomicStore16 struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicStore16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicStore16) String() string {
+	return "i64.atomic.store16"
+}
+
+type I64AtomicStore32 struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicStore32) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicStore32) String() string {
+	return "i64.atomic.store32"
+}
+
+type I32AtomicRmwAdd struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwAdd) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwAdd) String() string {
+	return "i32.atomic.rmw.add"
+}
+
+type I64AtomicRmwAdd struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwAdd) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwAdd) String() string {
+	return "i64.atomic.rmw.add"
+}
+
+type I32AtomicRmw8AddU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8AddU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8AddU) String() string {
+	return "i32.atomic.rmw8.add_u"
+}
+
+type I32AtomicRmw16AddU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16AddU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16AddU) String() string {
+	return "i32.atomic.rmw16.add_u"
+}
+
+type I64AtomicRmw8AddU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8AddU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8AddU) String() string {
+	return "i64.atomic.rmw8.add_u"
+}
+
+type I64AtomicRmw16AddU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16AddU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16AddU) String() string {
+	return "i64.atomic.rmw16.add_u"
+}
+
+type I64AtomicRmw32AddU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32AddU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32AddU) String() string {
+	return "i64.atomic.rmw32.add_u"
+}
+
+type I32AtomicRmwSub struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwSub) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwSub) String() string {
+	return "i32.atomic.rmw.sub"
+}
+
+type I64AtomicRmwSub struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwSub) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwSub) String() string {
+	return "i64.atomic.rmw.sub"
+}
+
+type I32AtomicRmw8SubU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8SubU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8SubU) String() string {
+	return "i32.atomic.rmw8.sub_u"
+}
+
+type I32AtomicRmw16SubU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16SubU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16SubU) String() string {
+	return "i32.atomic.rmw16.sub_u"
+}
+
+type I64AtomicRmw8SubU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8SubU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8SubU) String() string {
+	return "i64.atomic.rmw8.sub_u"
+}
+
+type I64AtomicRmw16SubU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16SubU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16SubU) String() string {
+	return "i64.atomic.rmw16.sub_u"
+}
+
+type I64AtomicRmw32SubU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32SubU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32SubU) String() string {
+	return "i64.atomic.rmw32.sub_u"
+}
+
+type I32AtomicRmwAnd struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwAnd) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwAnd) String() string {
+	return "i32.atomic.rmw.and"
+}
+
+type I64AtomicRmwAnd struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwAnd) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwAnd) String() string {
+	return "i64.atomic.rmw.and"
+}
+
+type I32AtomicRmw8AndU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8AndU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8AndU) String() string {
+	return "i32.atomic.rmw8.and_u"
+}
+
+type I32AtomicRmw16AndU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16AndU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16AndU) String() string {
+	return "i32.atomic.rmw16.and_u"
+}
+
+type I64AtomicRmw8AndU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8AndU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8AndU) String() string {
+	return "i64.atomic.rmw8.and_u"
+}
+
+type I64AtomicRmw16AndU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16AndU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16AndU) String() string {
+	return "i64.atomic.rmw16.and_u"
+}
+
+type I64AtomicRmw32AndU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32AndU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32AndU) String() string {
+	return "i64.atomic.rmw32.and_u"
+}
+
+type I32AtomicRmwOr struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwOr) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwOr) String() string {
+	return "i32.atomic.rmw.or"
+}
+
+type I64AtomicRmwOr struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwOr) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwOr) String() string {
+	return "i64.atomic.rmw.or"
+}
+
+type I32AtomicRmw8OrU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8OrU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8OrU) String() string {
+	return "i32.atomic.rmw8.or_u"
+}
+
+type I32AtomicRmw16OrU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16OrU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16OrU) String() string {
+	return "i32.atomic.rmw16.or_u"
+}
+
+type I64AtomicRmw8OrU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8OrU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8OrU) String() string {
+	return "i64.atomic.rmw8.or_u"
+}
+
+type I64AtomicRmw16OrU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16OrU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16OrU) String() string {
+	return "i64.atomic.rmw16.or_u"
+}
+
+type I64AtomicRmw32OrU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32OrU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32OrU) String() string {
+	return "i64.atomic.rmw32.or_u"
+}
+
+type I32AtomicRmwXor struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwXor) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwXor) String() string {
+	return "i32.atomic.rmw.xor"
+}
+
+type I64AtomicRmwXor struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwXor) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwXor) String() string {
+	return "i64.atomic.rmw.xor"
+}
+
+type I32AtomicRmw8XorU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8XorU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8XorU) String() string {
+	return "i32.atomic.rmw8.xor_u"
+}
+
+type I32AtomicRmw16XorU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16XorU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16XorU) String() string {
+	return "i32.atomic.rmw16.xor_u"
+}
+
+type I64AtomicRmw8XorU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8XorU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8XorU) String() string {
+	return "i64.atomic.rmw8.xor_u"
+}
+
+type I64AtomicRmw16XorU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16XorU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16XorU) String() string {
+	return "i64.atomic.rmw16.xor_u"
+}
+
+type I64AtomicRmw32XorU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32XorU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32XorU) String() string {
+	return "i64.atomic.rmw32.xor_u"
+}
+
+type I32AtomicRmwXchg struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwXchg) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwXchg) String() string {
+	return "i32.atomic.rmw.xchg"
+}
+
+type I64AtomicRmwXchg struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwXchg) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwXchg) String() string {
+	return "i64.atomic.rmw.xchg"
+}
+
+type I32AtomicRmw8XchgU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8XchgU) String() string {
+	return "i32.atomic.rmw8.xchg_u"
+}
+
+type I32AtomicRmw16XchgU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16XchgU) String() string {
+	return "i32.atomic.rmw16.xchg_u"
+}
+
+type I64AtomicRmw8XchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8XchgU) String() string {
+	return "i64.atomic.rmw8.xchg_u"
+}
+
+type I64AtomicRmw16XchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16XchgU) String() string {
+	return "i64.atomic.rmw16.xchg_u"
+}
+
+type I64AtomicRmw32XchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32XchgU) String() string {
+	return "i64.atomic.rmw32.xchg_u"
+}
+
+type I32AtomicRmwCmpxchg struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmwCmpxchg) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmwCmpxchg) String() string {
+	return "i32.atomic.rmw.cmpxchg"
+}
+
+type I64AtomicRmwCmpxchg struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmwCmpxchg) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmwCmpxchg) String() string {
+	return "i64.atomic.rmw.cmpxchg"
+}
+
+type I32AtomicRmw8CmpxchgU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw8CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw8CmpxchgU) String() string {
+	return "i32.atomic.rmw8.cmpxchg_u"
+}
+
+type I32AtomicRmw16CmpxchgU struct {
+	MemArg MemArg
+}
+
+func (self *I32AtomicRmw16CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32AtomicRmw16CmpxchgU) String() string {
+	return "i32.atomic.rmw16.cmpxchg_u"
+}
+
+type I64AtomicRmw8CmpxchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw8CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw8CmpxchgU) String() string {
+	return "i64.atomic.rmw8.cmpxchg_u"
+}
+
+type I64AtomicRmw16CmpxchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw16CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw16CmpxchgU) String() string {
+	return "i64.atomic.rmw16.cmpxchg_u"
+}
+
+type I64AtomicRmw32CmpxchgU struct {
+	MemArg MemArg
+}
+
+func (self *I64AtomicRmw32CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64AtomicRmw32CmpxchgU) String() string {
+	return "i64.atomic.rmw32.cmpxchg_u"
+}
+
+type V128Load struct {
+	MemArg MemArg
+}
+
+func (self *V128Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 16)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V128Load) String() string {
+	return "v128.load"
+}
+
+type V128Store struct {
+	MemArg MemArg
+}
+
+func (self *V128Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 16)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V128Store) String() string {
+	return "v128.store"
+}
+
 type I8x16Eq struct {
 }
 
@@ -3678,6 +5269,74 @@ func (self *V8x16Swizzle) String() string {
 	return "v8x16.swizzle"
 }
 
+type V8x16LoadSplat struct {
+	MemArg MemArg
+}
+
+func (self *V8x16LoadSplat) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V8x16LoadSplat) String() string {
+	return "v8x16.load_splat"
+}
+
+type V16x8LoadSplat struct {
+	MemArg MemArg
+}
+
+func (self *V16x8LoadSplat) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V16x8LoadSplat) String() string {
+	return "v16x8.load_splat"
+}
+
+type V32x4LoadSplat struct {
+	MemArg MemArg
+}
+
+func (self *V32x4LoadSplat) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V32x4LoadSplat) String() string {
+	return "v32x4.load_splat"
+}
+
+type V64x2LoadSplat struct {
+	MemArg MemArg
+}
+
+func (self *V64x2LoadSplat) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *V64x2LoadSplat) String() string {
+	return "v64x2.load_splat"
+}
+
 type I8x16NarrowI16x8S struct {
 }
 
@@ -3822,6 +5481,108 @@ func (self *I32x4WidenHighI16x8u) String() string {
 	return "i32x4.widen_high_i16x8_u"
 }
 
+type I16x8Load8x8S struct {
+	MemArg MemArg
+}
+
+func (self *I16x8Load8x8S) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I16x8Load8x8S) String() string {
+	return "i16x8.load8x8_s"
+}
+
+type I16x8Load8x8U struct {
+	MemArg MemArg
+}
+
+func (self *I16x8Load8x8U) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I16x8Load8x8U) String() string {
+	return "i16x8.load8x8_u"
+}
+
+type I32x4Load16x4S struct {
+	MemArg MemArg
+}
+
+func (self *I32x4Load16x4S) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32x4Load16x4S) String() string {
+	return "i32x4.load16x4_s"
+}
+
+type I32x4Load16x4U struct {
+	MemArg MemArg
+}
+
+func (self *I32x4Load16x4U) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32x4Load16x4U) String() string {
+	return "i32x4.load16x4_u"
+}
+
+type I64x2Load32x2S struct {
+	MemArg MemArg
+}
+
+func (self *I64x2Load32x2S) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64x2Load32x2S) String() string {
+	return "i64x2.load32x2_s"
+}
+
+type I64x2Load32x2U struct {
+	MemArg MemArg
+}
+
+func (self *I64x2Load32x2U) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64x2Load32x2U) String() string {
+	return "i64x2.load32x2_u"
+}
+
 type V128Andnot struct {
 }
 
@@ -3847,6 +5608,10 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &If{}
 	case "else":
 		inst = &Else{}
+	case "loop":
+		inst = &Loop{}
+	case "end":
+		inst = &End{}
 	case "unreachable":
 		inst = &Unreachable{}
 	case "nop":
@@ -3885,6 +5650,52 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &TableGet{}
 	case "table.set":
 		inst = &TableSet{}
+	case "i32.load":
+		inst = &I32Load{}
+	case "i64.load":
+		inst = &I64Load{}
+	case "f32.load":
+		inst = &F32Load{}
+	case "f64.load":
+		inst = &F64Load{}
+	case "i32.load8_s":
+		inst = &I32Load8s{}
+	case "i32.load8_u":
+		inst = &I32Load8u{}
+	case "i32.load16_s":
+		inst = &I32Load16s{}
+	case "i32.load16_u":
+		inst = &I32Load16u{}
+	case "i64.load8_s":
+		inst = &I64Load8s{}
+	case "i64.load8_u":
+		inst = &I64Load8u{}
+	case "i64.load16_s":
+		inst = &I64Load16s{}
+	case "i64.load16_u":
+		inst = &I64Load16u{}
+	case "i64.load32_s":
+		inst = &I64Load32s{}
+	case "i64.load32_u":
+		inst = &I64Load32u{}
+	case "i32.store":
+		inst = &I32Store{}
+	case "i64.store":
+		inst = &I64Store{}
+	case "f32.store":
+		inst = &F32Store{}
+	case "f64.store":
+		inst = &F64Store{}
+	case "i32.store8":
+		inst = &I32Store8{}
+	case "i32.store16":
+		inst = &I32Store16{}
+	case "i64.store8":
+		inst = &I64Store8{}
+	case "i64.store16":
+		inst = &I64Store16{}
+	case "i64.store32":
+		inst = &I64Store32{}
 	case "memory.size", "current_memory":
 		inst = &MemorySize{}
 	case "memory.grow", "grow_memory":
@@ -4193,6 +6004,144 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &I64Extend16S{}
 	case "i64.extend32_s":
 		inst = &I64Extend32S{}
+	case "atomic.notify":
+		inst = &AtomicNotify{}
+	case "i32.atomic.wait":
+		inst = &I32AtomicWait{}
+	case "i64.atomic.wait":
+		inst = &I64AtomicWait{}
+	case "atomic.fence":
+		inst = &AtomicFence{}
+	case "i32.atomic.load":
+		inst = &I32AtomicLoad{}
+	case "i64.atomic.load":
+		inst = &I64AtomicLoad{}
+	case "i32.atomic.load8_u":
+		inst = &I32AtomicLoad8u{}
+	case "i32.atomic.load16_u":
+		inst = &I32AtomicLoad16u{}
+	case "i64.atomic.load8_u":
+		inst = &I64AtomicLoad8u{}
+	case "i64.atomic.load16_u":
+		inst = &I64AtomicLoad16u{}
+	case "i64.atomic.load32_u":
+		inst = &I64AtomicLoad32u{}
+	case "i32.atomic.store":
+		inst = &I32AtomicStore{}
+	case "i64.atomic.store":
+		inst = &I64AtomicStore{}
+	case "i32.atomic.store8":
+		inst = &I32AtomicStore8{}
+	case "i32.atomic.store16":
+		inst = &I32AtomicStore16{}
+	case "i64.atomic.store8":
+		inst = &I64AtomicStore8{}
+	case "i64.atomic.store16":
+		inst = &I64AtomicStore16{}
+	case "i64.atomic.store32":
+		inst = &I64AtomicStore32{}
+	case "i32.atomic.rmw.add":
+		inst = &I32AtomicRmwAdd{}
+	case "i64.atomic.rmw.add":
+		inst = &I64AtomicRmwAdd{}
+	case "i32.atomic.rmw8.add_u":
+		inst = &I32AtomicRmw8AddU{}
+	case "i32.atomic.rmw16.add_u":
+		inst = &I32AtomicRmw16AddU{}
+	case "i64.atomic.rmw8.add_u":
+		inst = &I64AtomicRmw8AddU{}
+	case "i64.atomic.rmw16.add_u":
+		inst = &I64AtomicRmw16AddU{}
+	case "i64.atomic.rmw32.add_u":
+		inst = &I64AtomicRmw32AddU{}
+	case "i32.atomic.rmw.sub":
+		inst = &I32AtomicRmwSub{}
+	case "i64.atomic.rmw.sub":
+		inst = &I64AtomicRmwSub{}
+	case "i32.atomic.rmw8.sub_u":
+		inst = &I32AtomicRmw8SubU{}
+	case "i32.atomic.rmw16.sub_u":
+		inst = &I32AtomicRmw16SubU{}
+	case "i64.atomic.rmw8.sub_u":
+		inst = &I64AtomicRmw8SubU{}
+	case "i64.atomic.rmw16.sub_u":
+		inst = &I64AtomicRmw16SubU{}
+	case "i64.atomic.rmw32.sub_u":
+		inst = &I64AtomicRmw32SubU{}
+	case "i32.atomic.rmw.and":
+		inst = &I32AtomicRmwAnd{}
+	case "i64.atomic.rmw.and":
+		inst = &I64AtomicRmwAnd{}
+	case "i32.atomic.rmw8.and_u":
+		inst = &I32AtomicRmw8AndU{}
+	case "i32.atomic.rmw16.and_u":
+		inst = &I32AtomicRmw16AndU{}
+	case "i64.atomic.rmw8.and_u":
+		inst = &I64AtomicRmw8AndU{}
+	case "i64.atomic.rmw16.and_u":
+		inst = &I64AtomicRmw16AndU{}
+	case "i64.atomic.rmw32.and_u":
+		inst = &I64AtomicRmw32AndU{}
+	case "i32.atomic.rmw.or":
+		inst = &I32AtomicRmwOr{}
+	case "i64.atomic.rmw.or":
+		inst = &I64AtomicRmwOr{}
+	case "i32.atomic.rmw8.or_u":
+		inst = &I32AtomicRmw8OrU{}
+	case "i32.atomic.rmw16.or_u":
+		inst = &I32AtomicRmw16OrU{}
+	case "i64.atomic.rmw8.or_u":
+		inst = &I64AtomicRmw8OrU{}
+	case "i64.atomic.rmw16.or_u":
+		inst = &I64AtomicRmw16OrU{}
+	case "i64.atomic.rmw32.or_u":
+		inst = &I64AtomicRmw32OrU{}
+	case "i32.atomic.rmw.xor":
+		inst = &I32AtomicRmwXor{}
+	case "i64.atomic.rmw.xor":
+		inst = &I64AtomicRmwXor{}
+	case "i32.atomic.rmw8.xor_u":
+		inst = &I32AtomicRmw8XorU{}
+	case "i32.atomic.rmw16.xor_u":
+		inst = &I32AtomicRmw16XorU{}
+	case "i64.atomic.rmw8.xor_u":
+		inst = &I64AtomicRmw8XorU{}
+	case "i64.atomic.rmw16.xor_u":
+		inst = &I64AtomicRmw16XorU{}
+	case "i64.atomic.rmw32.xor_u":
+		inst = &I64AtomicRmw32XorU{}
+	case "i32.atomic.rmw.xchg":
+		inst = &I32AtomicRmwXchg{}
+	case "i64.atomic.rmw.xchg":
+		inst = &I64AtomicRmwXchg{}
+	case "i32.atomic.rmw8.xchg_u":
+		inst = &I32AtomicRmw8XchgU{}
+	case "i32.atomic.rmw16.xchg_u":
+		inst = &I32AtomicRmw16XchgU{}
+	case "i64.atomic.rmw8.xchg_u":
+		inst = &I64AtomicRmw8XchgU{}
+	case "i64.atomic.rmw16.xchg_u":
+		inst = &I64AtomicRmw16XchgU{}
+	case "i64.atomic.rmw32.xchg_u":
+		inst = &I64AtomicRmw32XchgU{}
+	case "i32.atomic.rmw.cmpxchg":
+		inst = &I32AtomicRmwCmpxchg{}
+	case "i64.atomic.rmw.cmpxchg":
+		inst = &I64AtomicRmwCmpxchg{}
+	case "i32.atomic.rmw8.cmpxchg_u":
+		inst = &I32AtomicRmw8CmpxchgU{}
+	case "i32.atomic.rmw16.cmpxchg_u":
+		inst = &I32AtomicRmw16CmpxchgU{}
+	case "i64.atomic.rmw8.cmpxchg_u":
+		inst = &I64AtomicRmw8CmpxchgU{}
+	case "i64.atomic.rmw16.cmpxchg_u":
+		inst = &I64AtomicRmw16CmpxchgU{}
+	case "i64.atomic.rmw32.cmpxchg_u":
+		inst = &I64AtomicRmw32CmpxchgU{}
+	case "v128.load":
+		inst = &V128Load{}
+	case "v128.store":
+		inst = &V128Store{}
 	case "i8x16.eq":
 		inst = &I8x16Eq{}
 	case "i8x16.ne":
@@ -4429,6 +6378,14 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &F64x2ConvertI64x2U{}
 	case "v8x16.swizzle":
 		inst = &V8x16Swizzle{}
+	case "v8x16.load_splat":
+		inst = &V8x16LoadSplat{}
+	case "v16x8.load_splat":
+		inst = &V16x8LoadSplat{}
+	case "v32x4.load_splat":
+		inst = &V32x4LoadSplat{}
+	case "v64x2.load_splat":
+		inst = &V64x2LoadSplat{}
 	case "i8x16.narrow_i16x8_s":
 		inst = &I8x16NarrowI16x8S{}
 	case "i8x16.narrow_i16x8_u":
@@ -4453,10 +6410,22 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &I32x4WidenLowI16x8U{}
 	case "i32x4.widen_high_i16x8_u":
 		inst = &I32x4WidenHighI16x8u{}
+	case "i16x8.load8x8_s":
+		inst = &I16x8Load8x8S{}
+	case "i16x8.load8x8_u":
+		inst = &I16x8Load8x8U{}
+	case "i32x4.load16x4_s":
+		inst = &I32x4Load16x4S{}
+	case "i32x4.load16x4_u":
+		inst = &I32x4Load16x4U{}
+	case "i64x2.load32x2_s":
+		inst = &I64x2Load32x2S{}
+	case "i64x2.load32x2_u":
+		inst = &I64x2Load32x2U{}
 	case "v128.andnot":
 		inst = &V128Andnot{}
 	default:
-		panic("todo")
+		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}
 	err = inst.parseInstrBody(ps)
 	if err != nil {
