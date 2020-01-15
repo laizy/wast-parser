@@ -92,9 +92,18 @@ func (self *MemoryKindNormal) parseMemoryKindBody(ps *parser.ParserBuffer) error
 }
 
 type MemoryKindInline struct {
-	Val []byte
+	Val [][]byte
 }
 
 func (self *MemoryKindInline) parseMemoryKindBody(ps *parser.ParserBuffer) error {
-	panic("todo")
+    data := make([][]byte, 0)
+	for !ps.Empty() {
+		str, err := ps.ExpectString()
+		if err != nil {
+			return err
+		}
+		data = append(data, []byte(str))
+	}
+	self.Val = data
+	return nil
 }

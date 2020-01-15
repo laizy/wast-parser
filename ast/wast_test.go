@@ -21,6 +21,7 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 	fnames = []string{
 		"../tests/spectestdata/data.wast",
 		"../tests/spectestdata/address.wast",
+		"../tests/spectestdata/memory.wast",
 	}
 	for _, name := range fnames {
 		if !strings.HasSuffix(name, ".wast") {
@@ -42,11 +43,13 @@ func TestWastParsing(t *testing.T) {
 	assert.Nil(t, err)
 
 	for name, content := range wasts {
+		if name != "memory.wast" {
+			continue
+		}
 		ps, err := parser.NewParserBuffer(string(content))
 		assert.Nil(t, err)
 		var wast Wast
 		err = wast.Parse(ps)
 		assert.Nil(t, err, fmt.Errorf("parse %s error", name))
 	}
-
 }

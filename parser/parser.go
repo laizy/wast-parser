@@ -124,6 +124,17 @@ func (self *ParserBuffer) ExpectInteger() (lexer.Integer, error) {
 	return val, nil
 }
 
+func (self *ParserBuffer) ExpectByteArray() (lexer.Integer, error) {
+	cursor := self.Cursor()
+	val, err := cursor.Integer()
+	if err != nil {
+		return val, err
+	}
+
+	self.curr = cursor.curr
+	return val, nil
+}
+
 func (self *ParserBuffer) ExpectInt64() (int64, error) {
 	val, err := self.ExpectInteger()
 	if err != nil {
@@ -332,7 +343,6 @@ func (self *Cursor) Integer() (val lexer.Integer, err error) {
 			return t, nil
 		}
 	}
-
 	return val, errors.New("expect integer")
 }
 
@@ -343,7 +353,7 @@ func (self *Cursor) Float() (val lexer.FloatVal, err error) {
 		}
 	}
 
-	return val, errors.New("expect integer")
+	return val, errors.New("expect float")
 }
 
 func (self *Cursor) String() (string, error) {
