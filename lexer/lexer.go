@@ -120,12 +120,12 @@ func (self Integer) String() string {
 }
 
 func (self *Integer) ToUint(bitSize int) (uint64, error) {
-	base := 10
-	if self.Hex {
-		base = 16
+	val, err := self.ToInt(bitSize)
+	if err != nil {
+		return 0, err
 	}
 
-	return strconv.ParseUint(self.Val, base, bitSize)
+	return uint64(val), nil
 }
 
 func (self *Integer) ToInt(bitSize int) (int64, error) {
@@ -154,7 +154,9 @@ func (self implFloat) Type() TokenType {
 
 type Nan struct {
 	implFloat
-	Neg bool
+	SpecBit bool //whether use val to encode for this float
+	Val     uint64
+	Neg     bool
 }
 
 type Inf struct {
@@ -164,10 +166,10 @@ type Inf struct {
 
 type FloatVal struct {
 	implFloat
-	hex      bool
-	integral string
-	decimal  string
-	exponent string
+	Hex      bool
+	Integral string
+	Decimal  string
+	Exponent string
 }
 
 func number(num string) Token {
@@ -177,14 +179,6 @@ func number(num string) Token {
 	} else if strings.HasPrefix(num, "-") {
 		negative = true
 		num = num[1:]
-	}
-
-	if num == "inf" {
-		return Inf{Neg: negative}
-	} else if num == "nan" {
-		return Nan{Neg: negative}
-	} else if strings.HasPrefix(num, "nan:0x") {
-		panic("unimplemented")
 	}
 
 	skipUnderscore := func(num string, negative bool, valid func(b byte) bool) (string, string) {
@@ -222,6 +216,23 @@ func number(num string) Token {
 		}
 
 		return num[last:], string(result)
+	}
+
+	if num == "inf" {
+		return Inf{Neg: negative}
+	} else if num == "nan" {
+		return Nan{Neg: negative}
+	} else if strings.HasPrefix(num, "nan:0x") {
+		left, val := skipUnderscore(num[6:], false, validHexDigit)
+		if len(left) != 0 {
+			return nil
+		}
+		val = strings.ToLower(val)
+		n, err := strconv.ParseUint(val, 16, 64)
+		if err != nil {
+			return nil
+		}
+		return Nan{Neg: negative, Val: n, SpecBit: true}
 	}
 
 	hex := false
@@ -278,10 +289,10 @@ func number(num string) Token {
 	}
 
 	return FloatVal{
-		hex:      hex,
-		integral: integral,
-		decimal:  decimal,
-		exponent: exponent,
+		Hex:      hex,
+		Integral: integral,
+		Decimal:  decimal,
+		Exponent: exponent,
 	}
 }
 
@@ -360,19 +371,15 @@ func (self *Lexer) SkipWhiteSpace() bool {
 
 func (self *Lexer) SkipComment() bool {
 	skipped := false
-	checked := false
-	for !checked {
-		checked = true
-
+	for {
 		if self.SkipPrefix(";;") {
 			self.ReadWhile(func(b byte) bool {
 				return b != '\n'
 			})
 			self.SkipPrefix("\n")
-			checked = false
 			skipped = true
-		}
-		if self.SkipPrefix("(;") {
+			continue
+		} else if self.SkipPrefix("(;") {
 			level := 1
 			finished := false
 			self.ReadWhile(func(b byte) bool {
@@ -390,8 +397,11 @@ func (self *Lexer) SkipComment() bool {
 				}
 				return true
 			})
-			return false
+			skipped = true
+			continue
 		}
+
+		break
 	}
 
 	return skipped
@@ -409,9 +419,7 @@ func (self *Lexer) SkipPrefix(pref string) bool {
 func (self *Lexer) Parse() (Token, error) {
 	skipped := true
 	for skipped {
-		skipped = false
-		skipped = self.SkipWhiteSpace()
-		skipped = skipped || self.SkipComment()
+		skipped = self.SkipWhiteSpace() || self.SkipComment()
 	}
 
 	if self.Eof() {
@@ -490,12 +498,12 @@ func (self *Lexer) ReadStringToken() (string, error) {
 					return "", fmt.Errorf("expected end with }")
 				}
 			default:
-				if validHexDigit(byte(c)) {
+				if validHexDigit(byte(ecs)) {
 					c2, err := self.hexdigit()
 					if err != nil {
 						return "", err
 					}
-					result += string(to_hex(c)*16 + c2)
+					result += string(to_hex(ecs)*16 + c2)
 				} else {
 					return "", fmt.Errorf("UnexpectedEof")
 				}
@@ -509,7 +517,6 @@ func (self *Lexer) ReadStringToken() (string, error) {
 			result += string(c)
 		}
 	}
-	return result, nil
 }
 
 func (self *Lexer) hexnum() (uint32, error) {
