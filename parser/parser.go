@@ -336,6 +336,16 @@ func (self *Cursor) Integer() (val lexer.Integer, err error) {
 	return val, errors.New("expect integer")
 }
 
+func (self *Cursor) Float() (val lexer.FloatVal, err error) {
+	if token := self.readToken(); token != nil {
+		if t, ok := token.(lexer.FloatVal); ok {
+			return t, nil
+		}
+	}
+
+	return val, errors.New("expect integer")
+}
+
 func (self *Cursor) String() (string, error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.String); ok {

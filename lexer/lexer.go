@@ -172,6 +172,33 @@ type FloatVal struct {
 	Exponent string
 }
 
+func (self *FloatVal) ToFloat32() (uint32, error) {
+	//width := uint32(4)
+	//neg_offset := width - 1
+	//u, err := strconv.ParseUint(self.exponent, 10, 4)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//exp_offset := neg_offset - uint32(u)
+	//signif_bits := width - 1 - uint32(u)
+	//signif_mask := (1 << exp_offset) - 1
+	//bias := (1 << (u - 1)) - 1
+	//f, err := strconv.ParseFloat(self.integral, 64)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//s := self.integral
+	//if self.hex == false {
+	//	if self.decimal != "" {
+	//		s += "." + self.decimal
+	//	}
+	//	if self.exponent != "" {
+	//		s += "e" + self.decimal
+	//	}
+	//}
+	return 0, nil
+}
+
 func number(num string) Token {
 	negative := false
 	if strings.HasPrefix(num, "+") {

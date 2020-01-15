@@ -271,6 +271,7 @@ func (self *Float32) Parse(ps *parser.ParserBuffer) error {
 
 type Float64 struct {
 	Bits uint64
+	val  float64
 }
 
 func (self *Float64) Parse(ps *parser.ParserBuffer) error {
