@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/ontio/wast-parser/parser"
 )
@@ -16,6 +17,7 @@ type Import struct {
 
 type ImportItem interface {
 	ImportType() string
+	Encode(w io.Writer) error
 }
 
 type ImportFunc struct {
@@ -23,24 +25,36 @@ type ImportFunc struct {
 }
 
 func (self ImportFunc) ImportType() string { return "func" }
+func (self ImportFunc) Encode(w io.Writer) error {
+	return self.TypeUse.Encode(w)
+}
 
 type ImportGlobal struct {
 	Global GlobalValType
 }
 
 func (self ImportGlobal) ImportType() string { return "global" }
+func (self ImportGlobal) Encode(w io.Writer) error {
+	return self.Global.Encode(w)
+}
 
 type ImportMemory struct {
 	Mem MemoryType
 }
 
 func (self ImportMemory) ImportType() string { return "memory" }
+func (self ImportMemory) Encode(w io.Writer) error {
+	return self.Mem.Encode(w)
+}
 
 type ImportTable struct {
 	Table TableType
 }
 
 func (self ImportTable) ImportType() string { return "table" }
+func (self ImportTable) Encode(w io.Writer) error {
+	return self.Table.Encode(w)
+}
 
 func (self *Import) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("import")
