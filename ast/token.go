@@ -141,25 +141,25 @@ func string2f64(val lexer.Float) (uint64, error) {
 	switch num := val.(type) {
 	case lexer.Inf:
 		exprBits := uint64((1 << expBits) - 1)
-		negBits :=  uint64(0)
+		negBits := uint64(0)
 		if num.Neg {
 			negBits = 1
 		}
-		return (negBits<< negOffset) | (exprBits << expOffset), nil
+		return (negBits << negOffset) | (exprBits << expOffset), nil
 	case lexer.Nan:
 		exprBits := uint64((1 << expBits) - 1)
-		negBits :=  uint64(0)
+		negBits := uint64(0)
 		if num.Neg {
 			negBits = 1
 		}
-		signif := uint64(1<< (signifBits-1))
+		signif := uint64(1 << (signifBits - 1))
 		if num.SpecBit {
 			signif = uint64(num.Val)
 		}
-		if signif & signifMask == 0 {
+		if signif&signifMask == 0 {
 			return 0, errors.New("parse float64 error")
 		}
-		return (negBits<<negOffset) | (exprBits<<expOffset) | (signif & signifMask), nil
+		return (negBits << negOffset) | (exprBits << expOffset) | (signif & signifMask), nil
 	case lexer.FloatVal:
 		if !num.Hex {
 			s := num.Integral
@@ -199,25 +199,25 @@ func string2f32(val lexer.Float) (uint32, error) {
 	switch num := val.(type) {
 	case lexer.Inf:
 		exprBits := uint32((1 << expBits) - 1)
-		negBits :=  uint32(0)
+		negBits := uint32(0)
 		if num.Neg {
 			negBits = 1
 		}
-		return (negBits<< negOffset) | (exprBits << expOffset), nil
+		return (negBits << negOffset) | (exprBits << expOffset), nil
 	case lexer.Nan:
 		exprBits := uint32((1 << expBits) - 1)
-		negBits :=  uint32(0)
+		negBits := uint32(0)
 		if num.Neg {
 			negBits = 1
 		}
-		signif := uint32(1<< (signifBits-1))
+		signif := uint32(1 << (signifBits - 1))
 		if num.SpecBit {
 			signif = uint32(num.Val)
 		}
-		if signif & signifMask == 0 {
+		if signif&signifMask == 0 {
 			return 0, errors.New("parse float 32 error")
 		}
-		return (negBits<<negOffset) | (exprBits<<expOffset) | (signif & signifMask), nil
+		return (negBits << negOffset) | (exprBits << expOffset) | (signif & signifMask), nil
 	case lexer.FloatVal:
 		if !num.Hex {
 			s := num.Integral
@@ -255,12 +255,12 @@ func (self *Float32) Parse(ps *parser.ParserBuffer) error {
 		}
 		self.Bits, err = string2f32(val)
 		return err
-	} else if  matchTokenType(token, lexer.IntegerType) {
+	} else if matchTokenType(token, lexer.IntegerType) {
 		num, err := ps.ExpectInteger()
 		if err != nil {
 			return err
 		}
-		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral:num.Val, Decimal:"", Exponent:""})
+		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
 
@@ -280,12 +280,12 @@ func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 		}
 		self.Bits, err = string2f64(val)
 		return err
-	} else if  matchTokenType(token, lexer.IntegerType) {
+	} else if matchTokenType(token, lexer.IntegerType) {
 		num, err := ps.ExpectInteger()
 		if err != nil {
 			return err
 		}
-		self.Bits, err = string2f64(lexer.FloatVal{Hex: num.Hex, Integral:num.Val, Decimal:"", Exponent:""})
+		self.Bits, err = string2f64(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
 
