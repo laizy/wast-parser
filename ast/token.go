@@ -2,7 +2,10 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ontio/wast-parser/parser"
+	"strconv"
+	"strings"
 )
 
 type Id struct {
@@ -38,8 +41,8 @@ func (self OptionId) ToId() Id {
 	return self.name
 }
 
-func (self *OptionId) Parse(ps *parser.ParserBuffer) error {
-	return ps.TryParse(&self.name)
+func (self *OptionId) Parse(ps *parser.ParserBuffer) {
+	_ = ps.TryParse(&self.name)
 }
 
 type Index struct {
@@ -151,4 +154,62 @@ func (self *BlockType) Parse(ps *parser.ParserBuffer) error {
 	}
 	self.Ty = ty
 	return nil
+}
+
+type MemArg struct {
+	Align  uint32
+	Offset uint32
+}
+
+func (self *MemArg) Parse(ps *parser.ParserBuffer, defaultAlign uint32) error {
+	parseField := func(name string, ps *parser.ParserBuffer) (some bool, val uint32, err error) {
+		kw, err := ps.ExpectKeyword()
+		if err != nil {
+			return false, 0, err
+		}
+		if strings.HasPrefix(kw, name) == false {
+			return false, 0, nil
+		}
+		kw = kw[len(name):]
+		if strings.HasPrefix(kw, "=") == false {
+			return false, 0, nil
+		}
+		kw = kw[1:]
+		base := 10
+		if strings.HasPrefix(kw, "0x") {
+			base = 16
+			kw = kw[2:]
+		}
+		value, err := strconv.ParseUint(kw, base, 32)
+		if err != nil {
+			return false, 0, err
+		}
+		return true, uint32(value), nil
+	}
+
+	some, offset, err := parseField("offset", ps)
+	if err != nil {
+		return err
+	}
+	if !some {
+		offset = 0
+	}
+	self.Offset = offset
+	some, align, err := parseField("align", ps)
+	if err != nil {
+		self.Align = defaultAlign
+		return nil
+	}
+	if some && !isTwoPower(align) {
+		return fmt.Errorf("alignment must be a power of two, %d", align)
+	} else {
+		align = defaultAlign
+	}
+
+	self.Align = align
+	return nil
+}
+
+func isTwoPower(num uint32) bool {
+	return num&(num-1) == 0
 }

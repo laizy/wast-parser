@@ -119,7 +119,11 @@ func (self *[Name]) String() string {
 func (self Instruction) generateFields() string {
 	var fields []string
 	for _, field := range self.Fields {
-		fields = append(fields, fmt.Sprintf("%s %s", field.Name, field.Type))
+		ty := field.Type
+		if strings.HasPrefix(ty, "MemArg") {
+			ty = "MemArg"
+		}
+		fields = append(fields, fmt.Sprintf("%s %s", field.Name, ty))
 	}
 
 	return strings.Join(fields, "\n")
@@ -133,12 +137,29 @@ func (self Instruction) generateParseBody() string {
 			body += parseInt(field.Name, "Uint32")
 		case "int64":
 			body += parseInt(field.Name, "Int64")
+		case "OptionId":
+			body += parseOptionId(field.Name)
 		default:
-			body += parseGeneral(field.Name)
+			if strings.HasPrefix(field.Type, "MemArg") {
+				body += parseMemArg(field.Name, field.Type)
+			} else {
+				body += parseGeneral(field.Name)
+			}
 		}
 	}
 
 	return body
+}
+
+func parseMemArg(name string, ty string) string {
+	offset := strings.Trim(ty, "MemArg<>")
+
+	return generate(
+		`err := self.[Name].Parse(ps, [offset])
+	if err != nil {
+		return err
+	}
+`, map[string]interface{}{"Name": name, "offset": offset})
 }
 
 func parseGeneral(name string) string {
@@ -147,6 +168,11 @@ func parseGeneral(name string) string {
 	if err != nil {
 		return err
 	}
+`, map[string]interface{}{"Name": name})
+}
+
+func parseOptionId(name string) string {
+	return generate(`self.[Name].Parse(ps)
 `, map[string]interface{}{"Name": name})
 }
 
@@ -196,7 +222,7 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	switch kw {
 	[cases]
 	default:
-		panic("todo")
+		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}
 	err = inst.parseInstrBody(ps)
 	if err != nil {
@@ -212,8 +238,8 @@ func main() {
 (Block block (BlockType BlockType))
 (If if (BlockType BlockType))
 (Else else (Id OptionId))
-;;Loop(BlockType<'a>) : [0x03] : "loop",
-;;End(Option<ast::Id<'a>>) : [0x0b] : "end",
+(Loop loop (BlockType BlockType))
+(End end (Id OptionId))
 
 (Unreachable unreachable)
 (Nop nop)
@@ -236,29 +262,29 @@ func main() {
 (TableGet table.get (Index Index))
 (TableSet table.set (Index Index))
 
-;;(I32Load(MemArg<4>) i32.load)
-;;(I64Load(MemArg<8>) i64.load)
-;;(F32Load(MemArg<4>) f32.load)
-;;(F64Load(MemArg<8>) f64.load)
-;;(I32Load8s(MemArg<1>) i32.load8_s)
-;;(I32Load8u(MemArg<1>) i32.load8_u)
-;;(I32Load16s(MemArg<2>) i32.load16_s)
-;;(I32Load16u(MemArg<2>) i32.load16_u)
-;;(I64Load8s(MemArg<1>) i64.load8_s)
-;;(I64Load8u(MemArg<1>) i64.load8_u)
-;;(I64Load16s(MemArg<2>) i64.load16_s)
-;;(I64Load16u(MemArg<2>) i64.load16_u)
-;;(I64Load32s(MemArg<4>) i64.load32_s)
-;;(I64Load32u(MemArg<4>) i64.load32_u)
-;;(I32Store(MemArg<4>) i32.store)
-;;(I64Store(MemArg<8>) i64.store)
-;;(F32Store(MemArg<4>) f32.store)
-;;(F64Store(MemArg<8>) f64.store)
-;;(I32Store8(MemArg<1>) i32.store8)
-;;(I32Store16(MemArg<2>) i32.store16)
-;;(I64Store8(MemArg<1>) i64.store8)
-;;(I64Store16(MemArg<2>) i64.store16)
-;;(I64Store32(MemArg<4>) i64.store32)
+(I32Load i32.load (MemArg MemArg<4>))
+(I64Load i64.load (MemArg MemArg<8>))
+(F32Load f32.load (MemArg MemArg<4>))
+(F64Load f64.load (MemArg MemArg<8>))
+(I32Load8s i32.load8_s (MemArg MemArg<1>))
+(I32Load8u i32.load8_u (MemArg MemArg<1>))
+(I32Load16s i32.load16_s (MemArg MemArg<2>))
+(I32Load16u i32.load16_u (MemArg MemArg<2>))
+(I64Load8s i64.load8_s (MemArg MemArg<1>))
+(I64Load8u i64.load8_u (MemArg MemArg<1>))
+(I64Load16s i64.load16_s (MemArg MemArg<2>))
+(I64Load16u i64.load16_u (MemArg MemArg<2>))
+(I64Load32s i64.load32_s (MemArg MemArg<4>))
+(I64Load32u i64.load32_u (MemArg MemArg<4>))
+(I32Store i32.store (MemArg MemArg<4>))
+(I64Store i64.store (MemArg MemArg<8>))
+(F32Store f32.store (MemArg MemArg<4>))
+(F64Store f64.store (MemArg MemArg<8>))
+(I32Store8 i32.store8 (MemArg MemArg<1>))
+(I32Store16 i32.store16 (MemArg MemArg<2>))
+(I64Store8 i64.store8 (MemArg MemArg<1>))
+(I64Store16 i64.store16 (MemArg MemArg<2>))
+(I64Store32 i64.store32 (MemArg MemArg<4>))
 
 ;; Lots of bulk memory proposal here as well
 (MemorySize (memory.size current_memory))
@@ -434,87 +460,86 @@ func main() {
 (I64Extend32S i64.extend32_s)
 
 ;; atomics proposal
-;;AtomicNotify(MemArg<4>) : [0xfe, 0x00] : "atomic.notify",
-;;I32AtomicWait(MemArg<4>) : [0xfe, 0x01] : "i32.atomic.wait",
-;;I64AtomicWait(MemArg<8>) : [0xfe, 0x02] : "i64.atomic.wait",
-;;AtomicFence : [0xfe, 0x03] : "atomic.fence",
-;;
-;;I32AtomicLoad(MemArg<4>) : [0xfe, 0x10] : "i32.atomic.load",
-;;I64AtomicLoad(MemArg<8>) : [0xfe, 0x11] : "i64.atomic.load",
-;;I32AtomicLoad8u(MemArg<1>) : [0xfe, 0x12] : "i32.atomic.load8_u",
-;;I32AtomicLoad16u(MemArg<2>) : [0xfe, 0x13] : "i32.atomic.load16_u",
-;;I64AtomicLoad8u(MemArg<1>) : [0xfe, 0x14] : "i64.atomic.load8_u",
-;;I64AtomicLoad16u(MemArg<2>) : [0xfe, 0x15] : "i64.atomic.load16_u",
-;;I64AtomicLoad32u(MemArg<4>) : [0xfe, 0x16] : "i64.atomic.load32_u",
-;;I32AtomicStore(MemArg<4>) : [0xfe, 0x17] : "i32.atomic.store",
-;;I64AtomicStore(MemArg<8>) : [0xfe, 0x18] : "i64.atomic.store",
-;;I32AtomicStore8(MemArg<1>) : [0xfe, 0x19] : "i32.atomic.store8",
-;;I32AtomicStore16(MemArg<2>) : [0xfe, 0x1a] : "i32.atomic.store16",
-;;I64AtomicStore8(MemArg<1>) : [0xfe, 0x1b] : "i64.atomic.store8",
-;;I64AtomicStore16(MemArg<2>) : [0xfe, 0x1c] : "i64.atomic.store16",
-;;I64AtomicStore32(MemArg<4>) : [0xfe, 0x1d] : "i64.atomic.store32",
-;;
-;;I32AtomicRmwAdd(MemArg<4>) : [0xfe, 0x1e] : "i32.atomic.rmw.add",
-;;I64AtomicRmwAdd(MemArg<8>) : [0xfe, 0x1f] : "i64.atomic.rmw.add",
-;;I32AtomicRmw8AddU(MemArg<1>) : [0xfe, 0x20] : "i32.atomic.rmw8.add_u",
-;;I32AtomicRmw16AddU(MemArg<2>) : [0xfe, 0x21] : "i32.atomic.rmw16.add_u",
-;;I64AtomicRmw8AddU(MemArg<1>) : [0xfe, 0x22] : "i64.atomic.rmw8.add_u",
-;;I64AtomicRmw16AddU(MemArg<2>) : [0xfe, 0x23] : "i64.atomic.rmw16.add_u",
-;;I64AtomicRmw32AddU(MemArg<4>) : [0xfe, 0x24] : "i64.atomic.rmw32.add_u",
-;;
-;;I32AtomicRmwSub(MemArg<4>) : [0xfe, 0x25] : "i32.atomic.rmw.sub",
-;;I64AtomicRmwSub(MemArg<8>) : [0xfe, 0x26] : "i64.atomic.rmw.sub",
-;;I32AtomicRmw8SubU(MemArg<1>) : [0xfe, 0x27] : "i32.atomic.rmw8.sub_u",
-;;I32AtomicRmw16SubU(MemArg<2>) : [0xfe, 0x28] : "i32.atomic.rmw16.sub_u",
-;;I64AtomicRmw8SubU(MemArg<1>) : [0xfe, 0x29] : "i64.atomic.rmw8.sub_u",
-;;I64AtomicRmw16SubU(MemArg<2>) : [0xfe, 0x2a] : "i64.atomic.rmw16.sub_u",
-;;I64AtomicRmw32SubU(MemArg<4>) : [0xfe, 0x2b] : "i64.atomic.rmw32.sub_u",
-;;
-;;I32AtomicRmwAnd(MemArg<4>) : [0xfe, 0x2c] : "i32.atomic.rmw.and",
-;;I64AtomicRmwAnd(MemArg<8>) : [0xfe, 0x2d] : "i64.atomic.rmw.and",
-;;I32AtomicRmw8AndU(MemArg<1>) : [0xfe, 0x2e] : "i32.atomic.rmw8.and_u",
-;;I32AtomicRmw16AndU(MemArg<2>) : [0xfe, 0x2f] : "i32.atomic.rmw16.and_u",
-;;I64AtomicRmw8AndU(MemArg<1>) : [0xfe, 0x30] : "i64.atomic.rmw8.and_u",
-;;I64AtomicRmw16AndU(MemArg<2>) : [0xfe, 0x31] : "i64.atomic.rmw16.and_u",
-;;I64AtomicRmw32AndU(MemArg<4>) : [0xfe, 0x32] : "i64.atomic.rmw32.and_u",
-;;
-;;I32AtomicRmwOr(MemArg<4>) : [0xfe, 0x33] : "i32.atomic.rmw.or",
-;;I64AtomicRmwOr(MemArg<8>) : [0xfe, 0x34] : "i64.atomic.rmw.or",
-;;I32AtomicRmw8OrU(MemArg<1>) : [0xfe, 0x35] : "i32.atomic.rmw8.or_u",
-;;I32AtomicRmw16OrU(MemArg<2>) : [0xfe, 0x36] : "i32.atomic.rmw16.or_u",
-;;I64AtomicRmw8OrU(MemArg<1>) : [0xfe, 0x37] : "i64.atomic.rmw8.or_u",
-;;I64AtomicRmw16OrU(MemArg<2>) : [0xfe, 0x38] : "i64.atomic.rmw16.or_u",
-;;I64AtomicRmw32OrU(MemArg<4>) : [0xfe, 0x39] : "i64.atomic.rmw32.or_u",
-;;
-;;I32AtomicRmwXor(MemArg<4>) : [0xfe, 0x3a] : "i32.atomic.rmw.xor",
-;;I64AtomicRmwXor(MemArg<8>) : [0xfe, 0x3b] : "i64.atomic.rmw.xor",
-;;I32AtomicRmw8XorU(MemArg<1>) : [0xfe, 0x3c] : "i32.atomic.rmw8.xor_u",
-;;I32AtomicRmw16XorU(MemArg<2>) : [0xfe, 0x3d] : "i32.atomic.rmw16.xor_u",
-;;I64AtomicRmw8XorU(MemArg<1>) : [0xfe, 0x3e] : "i64.atomic.rmw8.xor_u",
-;;I64AtomicRmw16XorU(MemArg<2>) : [0xfe, 0x3f] : "i64.atomic.rmw16.xor_u",
-;;I64AtomicRmw32XorU(MemArg<4>) : [0xfe, 0x40] : "i64.atomic.rmw32.xor_u",
-;;
-;;I32AtomicRmwXchg(MemArg<4>) : [0xfe, 0x41] : "i32.atomic.rmw.xchg",
-;;I64AtomicRmwXchg(MemArg<8>) : [0xfe, 0x42] : "i64.atomic.rmw.xchg",
-;;I32AtomicRmw8XchgU(MemArg<1>) : [0xfe, 0x43] : "i32.atomic.rmw8.xchg_u",
-;;I32AtomicRmw16XchgU(MemArg<2>) : [0xfe, 0x44] : "i32.atomic.rmw16.xchg_u",
-;;I64AtomicRmw8XchgU(MemArg<1>) : [0xfe, 0x45] : "i64.atomic.rmw8.xchg_u",
-;;I64AtomicRmw16XchgU(MemArg<2>) : [0xfe, 0x46] : "i64.atomic.rmw16.xchg_u",
-;;I64AtomicRmw32XchgU(MemArg<4>) : [0xfe, 0x47] : "i64.atomic.rmw32.xchg_u",
-;;
-;;I32AtomicRmwCmpxchg(MemArg<4>) : [0xfe, 0x48] : "i32.atomic.rmw.cmpxchg",
-;;I64AtomicRmwCmpxchg(MemArg<8>) : [0xfe, 0x49] : "i64.atomic.rmw.cmpxchg",
-;;I32AtomicRmw8CmpxchgU(MemArg<1>) : [0xfe, 0x4a] : "i32.atomic.rmw8.cmpxchg_u",
-;;I32AtomicRmw16CmpxchgU(MemArg<2>) : [0xfe, 0x4b] : "i32.atomic.rmw16.cmpxchg_u",
-;;I64AtomicRmw8CmpxchgU(MemArg<1>) : [0xfe, 0x4c] : "i64.atomic.rmw8.cmpxchg_u",
-;;I64AtomicRmw16CmpxchgU(MemArg<2>) : [0xfe, 0x4d] : "i64.atomic.rmw16.cmpxchg_u",
-;;I64AtomicRmw32CmpxchgU(MemArg<4>) : [0xfe, 0x4e] : "i64.atomic.rmw32.cmpxchg_u",
+(AtomicNotify atomic.notify (MemArg MemArg<4>))
+(I32AtomicWait i32.atomic.wait (MemArg MemArg<4>))
+(I64AtomicWait i64.atomic.wait (MemArg MemArg<8>))
+(AtomicFence atomic.fence)
 
-;;
-;;V128Load(MemArg<16>) : [0xfd, 0x00] : "v128.load",
-;;V128Store(MemArg<16>) : [0xfd, 0x01] : "v128.store",
-;;V128Const(V128Const) : [0xfd, 0x02] : "v128.const",
-;;
+(I32AtomicLoad i32.atomic.load (MemArg MemArg<4>))
+(I64AtomicLoad i64.atomic.load (MemArg MemArg<8>))
+(I32AtomicLoad8u i32.atomic.load8_u (MemArg MemArg<1>))
+(I32AtomicLoad16u i32.atomic.load16_u (MemArg MemArg<2>))
+(I64AtomicLoad8u i64.atomic.load8_u (MemArg MemArg<1>))
+(I64AtomicLoad16u i64.atomic.load16_u (MemArg MemArg<2>))
+(I64AtomicLoad32u i64.atomic.load32_u (MemArg MemArg<4>))
+(I32AtomicStore i32.atomic.store (MemArg MemArg<4>))
+(I64AtomicStore i64.atomic.store (MemArg MemArg<8>))
+(I32AtomicStore8 i32.atomic.store8 (MemArg MemArg<1>))
+(I32AtomicStore16 i32.atomic.store16 (MemArg MemArg<2>))
+(I64AtomicStore8 i64.atomic.store8 (MemArg MemArg<1>))
+(I64AtomicStore16 i64.atomic.store16 (MemArg MemArg<2>))
+(I64AtomicStore32 i64.atomic.store32 (MemArg MemArg<4>))
+
+(I32AtomicRmwAdd i32.atomic.rmw.add (MemArg MemArg<4>))
+(I64AtomicRmwAdd i64.atomic.rmw.add (MemArg MemArg<8>))
+(I32AtomicRmw8AddU i32.atomic.rmw8.add_u (MemArg MemArg<1>))
+(I32AtomicRmw16AddU i32.atomic.rmw16.add_u (MemArg MemArg<2>))
+(I64AtomicRmw8AddU i64.atomic.rmw8.add_u (MemArg MemArg<1>))
+(I64AtomicRmw16AddU i64.atomic.rmw16.add_u (MemArg MemArg<2>))
+(I64AtomicRmw32AddU i64.atomic.rmw32.add_u (MemArg MemArg<4>))
+
+(I32AtomicRmwSub i32.atomic.rmw.sub (MemArg MemArg<4>))
+(I64AtomicRmwSub i64.atomic.rmw.sub (MemArg MemArg<8>))
+(I32AtomicRmw8SubU i32.atomic.rmw8.sub_u (MemArg MemArg<1>))
+(I32AtomicRmw16SubU i32.atomic.rmw16.sub_u (MemArg MemArg<2>))
+(I64AtomicRmw8SubU i64.atomic.rmw8.sub_u (MemArg MemArg<1>))
+(I64AtomicRmw16SubU i64.atomic.rmw16.sub_u (MemArg MemArg<2>))
+(I64AtomicRmw32SubU i64.atomic.rmw32.sub_u (MemArg MemArg<4>))
+
+(I32AtomicRmwAnd i32.atomic.rmw.and (MemArg MemArg<4>))
+(I64AtomicRmwAnd i64.atomic.rmw.and (MemArg MemArg<8>))
+(I32AtomicRmw8AndU i32.atomic.rmw8.and_u (MemArg MemArg<1>))
+(I32AtomicRmw16AndU i32.atomic.rmw16.and_u (MemArg MemArg<2>))
+(I64AtomicRmw8AndU i64.atomic.rmw8.and_u (MemArg MemArg<1>))
+(I64AtomicRmw16AndU i64.atomic.rmw16.and_u (MemArg MemArg<2>))
+(I64AtomicRmw32AndU i64.atomic.rmw32.and_u (MemArg MemArg<4>))
+
+(I32AtomicRmwOr i32.atomic.rmw.or (MemArg MemArg<4>))
+(I64AtomicRmwOr i64.atomic.rmw.or (MemArg MemArg<8>))
+(I32AtomicRmw8OrU i32.atomic.rmw8.or_u (MemArg MemArg<1>))
+(I32AtomicRmw16OrU i32.atomic.rmw16.or_u (MemArg MemArg<2>))
+(I64AtomicRmw8OrU i64.atomic.rmw8.or_u (MemArg MemArg<1>))
+(I64AtomicRmw16OrU i64.atomic.rmw16.or_u (MemArg MemArg<2>))
+(I64AtomicRmw32OrU i64.atomic.rmw32.or_u (MemArg MemArg<4>))
+
+(I32AtomicRmwXor i32.atomic.rmw.xor (MemArg MemArg<4>))
+(I64AtomicRmwXor i64.atomic.rmw.xor (MemArg MemArg<8>))
+(I32AtomicRmw8XorU i32.atomic.rmw8.xor_u (MemArg MemArg<1>))
+(I32AtomicRmw16XorU i32.atomic.rmw16.xor_u (MemArg MemArg<2>))
+(I64AtomicRmw8XorU i64.atomic.rmw8.xor_u (MemArg MemArg<1>))
+(I64AtomicRmw16XorU i64.atomic.rmw16.xor_u (MemArg MemArg<2>))
+(I64AtomicRmw32XorU i64.atomic.rmw32.xor_u (MemArg MemArg<4>))
+
+(I32AtomicRmwXchg i32.atomic.rmw.xchg (MemArg MemArg<4>))
+(I64AtomicRmwXchg i64.atomic.rmw.xchg (MemArg MemArg<8>))
+(I32AtomicRmw8XchgU i32.atomic.rmw8.xchg_u (MemArg MemArg<1>))
+(I32AtomicRmw16XchgU i32.atomic.rmw16.xchg_u (MemArg MemArg<2>))
+(I64AtomicRmw8XchgU i64.atomic.rmw8.xchg_u (MemArg MemArg<1>))
+(I64AtomicRmw16XchgU i64.atomic.rmw16.xchg_u (MemArg MemArg<2>))
+(I64AtomicRmw32XchgU i64.atomic.rmw32.xchg_u (MemArg MemArg<4>))
+
+(I32AtomicRmwCmpxchg i32.atomic.rmw.cmpxchg (MemArg MemArg<4>))
+(I64AtomicRmwCmpxchg i64.atomic.rmw.cmpxchg (MemArg MemArg<8>))
+(I32AtomicRmw8CmpxchgU i32.atomic.rmw8.cmpxchg_u (MemArg MemArg<1>))
+(I32AtomicRmw16CmpxchgU i32.atomic.rmw16.cmpxchg_u (MemArg MemArg<2>))
+(I64AtomicRmw8CmpxchgU i64.atomic.rmw8.cmpxchg_u (MemArg MemArg<1>))
+(I64AtomicRmw16CmpxchgU i64.atomic.rmw16.cmpxchg_u (MemArg MemArg<2>))
+(I64AtomicRmw32CmpxchgU i64.atomic.rmw32.cmpxchg_u (MemArg MemArg<4>))
+
+(V128Load v128.load (MemArg MemArg<16>))
+(V128Store v128.store (MemArg MemArg<16>))
+;;(V128Const v128.const (V128Const V128Const))
+
 ;;I8x16Splat : [0xfd, 0x04] : "i8x16.splat",
 ;;I8x16ExtractLaneS(i32) : [0xfd, 0x05] : "i8x16.extract_lane_s",
 ;;I8x16ExtractLaneU(i32) : [0xfd, 0x06] : "i8x16.extract_lane_u",
@@ -665,10 +690,10 @@ func main() {
 (V8x16Swizzle v8x16.swizzle)
 
 ;;V8x16Shuffle(V8x16Shuffle) : [0xfd, 0xc1] : "v8x16.shuffle",
-;;V8x16LoadSplat(MemArg<1>) : [0xfd, 0xc2] : "v8x16.load_splat",
-;;V16x8LoadSplat(MemArg<2>) : [0xfd, 0xc3] : "v16x8.load_splat",
-;;V32x4LoadSplat(MemArg<4>) : [0xfd, 0xc4] : "v32x4.load_splat",
-;;V64x2LoadSplat(MemArg<8>) : [0xfd, 0xc5] : "v64x2.load_splat",
+(V8x16LoadSplat v8x16.load_splat (MemArg MemArg<1>))
+(V16x8LoadSplat v16x8.load_splat (MemArg MemArg<2>))
+(V32x4LoadSplat v32x4.load_splat (MemArg MemArg<4>))
+(V64x2LoadSplat v64x2.load_splat (MemArg MemArg<8>))
 
 (I8x16NarrowI16x8S i8x16.narrow_i16x8_s)
 (I8x16NarrowI16x8U i8x16.narrow_i16x8_u)
@@ -684,12 +709,12 @@ func main() {
 (I32x4WidenLowI16x8U i32x4.widen_low_i16x8_u)
 (I32x4WidenHighI16x8u i32x4.widen_high_i16x8_u)
 
-;;I16x8Load8x8S(MemArg<1>) : [0xfd, 0xd2] : "i16x8.load8x8_s",
-;;I16x8Load8x8U(MemArg<1>) : [0xfd, 0xd3] : "i16x8.load8x8_u",
-;;I32x4Load16x4S(MemArg<2>) : [0xfd, 0xd4] : "i32x4.load16x4_s",
-;;I32x4Load16x4U(MemArg<2>) : [0xfd, 0xd5] : "i32x4.load16x4_u",
-;;I64x2Load32x2S(MemArg<4>) : [0xfd, 0xd6] : "i64x2.load32x2_s",
-;;I64x2Load32x2U(MemArg<4>) : [0xfd, 0xd7] : "i64x2.load32x2_u",
+(I16x8Load8x8S i16x8.load8x8_s (MemArg MemArg<1>))
+(I16x8Load8x8U i16x8.load8x8_u (MemArg MemArg<1>))
+(I32x4Load16x4S i32x4.load16x4_s (MemArg MemArg<2>))
+(I32x4Load16x4U i32x4.load16x4_u (MemArg MemArg<2>))
+(I64x2Load32x2S i64x2.load32x2_s (MemArg MemArg<4>))
+(I64x2Load32x2U i64x2.load32x2_u (MemArg MemArg<4>))
 (V128Andnot v128.andnot)
 
 `
@@ -705,7 +730,11 @@ func main() {
 	goFile := generate(`
 package ast
 
-import "github.com/ontio/wast-parser/parser"
+import (
+	"fmt"
+
+	"github.com/ontio/wast-parser/parser"
+)
 
 [Instrs]
 [parseInstr]

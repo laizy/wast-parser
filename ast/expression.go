@@ -35,19 +35,6 @@ type Instruction interface {
 	String() string
 }
 
-type End struct {
-	Id OptionId
-}
-
-func (self *End) parseInstrBody(ps *parser.ParserBuffer) error {
-	self.Id.Parse(ps)
-	return nil
-}
-
-func (self *End) String() string {
-	return "end"
-}
-
 type instructions struct {
 	Instrs []Instruction
 }
