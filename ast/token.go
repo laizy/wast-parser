@@ -3,9 +3,12 @@ package ast
 import (
 	"errors"
 	"fmt"
-	"github.com/ontio/wast-parser/parser"
+	"math"
 	"strconv"
 	"strings"
+
+	"github.com/ontio/wast-parser/lexer"
+	"github.com/ontio/wast-parser/parser"
 )
 
 type Id struct {
@@ -120,19 +123,173 @@ func (self *Index) Parse(ps *parser.ParserBuffer) error {
 }
 
 type Float32 struct {
-	bits uint32
+	Bits uint32
+}
+
+func matchTokenType(token lexer.Token, ty lexer.TokenType) bool {
+	return token != nil && token.Type() == ty
+}
+
+func string2f64(val lexer.Float) (uint64, error) {
+	width := uint64(64)
+	negOffset := width - 1
+	expBits := uint64(11)
+	expOffset := negOffset - expBits
+	signifBits := width - 1 - expBits
+	signifMask := uint64(1<<expOffset) - 1
+	//bias := (1<<(expBits - 1)) - 1
+	switch num := val.(type) {
+	case lexer.Inf:
+		exprBits := uint64((1 << expBits) - 1)
+		negBits := uint64(0)
+		if num.Neg {
+			negBits = 1
+		}
+		return (negBits << negOffset) | (exprBits << expOffset), nil
+	case lexer.Nan:
+		exprBits := uint64((1 << expBits) - 1)
+		negBits := uint64(0)
+		if num.Neg {
+			negBits = 1
+		}
+		signif := uint64(1 << (signifBits - 1))
+		if num.SpecBit {
+			signif = uint64(num.Val)
+		}
+		if signif&signifMask == 0 {
+			return 0, errors.New("parse float64 error")
+		}
+		return (negBits << negOffset) | (exprBits << expOffset) | (signif & signifMask), nil
+	case lexer.FloatVal:
+		if !num.Hex {
+			s := num.Integral
+			if num.Decimal != "" {
+				s += "." + num.Decimal
+			}
+			if num.Exponent != "" {
+				s += "e" + num.Exponent
+			}
+			f, err := strconv.ParseFloat(s, 64)
+			if err != nil {
+				return 0, err
+			}
+			// looks like the `*.wat` format considers infinite overflow to
+			// be invalid.
+			if math.IsInf(f, 0) {
+				return 0, errors.New("parse float64 error, float infinite")
+			}
+
+			return math.Float64bits(f), nil
+		}
+
+		panic("todo: parse hex float not implemented yet")
+	default:
+		panic("unreachable")
+	}
+}
+
+func string2f32(val lexer.Float) (uint32, error) {
+	width := uint32(32)
+	negOffset := width - 1
+	expBits := uint32(8)
+	expOffset := negOffset - expBits
+	signifBits := width - 1 - expBits
+	signifMask := uint32(1<<expOffset) - 1
+	//bias := (1<<(expBits - 1)) - 1
+	switch num := val.(type) {
+	case lexer.Inf:
+		exprBits := uint32((1 << expBits) - 1)
+		negBits := uint32(0)
+		if num.Neg {
+			negBits = 1
+		}
+		return (negBits << negOffset) | (exprBits << expOffset), nil
+	case lexer.Nan:
+		exprBits := uint32((1 << expBits) - 1)
+		negBits := uint32(0)
+		if num.Neg {
+			negBits = 1
+		}
+		signif := uint32(1 << (signifBits - 1))
+		if num.SpecBit {
+			signif = uint32(num.Val)
+		}
+		if signif&signifMask == 0 {
+			return 0, errors.New("parse float 32 error")
+		}
+		return (negBits << negOffset) | (exprBits << expOffset) | (signif & signifMask), nil
+	case lexer.FloatVal:
+		if !num.Hex {
+			s := num.Integral
+			if num.Decimal != "" {
+				s += "." + num.Decimal
+			}
+			if num.Exponent != "" {
+				s += "e" + num.Exponent
+			}
+			f, err := strconv.ParseFloat(s, 32)
+			if err != nil {
+				return 0, err
+			}
+			// looks like the `*.wat` format considers infinite overflow to
+			// be invalid.
+			if math.IsInf(f, 0) {
+				return 0, errors.New("parse float32 error, float infinite")
+			}
+
+			return math.Float32bits(float32(f)), nil
+		}
+
+		panic("todo: parse hex float not implemented yet")
+	default:
+		panic("unreachable")
+	}
 }
 
 func (self *Float32) Parse(ps *parser.ParserBuffer) error {
-	panic("todo")
+	token := ps.PeekToken()
+	if matchTokenType(token, lexer.FloatType) {
+		val, err := ps.Float()
+		if err != nil {
+			return err
+		}
+		self.Bits, err = string2f32(val)
+		return err
+	} else if matchTokenType(token, lexer.IntegerType) {
+		num, err := ps.ExpectInteger()
+		if err != nil {
+			return err
+		}
+		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
+		return err
+	}
+
+	return fmt.Errorf("parse float32 error. expect number type")
 }
 
 type Float64 struct {
-	bits uint64
+	Bits uint64
 }
 
 func (self *Float64) Parse(ps *parser.ParserBuffer) error {
-	panic("todo")
+	token := ps.PeekToken()
+	if matchTokenType(token, lexer.FloatType) {
+		val, err := ps.Float()
+		if err != nil {
+			return err
+		}
+		self.Bits, err = string2f64(val)
+		return err
+	} else if matchTokenType(token, lexer.IntegerType) {
+		num, err := ps.ExpectInteger()
+		if err != nil {
+			return err
+		}
+		self.Bits, err = string2f64(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
+		return err
+	}
+
+	return fmt.Errorf("parse float64 error. expect number type")
 }
 
 type BlockType struct {

@@ -49,9 +49,9 @@ func (self *ParserBuffer) Cursor() Cursor {
 
 func (self *ParserBuffer) ExpectString() (string, error) {
 	cursor := self.Cursor()
-	str := cursor.String()
-	if str == "" {
-		return "", errors.New("expect string")
+	str, err := cursor.String()
+	if err != nil {
+		return "", err
 	}
 	self.curr = cursor.curr
 
@@ -103,6 +103,16 @@ func (self *ParserBuffer) ExpectKeyword() (string, error) {
 	return kw, nil
 }
 
+func (self *ParserBuffer) Float() (val lexer.Float, err error) {
+	if token := self.ReadToken(); token != nil {
+		if t, ok := token.(lexer.Float); ok {
+			return t, nil
+		}
+	}
+
+	return val, errors.New("expect float")
+}
+
 func (self *ParserBuffer) ExpectInteger() (lexer.Integer, error) {
 	cursor := self.Cursor()
 	val, err := cursor.Integer()
@@ -152,6 +162,17 @@ func (self *ParserBuffer) ExpectUint64() (uint64, error) {
 
 func (self *ParserBuffer) PeekKeyword() (string, error) {
 	return self.clone().ExpectKeyword()
+}
+
+func (self *ParserBuffer) TryKeyword() (string, error) {
+	cl := self.clone()
+	str, err := cl.ExpectKeyword()
+	if err != nil {
+		return "", err
+	}
+
+	self.curr = cl.curr
+	return str, nil
 }
 
 func (self *ParserBuffer) PeekUint32() bool {
@@ -315,12 +336,12 @@ func (self *Cursor) Integer() (val lexer.Integer, err error) {
 	return val, errors.New("expect integer")
 }
 
-func (self *Cursor) String() string {
+func (self *Cursor) String() (string, error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.String); ok {
-			return string(t.Val)
+			return string(t.Val), nil
 		}
 	}
 
-	return ""
+	return "", errors.New("expect string token")
 }
