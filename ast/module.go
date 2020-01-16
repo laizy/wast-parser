@@ -126,6 +126,7 @@ func parseModuleField(ps *parser.ParserBuffer) (ModuleField, error) {
 		field = val
 	case "start":
 		var val StartField
+		_ = ps.ExpectKeywordMatch("start")
 		err = val.Index.Parse(ps)
 		field = val
 	case "elem":

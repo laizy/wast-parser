@@ -58,11 +58,11 @@ func (self *Import) Parse(ps *parser.ParserBuffer) error {
 	}
 
 	err = ps.Parens(func(ps *parser.ParserBuffer) error {
-		self.Id.Parse(ps)
 		kw, err := ps.ExpectKeyword()
 		if err != nil {
 			return err
 		}
+		self.Id.Parse(ps)
 		switch kw {
 		case "func":
 			var typeUse TypeUse

@@ -2394,7 +2394,7 @@ func (self *F32ConvertI64S) parseInstrBody(ps *parser.ParserBuffer) error {
 }
 
 func (self *F32ConvertI64S) String() string {
-	return "f32.convert_i64.s"
+	return "f32.convert_i64_s"
 }
 
 type F32ConvertI64U struct {
@@ -2406,7 +2406,7 @@ func (self *F32ConvertI64U) parseInstrBody(ps *parser.ParserBuffer) error {
 }
 
 func (self *F32ConvertI64U) String() string {
-	return "f32.convert_i64.u"
+	return "f32.convert_i64_u"
 }
 
 type F32DemoteF64 struct {
@@ -5954,9 +5954,9 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &F32ConvertI32S{}
 	case "f32.convert_i32_u", "f32.convert_u/i32":
 		inst = &F32ConvertI32U{}
-	case "f32.convert_i64.s", "f32.convert_s/i64":
+	case "f32.convert_i64_s", "f32.convert_s/i64":
 		inst = &F32ConvertI64S{}
-	case "f32.convert_i64.u", "f32.convert_u/i64":
+	case "f32.convert_i64_u", "f32.convert_u/i64":
 		inst = &F32ConvertI64U{}
 	case "f32.demote_f64", "f32.demote/f64":
 		inst = &F32DemoteF64{}
@@ -6424,6 +6424,10 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &I64x2Load32x2U{}
 	case "v128.andnot":
 		inst = &V128Andnot{}
+	case "nan:canonical":
+		inst = &CanonicalNan{}
+	case "nan:arithmetic":
+		inst = &ArithmeticNan{}
 	default:
 		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}

@@ -13,6 +13,30 @@ type Wat struct {
 }
 
 func (self *Wat) Parse(ps *parser.ParserBuffer) error {
+	token := ps.Peek2Token()
+	if matchKeyword(token, "module") == false {
+		mfs := make([]ModuleField, 0)
+		for !ps.Empty() {
+			err := ps.Parens(func(ps *parser.ParserBuffer) error {
+				mf, err := parseModuleField(ps)
+				if err != nil {
+					return err
+				}
+				mfs = append(mfs, mf)
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+		}
+		self.Module = Module{
+			Name: NoneOptionId(),
+			Kind: ModuleKindText{
+				Fields: mfs,
+			},
+		}
+		return nil
+	}
 	return ps.Parens(func(ps *parser.ParserBuffer) error {
 		return self.Module.Parse(ps)
 	})
@@ -320,6 +344,7 @@ func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 		err := invoke.Parse(ps)
 		return invoke, err
 	case "module":
+		ps.StepBack(1)
 		var module Module
 		err := module.Parse(ps)
 		return module, err

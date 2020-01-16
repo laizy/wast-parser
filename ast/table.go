@@ -98,8 +98,8 @@ func (self *Table) Parse(ps *parser.ParserBuffer) error {
 		if err != nil {
 			return err
 		}
-
 		self.Kind = normal
+		return nil
 	}
 	return fmt.Errorf("table parse error")
 }
