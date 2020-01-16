@@ -129,7 +129,6 @@ func (self *ParserBuffer) ExpectInt64() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return val.ToInt(64)
 }
 
@@ -138,7 +137,6 @@ func (self *ParserBuffer) ExpectUint32() (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	value, err := val.ToUint(32)
 	return uint32(value), err
 }

@@ -44,7 +44,7 @@ func TestWastParsing(t *testing.T) {
 	assert.Nil(t, err)
 
 	for name, content := range wasts {
-		if name != "func.wast" {
+		if name != "memory.wast" {
 			continue
 		}
 		ps, err := parser.NewParserBuffer(string(content))

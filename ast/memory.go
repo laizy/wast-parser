@@ -30,7 +30,7 @@ func (self *Memory) Parse(ps *parser.ParserBuffer) error {
 	//  *   `(import "a" "b") limits`
 	//  *   `limits`
 	if ps.PeekToken().Type() == lexer.LParenType {
-		return ps.Parens(func(ps *parser.ParserBuffer) error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			kw, err := ps.ExpectKeyword()
 			if err != nil {
 				return err
@@ -38,16 +38,35 @@ func (self *Memory) Parse(ps *parser.ParserBuffer) error {
 			switch kw {
 			case "data":
 				self.Kind = &MemoryKindInline{}
+				self.Kind.parseMemoryKindBody(ps)
 			case "import":
-				self.Kind = &MemoryKindImport{}
+				module, err := ps.ExpectString()
+				if err != nil {
+					return err
+				}
+				name, err := ps.ExpectString()
+				if err != nil {
+					return err
+				}
+				self.Kind = &MemoryKindImport{
+					Module: module,
+					Name:   name,
+				}
 			default:
 				return fmt.Errorf("invalid import memory kind: %s", kw)
 			}
-
-			return self.Kind.parseMemoryKindBody(ps)
+			return nil
 		})
+		if err != nil {
+			return err
+		}
+		switch mki := self.Kind.(type) {
+		case *MemoryKindImport:
+			return mki.Type.Parse(ps)
+		default:
+			return nil
+		}
 	}
-
 	_, err = ps.ExpectUint32()
 	if err != nil {
 		return err

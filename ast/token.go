@@ -317,7 +317,7 @@ func (self *MemArg) Parse(ps *parser.ParserBuffer, defaultAlign uint32) error {
 	parseField := func(name string, ps *parser.ParserBuffer) (some bool, val uint32, err error) {
 		kw, err := ps.ExpectKeyword()
 		if err != nil {
-			return false, 0, err
+			return false, 0, nil
 		}
 		if strings.HasPrefix(kw, name) == false {
 			return false, 0, nil

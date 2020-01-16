@@ -90,6 +90,7 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 			}
 			if matchKeyword(ps.Peek2Token(), "then") {
 				err = ps.Parens(func(ps *parser.ParserBuffer) error {
+					_ = ps.ExpectKeywordMatch("then")
 					return self.parseFoldedInstrs(ps)
 				})
 				if err != nil {
