@@ -122,7 +122,7 @@ func (self Instruction) generateFields() string {
 		ty := field.Type
 		if strings.HasPrefix(ty, "MemArg") {
 			ty = "MemArg"
-	}
+		}
 		fields = append(fields, fmt.Sprintf("%s %s", field.Name, ty))
 	}
 
@@ -143,9 +143,9 @@ func (self Instruction) generateParseBody() string {
 			if strings.HasPrefix(field.Type, "MemArg") {
 				body += parseMemArg(field.Name, field.Type)
 			} else {
-			body += parseGeneral(field.Name)
+				body += parseGeneral(field.Name)
+			}
 		}
-	}
 	}
 
 	return body
@@ -434,8 +434,8 @@ func main() {
 (F32DemoteF64 (f32.demote_f64 f32.demote/f64))
 (F64ConvertI32S (f64.convert_i32_s f64.convert_s/i32))
 (F64ConvertI32U (f64.convert_i32_u f64.convert_u/i32))
-(F64ConvertI64S (f64.convert_i64.s f64.convert_s/i64))
-(F64ConvertI64U (f64.convert_i64.u f64.convert_u/i64))
+(F64ConvertI64S (f64.convert_i64_s f64.convert_s/i64))
+(F64ConvertI64U (f64.convert_i64_u f64.convert_u/i64))
 (F64PromoteF32 (f64.promote_f32 f64.promote/f32))
 (I32ReinterpretF32 (i32.reinterpret_f32 i32.reinterpret/f32))
 (I64ReinterpretF64 (i64.reinterpret_f64 i64.reinterpret/f64))

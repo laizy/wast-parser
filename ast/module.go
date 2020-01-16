@@ -93,6 +93,7 @@ func parseModuleField(ps *parser.ParserBuffer) (ModuleField, error) {
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("kwkw:", kw)
 	var field ModuleField
 	switch kw {
 	case "type":

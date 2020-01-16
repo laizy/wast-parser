@@ -2454,7 +2454,7 @@ func (self *F64ConvertI64S) parseInstrBody(ps *parser.ParserBuffer) error {
 }
 
 func (self *F64ConvertI64S) String() string {
-	return "f64.convert_i64.s"
+	return "f64.convert_i64_s"
 }
 
 type F64ConvertI64U struct {
@@ -2466,7 +2466,7 @@ func (self *F64ConvertI64U) parseInstrBody(ps *parser.ParserBuffer) error {
 }
 
 func (self *F64ConvertI64U) String() string {
-	return "f64.convert_i64.u"
+	return "f64.convert_i64_u"
 }
 
 type F64PromoteF32 struct {
@@ -5964,9 +5964,9 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &F64ConvertI32S{}
 	case "f64.convert_i32_u", "f64.convert_u/i32":
 		inst = &F64ConvertI32U{}
-	case "f64.convert_i64.s", "f64.convert_s/i64":
+	case "f64.convert_i64_s", "f64.convert_s/i64":
 		inst = &F64ConvertI64S{}
-	case "f64.convert_i64.u", "f64.convert_u/i64":
+	case "f64.convert_i64_u", "f64.convert_u/i64":
 		inst = &F64ConvertI64U{}
 	case "f64.promote_f32", "f64.promote/f32":
 		inst = &F64PromoteF32{}

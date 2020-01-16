@@ -18,13 +18,13 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	fnames = []string{
-		"../tests/spectestdata/data.wast",
-		"../tests/spectestdata/address.wast",
-		"../tests/spectestdata/memory.wast",
-		"../tests/spectestdata/func.wast",
-		"../tests/spectestdata/br.wast",
-	}
+	//fnames = []string{
+	//	"../tests/spectestdata/data.wast",
+	//	"../tests/spectestdata/address.wast",
+	//	"../tests/spectestdata/memory.wast",
+	//	"../tests/spectestdata/func.wast",
+	//	"../tests/spectestdata/br.wast",
+	//}
 	for _, name := range fnames {
 		if !strings.HasSuffix(name, ".wast") {
 			continue
@@ -45,9 +45,9 @@ func TestWastParsing(t *testing.T) {
 	assert.Nil(t, err)
 
 	for name, content := range wasts {
-		//if name != "memory.wast" {
-		//	continue
-		//}
+		if name != "local_set.wast" {
+			continue
+		}
 		ps, err := parser.NewParserBuffer(string(content))
 		assert.Nil(t, err)
 		var wast Wast
