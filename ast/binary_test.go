@@ -11,10 +11,10 @@ import (
 func TestModuleEncode(t *testing.T) {
 	ps, err := parser.NewParserBuffer(`
 (module
-  (type $t0 (func (param i32) (param i32) (result i32)))
-  (func $add (export "add") (type $t0) (param $p0 i32) (param $p1 i32) (result i32)
-    get_local $p0
-    get_local $p1
+  (type (func (param i32) (param i32) (result i32)))
+  (func (export "add") (type 0)
+    get_local 0
+    get_local 1
     i32.add)
 )
 `)

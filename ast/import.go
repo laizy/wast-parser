@@ -2,7 +2,6 @@ package ast
 
 import (
 	"fmt"
-	"io"
 
 	"github.com/ontio/wast-parser/parser"
 )
@@ -17,7 +16,7 @@ type Import struct {
 
 type ImportItem interface {
 	ImportType() string
-	Encode(w io.Writer) error
+	Encode(sink *ZeroCopySink)
 }
 
 type ImportFunc struct {

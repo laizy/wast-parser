@@ -1,17 +1,12 @@
 package ast
 
 import (
-	"bytes"
-	"encoding/binary"
 	"errors"
 	"fmt"
-	"io"
-
-	"github.com/go-interpreter/wagon/wasm/leb128"
 )
 
 type Section interface {
-	Encode(w io.Writer) error
+	Encode(sink *ZeroCopySink)
 }
 
 func (self *Module) Encode() ([]byte, error) {
@@ -21,10 +16,8 @@ func (self *Module) Encode() ([]byte, error) {
 	}
 
 	magic := []byte{0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00}
-	buf := new(bytes.Buffer)
-	if _, err := buf.Write(magic); err != nil {
-		return nil, err
-	}
+	sink := NewZeroCopySink(nil)
+	sink.WriteBytes(magic)
 
 	var types []Section
 	var imports []Section
@@ -66,68 +59,46 @@ func (self *Module) Encode() ([]byte, error) {
 		}
 	}
 
-	SectionList(0x1, types, buf)
-	SectionList(0x2, imports, buf)
-	SectionList(0x3, funcsTypes, buf)
-	SectionList(0x4, tables, buf)
-	SectionList(0x5, memories, buf)
-	SectionList(0x6, globals, buf)
-	SectionList(0x7, exports, buf)
-	SectionList(0x8, start, buf)
-	SectionList(0x9, elem, buf)
-	SectionList(0xa, funcs, buf)
-	SectionList(0xb, data, buf)
+	SectionList(0x1, types, sink)
+	SectionList(0x2, imports, sink)
+	SectionList(0x3, funcsTypes, sink)
+	SectionList(0x4, tables, sink)
+	SectionList(0x5, memories, sink)
+	SectionList(0x6, globals, sink)
+	SectionList(0x7, exports, sink)
+	SectionList(0x8, start, sink)
+	SectionList(0x9, elem, sink)
+	SectionList(0xa, funcs, sink)
+	SectionList(0xb, data, sink)
 
-	return buf.Bytes(), nil
+	return sink.Bytes(), nil
 }
 
-func SectionList(id byte, l []Section, w io.Writer) error {
+func SectionList(id byte, l []Section, sink *ZeroCopySink) error {
 	if len(l) == 0 {
 		return nil
 	}
 
-	tmp := new(bytes.Buffer)
-	if err := ListEncode(l, tmp); err != nil {
-		return err
-	}
+	tmpSink := NewZeroCopySink(nil)
+	ListEncode(l, tmpSink)
 
-	if err := writeByte(w, id); err != nil {
-		return err
-	}
-
-	if err := BytesEncode(tmp.Bytes(), w); err != nil {
-		return err
-	}
+	sink.WriteByte(id)
+	sink.WriteVarBytes(tmpSink.Bytes())
 
 	return nil
 }
 
-func ListEncode(l []Section, w io.Writer) error {
-	if _, err := leb128.WriteVarUint32(w, uint32(len(l))); err != nil {
-		return err
-	}
+func ListEncode(l []Section, sink *ZeroCopySink) {
+	sink.WriteUint32(uint32(len(l)))
 
 	for _, s := range l {
-		s.Encode(w)
+		s.Encode(sink)
 	}
-
-	return nil
-}
-
-func BytesEncode(b []byte, w io.Writer) error {
-	if _, err := leb128.WriteVarUint32(w, uint32(len(b))); err != nil {
-		return err
-	}
-
-	if _, err := w.Write(b); err != nil {
-		return err
-	}
-	return nil
 }
 
 const TypeFunc uint8 = 0x60
 
-func (t ValType) Encode(w io.Writer) error {
+func (t ValType) Encode(sink *ZeroCopySink) {
 	var vt byte
 	switch t {
 	case I32:
@@ -146,32 +117,25 @@ func (t ValType) Encode(w io.Writer) error {
 		vt = 0x7b
 	}
 
-	err := writeByte(w, vt)
-	if err != nil {
-		return err
-	}
-
-	return err
+	sink.WriteByte(vt)
 }
 
-func (t Type) Encode(w io.Writer) error {
-	return t.Func.Encode(w)
+func (t Type) Encode(sink *ZeroCopySink) {
+	t.Func.Encode(sink)
 }
 
-func (g GlobalValType) Encode(w io.Writer) error {
-	if err := g.Type.Encode(w); err != nil {
-		return err
-	}
+func (g GlobalValType) Encode(sink *ZeroCopySink) {
+	g.Type.Encode(sink)
 
 	var m uint8
 	if g.Mutable {
 		m = 1
 	}
 
-	return writeByte(w, m)
+	sink.WriteUint8(m)
 }
 
-func (t TableElemType) Encode(w io.Writer) error {
+func (t TableElemType) Encode(sink *ZeroCopySink) {
 	var vt ValType
 	switch t {
 	case FuncRef:
@@ -180,320 +144,187 @@ func (t TableElemType) Encode(w io.Writer) error {
 		vt = Anyref
 	}
 
-	return vt.Encode(w)
+	vt.Encode(sink)
 }
 
-func (f FunctionType) Encode(w io.Writer) error {
-	err := writeByte(w, 0x60)
-	if err != nil {
-		return err
-	}
+func (f FunctionType) Encode(sink *ZeroCopySink) {
+	sink.WriteByte(0x60)
+	sink.WriteUint32(uint32(len(f.Params)))
 
-	_, err = leb128.WriteVarUint32(w, uint32(len(f.Params)))
-	if err != nil {
-		return err
-	}
 	for _, p := range f.Params {
-		err = p.Val.Encode(w)
-		if err != nil {
-			return err
-		}
+		p.Val.Encode(sink)
 	}
 
-	_, err = leb128.WriteVarUint32(w, uint32(len(f.Results)))
-	if err != nil {
-		return err
-	}
+	sink.WriteUint32(uint32(len(f.Results)))
+
 	for _, p := range f.Results {
-		err = p.Encode(w)
-		if err != nil {
-			return err
-		}
+		p.Encode(sink)
 	}
-
-	return nil
 }
 
-func (t Limits) Encode(w io.Writer) error {
+func (t Limits) Encode(sink *ZeroCopySink) {
 	if t.Max == 0 {
-		err := writeByte(w, 0x00)
-		if err != nil {
-			return err
-		}
-
-		_, err = leb128.WriteVarUint32(w, t.Min)
-		if err != nil {
-			return err
-		}
+		sink.WriteByte(0x00)
+		sink.WriteUint32(t.Min)
 	} else {
-		err := writeByte(w, 0x01)
-		if err != nil {
-			return err
-		}
-
-		_, err = leb128.WriteVarUint32(w, t.Min)
-		if err != nil {
-			return err
-		}
-
-		_, err = leb128.WriteVarUint32(w, t.Max)
-		if err != nil {
-			return err
-		}
+		sink.WriteByte(0x01)
+		sink.WriteUint32(t.Min)
+		sink.WriteUint32(t.Max)
 	}
-
-	return nil
 }
 
-func (t TableType) Encode(w io.Writer) error {
-	if err := t.Elem.Encode(w); err != nil {
-		return err
-	}
-
-	if err := t.Limits.Encode(w); err != nil {
-		return err
-	}
-
-	return nil
+func (t TableType) Encode(sink *ZeroCopySink) {
+	t.Elem.Encode(sink)
+	t.Limits.Encode(sink)
 }
 
-func (t MemoryType) Encode(w io.Writer) error {
-	if err := t.Limits.Encode(w); err != nil {
-		return err
-	}
-
-	return nil
+func (t MemoryType) Encode(sink *ZeroCopySink) {
+	t.Limits.Encode(sink)
 }
 
-func (t Table) Encode(w io.Writer) error {
+func (t Table) Encode(sink *ZeroCopySink) {
 	// check why can not zero
 	if len(t.Exports.Names) == 0 {
-		return errors.New("Name should not empty")
+		panic("Name should not empty")
 	}
 
 	if x, ok := t.Kind.(TableKindNormal); ok {
-		return x.Type.Encode(w)
+		x.Type.Encode(sink)
+		return
 	}
 
-	return errors.New("TableKind should be normal during encoding")
+	panic("TableKind should be normal during encoding")
 }
 
-func (t Memory) Encode(w io.Writer) error {
+func (t Memory) Encode(sink *ZeroCopySink) {
 	if mem, ok := t.Kind.(*MemoryKindNormal); ok {
-		err := mem.Type.Encode(w)
-		if err != nil {
-			return err
-		}
-	} else {
-		return errors.New("MemoryKind should be normal during encoding")
+		mem.Type.Encode(sink)
+		return
 	}
 
-	return nil
+	panic("MemoryKind should be normal during encoding")
 }
 
-func (t Import) Encode(w io.Writer) error {
-	if err := writeStringUint(w, t.Module); err != nil {
-		return err
-	}
-
-	if err := writeStringUint(w, t.Field); err != nil {
-		return err
-	}
+func (t Import) Encode(sink *ZeroCopySink) {
+	sink.WriteString(t.Module)
+	sink.WriteString(t.Field)
 
 	impType := t.Item.ImportType()
 	switch impType {
 	case "func":
-		if err := writeByte(w, 0x00); err != nil {
-			return err
-		}
+		sink.WriteByte(0x00)
 	case "table":
-		if err := writeByte(w, 0x01); err != nil {
-			return err
-		}
+		sink.WriteByte(0x01)
 	case "memory":
-		if err := writeByte(w, 0x02); err != nil {
-			return err
-		}
+		sink.WriteByte(0x02)
 	case "global":
-		if err := writeByte(w, 0x03); err != nil {
-			return err
-		}
+		sink.WriteByte(0x03)
 	}
 
-	if err := t.Item.Encode(w); err != nil {
-		return err
-	}
-
-	return nil
+	t.Item.Encode(sink)
 }
 
-func (t Global) Encode(w io.Writer) error {
+func (t Global) Encode(sink *ZeroCopySink) {
 	// check why can not zero
 	if len(t.Exports.Names) == 0 {
-		return errors.New("Name should not empty")
+		panic("Name should not empty")
 	}
 
-	if err := t.ValType.Encode(w); err != nil {
-		return err
-	}
+	t.ValType.Encode(sink)
 
 	exp, ok := t.Kind.(GlobalKindInline)
 
 	if !ok {
-		return errors.New("GlobalKind should be inline during encoding")
+		panic("GlobalKind should be inline during encoding")
 	}
 
-	return exp.Expr.Encode(w)
+	exp.Expr.Encode(sink)
 }
 
-func (t Export) Encode(w io.Writer) error {
-	if err := writeStringUint(w, t.Name); err != nil {
-		return err
-	}
-
-	if err := writeByte(w, byte(t.Type)); err != nil {
-		return err
-	}
-
-	if err := t.Index.Encode(w); err != nil {
-		return err
-	}
-
-	return nil
+func (t Export) Encode(sink *ZeroCopySink) {
+	sink.WriteString(t.Name)
+	sink.WriteByte(byte(t.Type))
+	t.Index.Encode(sink)
 }
 
-func (t Elem) Encode(w io.Writer) error {
+func (t Elem) Encode(sink *ZeroCopySink) {
 	switch t.Kind.(type) {
 	case ElemKindActive:
 		active, _ := t.Kind.(ElemKindActive)
 		if !active.Table.Isnum {
-			return errors.New("expect num in Elem kind")
+			panic("expect num in Elem kind")
 		}
 
 		switch t.Payload.(type) {
 		case ElemPayloadIndices:
 			if active.Table.Num == 0 && !t.forceNonZero {
-				if err := writeByte(w, byte(0x00)); err != nil {
-					return err
-				}
-				if err := active.Offset.Encode(w); err != nil {
-					return err
-				}
+				sink.WriteByte(byte(0x00))
+				active.Offset.Encode(sink)
 			} else {
-				if err := writeByte(w, byte(0x02)); err != nil {
-					return err
-				}
-				if err := active.Table.Encode(w); err != nil {
-					return err
-				}
-				if err := active.Offset.Encode(w); err != nil {
-					return err
-				}
-				if err := writeByte(w, byte(0x00)); err != nil {
-					return err
-				}
+				sink.WriteByte(byte(0x02))
+				active.Table.Encode(sink)
+				active.Offset.Encode(sink)
+				sink.WriteByte(byte(0x00))
 			}
 		case ElemPayloadExprs:
 			expr, _ := t.Payload.(ElemPayloadExprs)
 			if active.Table.Num == 0 && expr.Type == FuncRef {
-				if err := writeByte(w, byte(0x04)); err != nil {
-					return err
-				}
-
-				if err := active.Offset.Encode(w); err != nil {
-					return err
-				}
+				sink.WriteByte(byte(0x04))
+				active.Offset.Encode(sink)
 			} else {
-				if err := writeByte(w, byte(0x06)); err != nil {
-					return err
-				}
-
-				if err := active.Table.Encode(w); err != nil {
-					return err
-				}
-				if err := active.Offset.Encode(w); err != nil {
-					return err
-				}
-				if err := expr.Type.Encode(w); err != nil {
-					return err
-				}
+				sink.WriteByte(byte(0x06))
+				active.Table.Encode(sink)
+				active.Offset.Encode(sink)
+				expr.Type.Encode(sink)
 			}
 		default:
-			return errors.New("error Elem payload Kind")
+			panic("error Elem payload Kind")
 		}
 	case ElemKindPassive:
 		switch t.Payload.(type) {
 		case ElemPayloadIndices:
-			if err := writeByte(w, byte(0x01)); err != nil {
-				return err
-			}
-			if err := writeByte(w, byte(0x00)); err != nil {
-				return err
-			}
+			sink.WriteByte(byte(0x01))
+			sink.WriteByte(byte(0x00))
 		case ElemPayloadExprs:
 			expr, _ := t.Payload.(ElemPayloadExprs)
-			if err := writeByte(w, byte(0x05)); err != nil {
-				return err
-			}
-			if err := expr.Type.Encode(w); err != nil {
-				return err
-			}
+			sink.WriteByte(byte(0x05))
+			expr.Type.Encode(sink)
 		default:
-			return errors.New("error Elem payload Kind")
+			panic("error Elem payload Kind")
 		}
 	default:
-		return errors.New("error Elem Kind")
+		panic("error Elem Kind")
 	}
 
-	if err := t.Payload.Encode(w); err != nil {
-		return err
-	}
-
-	return nil
+	t.Payload.Encode(sink)
 }
 
-func (t ElemPayloadIndices) Encode(w io.Writer) error {
+func (t ElemPayloadIndices) Encode(sink *ZeroCopySink) {
 	var indices []Section
 	for _, i := range t.Indices {
 		indices = append(indices, i)
 	}
 
-	if err := ListEncode(indices, w); err != nil {
-		return err
-	}
-
-	return nil
+	ListEncode(indices, sink)
 }
 
-func (t ElemPayloadExprs) Encode(w io.Writer) error {
-	// to do
-	return nil
+func (t ElemPayloadExprs) Encode(sink *ZeroCopySink) {
 }
 
-func (t Data) Encode(w io.Writer) error {
+func (t Data) Encode(sink *ZeroCopySink) {
 	switch t.Kind.(type) {
 	case DataKindPassive:
-		if err := writeByte(w, byte(0x01)); err != nil {
-			return err
-		}
+		sink.WriteByte(byte(0x01))
 	case DataKindActive:
 		active, _ := t.Kind.(DataKindActive)
 		if active.Memory.Isnum && active.Memory.Num == 0 {
-			if err := writeByte(w, byte(0x00)); err != nil {
-				return err
-			}
+			sink.WriteByte(byte(0x00))
 		} else {
-			if err := writeByte(w, byte(0x02)); err != nil {
-				return err
-			}
-
-			if err := active.Memory.Encode(w); err != nil {
-				return err
-			}
+			sink.WriteByte(byte(0x02))
+			active.Memory.Encode(sink)
 		}
-
 	default:
-		return errors.New("error data kind")
+		panic("error data kind")
 	}
 
 	var l uint32
@@ -501,91 +332,51 @@ func (t Data) Encode(w io.Writer) error {
 		l = l + uint32(len(v))
 	}
 
-	if _, err := leb128.WriteVarUint32(w, l); err != nil {
-		return err
-	}
+	sink.WriteUint32(l)
 
 	for _, v := range t.Val {
-		_, err := w.Write(v)
-		if err != nil {
-			return err
-		}
+		sink.WriteBytes(v)
 	}
-
-	return nil
 }
 
-func (t Func) Encode(w io.Writer) error {
-	// to do
-	return nil
+func (t Func) Encode(sink *ZeroCopySink) {
 }
 
-func (t Expression) Encode(w io.Writer) error {
-	// to do
-	return nil
+func (t Expression) Encode(sink *ZeroCopySink) {
 }
 
-func (t TypeUse) Encode(w io.Writer) error {
-	return t.Index.Encode(w)
+func (t TypeUse) Encode(sink *ZeroCopySink) {
+	t.Index.Encode(sink)
 }
 
-func (t StartField) Encode(w io.Writer) error {
-	return nil
+func (t StartField) Encode(sink *ZeroCopySink) {
 }
 
-func (self ImportFunc) Encode(w io.Writer) error {
-	return self.TypeUse.Encode(w)
+func (self ImportFunc) Encode(sink *ZeroCopySink) {
+	self.TypeUse.Encode(sink)
 }
 
-func (self ImportGlobal) Encode(w io.Writer) error {
-	return self.Global.Encode(w)
+func (self ImportGlobal) Encode(sink *ZeroCopySink) {
+	self.Global.Encode(sink)
 }
 
-func (self ImportMemory) Encode(w io.Writer) error {
-	return self.Mem.Encode(w)
+func (self ImportMemory) Encode(sink *ZeroCopySink) {
+	self.Mem.Encode(sink)
 }
 
-func (self ImportTable) Encode(w io.Writer) error {
-	return self.Table.Encode(w)
+func (self ImportTable) Encode(sink *ZeroCopySink) {
+	self.Table.Encode(sink)
 }
 
-func (t Index) Encode(w io.Writer) error {
+func (t Index) Encode(sink *ZeroCopySink) {
 	if t.Isnum {
-		if _, err := leb128.WriteVarUint32(w, t.Num); err != nil {
-			return err
-		}
+		sink.WriteUint32(t.Num)
+		return
 	}
 
-	return fmt.Errorf("unresolved index in emission %s", t.Id.Name)
+	panic(fmt.Errorf("unresolved index in emission %s", t.Id.Name))
 }
 
-func (t OptionIndex) Encode(w io.Writer) error {
-	return t.ToIndex().Encode(w)
-}
-
-func writeStringUint(w io.Writer, s string) error {
-	return writeBytesUint(w, []byte(s))
-}
-
-func writeBytesUint(w io.Writer, p []byte) error {
-	_, err := leb128.WriteVarUint32(w, uint32(len(p)))
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(p)
-	return err
-}
-
-func writeU32(w io.Writer, n uint32) error {
-	var buf [4]byte
-	binary.LittleEndian.PutUint32(buf[:], n)
-	_, err := w.Write(buf[:])
-	return err
-}
-
-func writeU64(w io.Writer, n uint64) error {
-	var buf [8]byte
-	binary.LittleEndian.PutUint64(buf[:], n)
-	_, err := w.Write(buf[:])
-	return err
+func (t OptionIndex) Encode(sink *ZeroCopySink) {
+	t.ToIndex().Encode(sink)
 }
