@@ -9,8 +9,6 @@ import (
 
 	"github.com/ontio/wast-parser/lexer"
 	"github.com/ontio/wast-parser/parser"
-	"strconv"
-	"strings"
 )
 
 type Id struct {
@@ -252,19 +250,19 @@ func (self *Float32) Parse(ps *parser.ParserBuffer) error {
 	token := ps.PeekToken()
 	if matchTokenType(token, lexer.FloatType) {
 		val, err := ps.Float()
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 		self.Bits, err = string2f32(val)
 		return err
 	} else if matchTokenType(token, lexer.IntegerType) {
 		num, err := ps.ExpectInteger()
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
-}
+	}
 
 	return fmt.Errorf("parse float32 error. expect number type")
 }
@@ -277,9 +275,9 @@ func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 	token := ps.PeekToken()
 	if matchTokenType(token, lexer.FloatType) {
 		val, err := ps.Float()
-	if err != nil {
-		return err
-}
+		if err != nil {
+			return err
+		}
 		self.Bits, err = string2f64(val)
 		return err
 	} else if matchTokenType(token, lexer.IntegerType) {

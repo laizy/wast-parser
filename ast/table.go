@@ -22,8 +22,12 @@ type implTableKind struct{}
 func (self implTableKind) tableKind() {}
 
 func (self *Table) Parse(ps *parser.ParserBuffer) error {
+	err := ps.ExpectKeywordMatch("table")
+	if err != nil {
+		return err
+	}
 	self.Name.Parse(ps)
-	err := self.Exports.Parse(ps)
+	err = self.Exports.Parse(ps)
 	if err != nil {
 		return err
 	}
@@ -88,16 +92,16 @@ func (self *Table) Parse(ps *parser.ParserBuffer) error {
 
 		self.Kind = imp
 		return nil
-	}
+	} else if ps.PeekUint32() {
+		var normal TableKindNormal
+		err = normal.Type.Parse(ps)
+		if err != nil {
+			return err
+		}
 
-	var normal TableKindNormal
-	err = normal.Type.Parse(ps)
-	if err != nil {
-		return err
+		self.Kind = normal
 	}
-
-	self.Kind = normal
-	return nil
+	return fmt.Errorf("table parse error")
 }
 
 type ElemPayload interface {
