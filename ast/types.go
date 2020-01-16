@@ -281,13 +281,10 @@ func (self *TypeUse) ParseNoNames(ps *parser.ParserBuffer) error {
 	return self.ParseAllowNames(ps, false)
 }
 
-func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allow_names bool) error {
+func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allowNames bool) error {
 	if matchKeyword(ps.Peek2Token(), "type") {
 		err := ps.Parens(func(ps *parser.ParserBuffer) error {
-			err := self.Type.Parse(ps)
-			if err != nil {
-				return err
-			}
+			_ = ps.ExpectKeywordMatch("type")
 			self.Index.Parse(ps)
 			return nil
 		})
@@ -295,32 +292,12 @@ func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allow_names bool) 
 			return err
 		}
 	}
-	ft := FunctionType{}
 	if matchKeyword(ps.Peek2Token(), "param") || matchKeyword(ps.Peek2Token(), "result") {
-		return ft.ParseBody(ps, false)
+		return self.Type.ParseBody(ps, allowNames)
 	}
 	return nil
 }
 
 func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {
-	self.Index = NoneOptionIndex()
-	token := ps.Peek2Token()
-	if matchKeyword(token, "type") {
-		var ind Index
-		err := ps.Parens(func(ps *parser.ParserBuffer) error {
-			err := ps.ExpectKeywordMatch("type")
-			if err != nil {
-				panic(err)
-			}
-			return ind.Parse(ps)
-		})
-
-		if err != nil {
-			return err
-		}
-
-		self.Index = NewOptionIndex(ind)
-	}
-
-	return self.Type.ParseBody(ps, true)
+	return self.ParseAllowNames(ps, true)
 }
