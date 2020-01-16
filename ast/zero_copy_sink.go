@@ -98,6 +98,12 @@ func (self *ZeroCopySink) WriteUint32(data uint32) {
 	self.WriteBytes(leb)
 }
 
+func (self *ZeroCopySink) WriteInt64(data int64) {
+	var leb []byte
+	leb = AppendSleb128(leb, data)
+	self.WriteBytes(leb)
+}
+
 func (self *ZeroCopySink) WriteVarBytes(data []byte) (size uint64) {
 	self.WriteUint32(uint32(len(data)))
 	self.WriteBytes(data)
