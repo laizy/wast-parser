@@ -58,6 +58,17 @@ func (self *ParserBuffer) ExpectString() (string, error) {
 	return str, nil
 }
 
+func (self *ParserBuffer) ExpectReserved() error {
+	cursor := self.Cursor()
+	_, err := cursor.Reserved()
+	if err != nil {
+		return err
+	}
+	self.curr = cursor.curr
+
+	return nil
+}
+
 func (self *ParserBuffer) ExpectKeywordMatch(expect string) error {
 	kw, err := self.ExpectKeyword()
 	if err != nil {
@@ -337,6 +348,15 @@ func (self *Cursor) Integer() (val lexer.Integer, err error) {
 func (self *Cursor) String() (string, error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.String); ok {
+			return string(t.Val), nil
+		}
+	}
+
+	return "", errors.New("expect string token")
+}
+func (self *Cursor) Reserved() (string, error) {
+	if token := self.readToken(); token != nil {
+		if t, ok := token.(lexer.Reserved); ok {
 			return string(t.Val), nil
 		}
 	}

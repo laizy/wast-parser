@@ -267,8 +267,16 @@ func (self *Float32) Parse(ps *parser.ParserBuffer) error {
 		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
+	if matchKeyword(token, "nan:canonical") || matchKeyword(token, "nan:arithmetic") {
+		return nil
+	}
 
-	return fmt.Errorf("parse float32 error. expect number type")
+	if token.Type() == lexer.ReservedType {
+		_ = ps.ExpectReserved()
+		return nil
+	}
+
+	return fmt.Errorf("parse float32 error. expect number type, type: %x, val: %s", token.Type(), token.String())
 }
 
 type Float64 struct {
@@ -292,8 +300,14 @@ func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 		self.Bits, err = string2f64(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
-
-	return fmt.Errorf("parse float64 error. expect number type")
+	if matchKeyword(token, "nan:canonical") || matchKeyword(token, "nan:arithmetic") {
+		return nil
+	}
+	if token.Type() == lexer.ReservedType {
+		_ = ps.ExpectReserved()
+		return nil
+	}
+	return fmt.Errorf("parse float64 error. expect number type, %x, val: %s", token.Type(), token.String())
 }
 
 type BlockType struct {
