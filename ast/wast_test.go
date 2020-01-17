@@ -43,6 +43,7 @@ func TestWastParsing(t *testing.T) {
 	assert.Nil(t, err)
 
 	for name, content := range wasts {
+		fmt.Printf("test file name: %s\n", name)
 		//if name != "const.wast" {
 		//	continue
 		//}
