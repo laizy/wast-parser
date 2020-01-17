@@ -19,6 +19,7 @@ package ast
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 )
 
@@ -98,10 +99,26 @@ func (self *ZeroCopySink) WriteUint32(data uint32) {
 	self.WriteBytes(leb)
 }
 
+func (self *ZeroCopySink) WriteInt32(data uint32) {
+	var leb []byte
+	leb = AppendSleb128(leb, int64(data))
+	self.WriteBytes(leb)
+}
+
 func (self *ZeroCopySink) WriteInt64(data int64) {
 	var leb []byte
 	leb = AppendSleb128(leb, data)
 	self.WriteBytes(leb)
+}
+
+func (self *ZeroCopySink) WriteFloat32(data uint32) {
+	buf := self.NextBytes(4)
+	binary.LittleEndian.PutUint32(buf, data)
+}
+
+func (self *ZeroCopySink) WriteFloat64(data uint64) {
+	buf := self.NextBytes(8)
+	binary.LittleEndian.PutUint64(buf, data)
 }
 
 func (self *ZeroCopySink) WriteVarBytes(data []byte) (size uint64) {

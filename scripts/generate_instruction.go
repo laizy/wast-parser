@@ -147,11 +147,11 @@ func (self Instruction) generateEncode() string {
 	for _, field := range self.Fields {
 		switch field.Type {
 		case "uint32":
-			fieldsEncode += "sink.WriteUint32(self." + field.Name + ")" + "\n"
+			fieldsEncode += "sink.WriteInt32(self." + field.Name + ")" + "\n"
 		case "int64":
 			fieldsEncode += "sink.WriteInt64(self." + field.Name + ")" + "\n"
 		default:
-			fieldsEncode += "self." + field.Name + ".Encode()" + "\n"
+			fieldsEncode += "self." + field.Name + ".Encode(sink)" + "\n"
 		}
 	}
 

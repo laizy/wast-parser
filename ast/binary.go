@@ -380,3 +380,63 @@ func (t Index) Encode(sink *ZeroCopySink) {
 func (t OptionIndex) Encode(sink *ZeroCopySink) {
 	t.ToIndex().Encode(sink)
 }
+
+func (t BlockType) Encode(sink *ZeroCopySink) {
+	if t.Ty.Index.IsSome() {
+		t.Ty.Index.Encode(sink)
+		return
+	}
+
+	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 0 {
+		sink.WriteByte(byte(0x40))
+	}
+
+	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 1 {
+		t.Ty.Type.Results[0].Encode(sink)
+	}
+
+	panic("multi-value block types should have an index")
+}
+
+func (t MemArg) Encode(sink *ZeroCopySink) {
+	sink.WriteUint32(t.Align)
+	sink.WriteUint32(t.Offset)
+}
+
+func (t CallIndirectInner) Encode(sink *ZeroCopySink) {
+	t.Table.Encode(sink)
+	t.Type.Encode(sink)
+}
+
+func (t BrTableIndices) Encode(sink *ZeroCopySink) {
+	sink.WriteUint32(uint32(len(t.Labels)))
+	for _, s := range t.Labels {
+		s.Encode(sink)
+	}
+
+	t.Default.Encode(sink)
+}
+
+func (t OptionId) Encode(sink *ZeroCopySink) {
+	//Do nothing
+}
+
+func (t SelectTypes) Encode(sink *ZeroCopySink) {
+	if len(t.Types) == 0 {
+		sink.WriteByte(byte(0x1b))
+	} else {
+		sink.WriteByte(byte(0x1c))
+		sink.WriteUint32(uint32(len(t.Types)))
+		for _, s := range t.Types {
+			s.Encode(sink)
+		}
+	}
+}
+
+func (t Float32) Encode(sink *ZeroCopySink) {
+	sink.WriteFloat32(t.Bits)
+}
+
+func (t Float64) Encode(sink *ZeroCopySink) {
+	sink.WriteFloat64(t.Bits)
+}

@@ -28,7 +28,7 @@ func (self *Block) String() string {
 func (self *Block) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2}
 	sink.WriteBytes(inst)
-	self.BlockType.Encode()
+	self.BlockType.Encode(sink)
 
 }
 
@@ -52,7 +52,7 @@ func (self *If) String() string {
 func (self *If) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x4}
 	sink.WriteBytes(inst)
-	self.BlockType.Encode()
+	self.BlockType.Encode(sink)
 
 }
 
@@ -73,7 +73,7 @@ func (self *Else) String() string {
 func (self *Else) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x5}
 	sink.WriteBytes(inst)
-	self.Id.Encode()
+	self.Id.Encode(sink)
 
 }
 
@@ -97,7 +97,7 @@ func (self *Loop) String() string {
 func (self *Loop) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3}
 	sink.WriteBytes(inst)
-	self.BlockType.Encode()
+	self.BlockType.Encode(sink)
 
 }
 
@@ -118,7 +118,7 @@ func (self *End) String() string {
 func (self *End) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xb}
 	sink.WriteBytes(inst)
-	self.Id.Encode()
+	self.Id.Encode(sink)
 
 }
 
@@ -180,7 +180,7 @@ func (self *Br) String() string {
 func (self *Br) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xc}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -204,7 +204,7 @@ func (self *BrIf) String() string {
 func (self *BrIf) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xd}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -228,7 +228,7 @@ func (self *BrTable) String() string {
 func (self *BrTable) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xe}
 	sink.WriteBytes(inst)
-	self.Indices.Encode()
+	self.Indices.Encode(sink)
 
 }
 
@@ -271,7 +271,7 @@ func (self *Call) String() string {
 func (self *Call) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x10}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -295,7 +295,7 @@ func (self *CallIndirect) String() string {
 func (self *CallIndirect) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x11}
 	sink.WriteBytes(inst)
-	self.Impl.Encode()
+	self.Impl.Encode(sink)
 
 }
 
@@ -319,7 +319,7 @@ func (self *ReturnCall) String() string {
 func (self *ReturnCall) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x12}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -343,7 +343,7 @@ func (self *ReturnCallIndirect) String() string {
 func (self *ReturnCallIndirect) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x13}
 	sink.WriteBytes(inst)
-	self.Impl.Encode()
+	self.Impl.Encode(sink)
 
 }
 
@@ -386,7 +386,7 @@ func (self *Select) String() string {
 func (self *Select) Encode(sink *ZeroCopySink) {
 	inst := []byte{}
 	sink.WriteBytes(inst)
-	self.SelectTypes.Encode()
+	self.SelectTypes.Encode(sink)
 
 }
 
@@ -410,7 +410,7 @@ func (self *LocalGet) String() string {
 func (self *LocalGet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x20}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -434,7 +434,7 @@ func (self *LocalSet) String() string {
 func (self *LocalSet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x21}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -458,7 +458,7 @@ func (self *LocalTee) String() string {
 func (self *LocalTee) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x22}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -482,7 +482,7 @@ func (self *GlobalGet) String() string {
 func (self *GlobalGet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x23}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -506,7 +506,7 @@ func (self *GlobalSet) String() string {
 func (self *GlobalSet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x24}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -530,7 +530,7 @@ func (self *TableGet) String() string {
 func (self *TableGet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x25}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -554,7 +554,7 @@ func (self *TableSet) String() string {
 func (self *TableSet) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x26}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -578,7 +578,7 @@ func (self *I32Load) String() string {
 func (self *I32Load) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x28}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -602,7 +602,7 @@ func (self *I64Load) String() string {
 func (self *I64Load) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x29}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -626,7 +626,7 @@ func (self *F32Load) String() string {
 func (self *F32Load) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -650,7 +650,7 @@ func (self *F64Load) String() string {
 func (self *F64Load) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -674,7 +674,7 @@ func (self *I32Load8s) String() string {
 func (self *I32Load8s) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -698,7 +698,7 @@ func (self *I32Load8u) String() string {
 func (self *I32Load8u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -722,7 +722,7 @@ func (self *I32Load16s) String() string {
 func (self *I32Load16s) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -746,7 +746,7 @@ func (self *I32Load16u) String() string {
 func (self *I32Load16u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x2f}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -770,7 +770,7 @@ func (self *I64Load8s) String() string {
 func (self *I64Load8s) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x30}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -794,7 +794,7 @@ func (self *I64Load8u) String() string {
 func (self *I64Load8u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x31}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -818,7 +818,7 @@ func (self *I64Load16s) String() string {
 func (self *I64Load16s) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x32}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -842,7 +842,7 @@ func (self *I64Load16u) String() string {
 func (self *I64Load16u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x33}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -866,7 +866,7 @@ func (self *I64Load32s) String() string {
 func (self *I64Load32s) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x34}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -890,7 +890,7 @@ func (self *I64Load32u) String() string {
 func (self *I64Load32u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x35}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -914,7 +914,7 @@ func (self *I32Store) String() string {
 func (self *I32Store) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x36}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -938,7 +938,7 @@ func (self *I64Store) String() string {
 func (self *I64Store) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x37}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -962,7 +962,7 @@ func (self *F32Store) String() string {
 func (self *F32Store) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x38}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -986,7 +986,7 @@ func (self *F64Store) String() string {
 func (self *F64Store) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x39}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1010,7 +1010,7 @@ func (self *I32Store8) String() string {
 func (self *I32Store8) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1034,7 +1034,7 @@ func (self *I32Store16) String() string {
 func (self *I32Store16) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1058,7 +1058,7 @@ func (self *I64Store8) String() string {
 func (self *I64Store8) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1082,7 +1082,7 @@ func (self *I64Store16) String() string {
 func (self *I64Store16) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1106,7 +1106,7 @@ func (self *I64Store32) String() string {
 func (self *I64Store32) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x3e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -1206,7 +1206,7 @@ func (self *DataDrop) String() string {
 func (self *DataDrop) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfc,0x9}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1230,7 +1230,7 @@ func (self *ElemDrop) String() string {
 func (self *ElemDrop) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfc,0xd}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1273,7 +1273,7 @@ func (self *TableFill) String() string {
 func (self *TableFill) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfc,0x11}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1297,7 +1297,7 @@ func (self *TableSize) String() string {
 func (self *TableSize) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfc,0x10}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1321,7 +1321,7 @@ func (self *TableGrow) String() string {
 func (self *TableGrow) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfc,0xf}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1384,7 +1384,7 @@ func (self *RefHost) String() string {
 func (self *RefHost) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xff}
 	sink.WriteBytes(inst)
-	sink.WriteUint32(self.Val)
+	sink.WriteInt32(self.Val)
 
 }
 
@@ -1408,7 +1408,7 @@ func (self *RefFunc) String() string {
 func (self *RefFunc) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xd2}
 	sink.WriteBytes(inst)
-	self.Index.Encode()
+	self.Index.Encode(sink)
 
 }
 
@@ -1433,7 +1433,7 @@ func (self *I32Const) String() string {
 func (self *I32Const) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x41}
 	sink.WriteBytes(inst)
-	sink.WriteUint32(self.Val)
+	sink.WriteInt32(self.Val)
 
 }
 
@@ -1482,7 +1482,7 @@ func (self *F32Const) String() string {
 func (self *F32Const) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x43}
 	sink.WriteBytes(inst)
-	self.Val.Encode()
+	self.Val.Encode(sink)
 
 }
 
@@ -1506,7 +1506,7 @@ func (self *F64Const) String() string {
 func (self *F64Const) Encode(sink *ZeroCopySink) {
 	inst := []byte{0x44}
 	sink.WriteBytes(inst)
-	self.Val.Encode()
+	self.Val.Encode(sink)
 
 }
 
@@ -4114,7 +4114,7 @@ func (self *AtomicNotify) String() string {
 func (self *AtomicNotify) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x0}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4138,7 +4138,7 @@ func (self *I32AtomicWait) String() string {
 func (self *I32AtomicWait) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4162,7 +4162,7 @@ func (self *I64AtomicWait) String() string {
 func (self *I64AtomicWait) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4205,7 +4205,7 @@ func (self *I32AtomicLoad) String() string {
 func (self *I32AtomicLoad) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x10}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4229,7 +4229,7 @@ func (self *I64AtomicLoad) String() string {
 func (self *I64AtomicLoad) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x11}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4253,7 +4253,7 @@ func (self *I32AtomicLoad8u) String() string {
 func (self *I32AtomicLoad8u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x12}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4277,7 +4277,7 @@ func (self *I32AtomicLoad16u) String() string {
 func (self *I32AtomicLoad16u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x13}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4301,7 +4301,7 @@ func (self *I64AtomicLoad8u) String() string {
 func (self *I64AtomicLoad8u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x14}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4325,7 +4325,7 @@ func (self *I64AtomicLoad16u) String() string {
 func (self *I64AtomicLoad16u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x15}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4349,7 +4349,7 @@ func (self *I64AtomicLoad32u) String() string {
 func (self *I64AtomicLoad32u) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x16}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4373,7 +4373,7 @@ func (self *I32AtomicStore) String() string {
 func (self *I32AtomicStore) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x17}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4397,7 +4397,7 @@ func (self *I64AtomicStore) String() string {
 func (self *I64AtomicStore) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x18}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4421,7 +4421,7 @@ func (self *I32AtomicStore8) String() string {
 func (self *I32AtomicStore8) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x19}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4445,7 +4445,7 @@ func (self *I32AtomicStore16) String() string {
 func (self *I32AtomicStore16) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4469,7 +4469,7 @@ func (self *I64AtomicStore8) String() string {
 func (self *I64AtomicStore8) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4493,7 +4493,7 @@ func (self *I64AtomicStore16) String() string {
 func (self *I64AtomicStore16) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4517,7 +4517,7 @@ func (self *I64AtomicStore32) String() string {
 func (self *I64AtomicStore32) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4541,7 +4541,7 @@ func (self *I32AtomicRmwAdd) String() string {
 func (self *I32AtomicRmwAdd) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4565,7 +4565,7 @@ func (self *I64AtomicRmwAdd) String() string {
 func (self *I64AtomicRmwAdd) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x1f}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4589,7 +4589,7 @@ func (self *I32AtomicRmw8AddU) String() string {
 func (self *I32AtomicRmw8AddU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x20}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4613,7 +4613,7 @@ func (self *I32AtomicRmw16AddU) String() string {
 func (self *I32AtomicRmw16AddU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x21}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4637,7 +4637,7 @@ func (self *I64AtomicRmw8AddU) String() string {
 func (self *I64AtomicRmw8AddU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x22}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4661,7 +4661,7 @@ func (self *I64AtomicRmw16AddU) String() string {
 func (self *I64AtomicRmw16AddU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x23}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4685,7 +4685,7 @@ func (self *I64AtomicRmw32AddU) String() string {
 func (self *I64AtomicRmw32AddU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x24}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4709,7 +4709,7 @@ func (self *I32AtomicRmwSub) String() string {
 func (self *I32AtomicRmwSub) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x25}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4733,7 +4733,7 @@ func (self *I64AtomicRmwSub) String() string {
 func (self *I64AtomicRmwSub) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x26}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4757,7 +4757,7 @@ func (self *I32AtomicRmw8SubU) String() string {
 func (self *I32AtomicRmw8SubU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x27}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4781,7 +4781,7 @@ func (self *I32AtomicRmw16SubU) String() string {
 func (self *I32AtomicRmw16SubU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x28}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4805,7 +4805,7 @@ func (self *I64AtomicRmw8SubU) String() string {
 func (self *I64AtomicRmw8SubU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x29}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4829,7 +4829,7 @@ func (self *I64AtomicRmw16SubU) String() string {
 func (self *I64AtomicRmw16SubU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4853,7 +4853,7 @@ func (self *I64AtomicRmw32SubU) String() string {
 func (self *I64AtomicRmw32SubU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4877,7 +4877,7 @@ func (self *I32AtomicRmwAnd) String() string {
 func (self *I32AtomicRmwAnd) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4901,7 +4901,7 @@ func (self *I64AtomicRmwAnd) String() string {
 func (self *I64AtomicRmwAnd) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4925,7 +4925,7 @@ func (self *I32AtomicRmw8AndU) String() string {
 func (self *I32AtomicRmw8AndU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4949,7 +4949,7 @@ func (self *I32AtomicRmw16AndU) String() string {
 func (self *I32AtomicRmw16AndU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x2f}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4973,7 +4973,7 @@ func (self *I64AtomicRmw8AndU) String() string {
 func (self *I64AtomicRmw8AndU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x30}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -4997,7 +4997,7 @@ func (self *I64AtomicRmw16AndU) String() string {
 func (self *I64AtomicRmw16AndU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x31}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5021,7 +5021,7 @@ func (self *I64AtomicRmw32AndU) String() string {
 func (self *I64AtomicRmw32AndU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x32}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5045,7 +5045,7 @@ func (self *I32AtomicRmwOr) String() string {
 func (self *I32AtomicRmwOr) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x33}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5069,7 +5069,7 @@ func (self *I64AtomicRmwOr) String() string {
 func (self *I64AtomicRmwOr) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x34}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5093,7 +5093,7 @@ func (self *I32AtomicRmw8OrU) String() string {
 func (self *I32AtomicRmw8OrU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x35}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5117,7 +5117,7 @@ func (self *I32AtomicRmw16OrU) String() string {
 func (self *I32AtomicRmw16OrU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x36}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5141,7 +5141,7 @@ func (self *I64AtomicRmw8OrU) String() string {
 func (self *I64AtomicRmw8OrU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x37}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5165,7 +5165,7 @@ func (self *I64AtomicRmw16OrU) String() string {
 func (self *I64AtomicRmw16OrU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x38}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5189,7 +5189,7 @@ func (self *I64AtomicRmw32OrU) String() string {
 func (self *I64AtomicRmw32OrU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x39}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5213,7 +5213,7 @@ func (self *I32AtomicRmwXor) String() string {
 func (self *I32AtomicRmwXor) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5237,7 +5237,7 @@ func (self *I64AtomicRmwXor) String() string {
 func (self *I64AtomicRmwXor) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5261,7 +5261,7 @@ func (self *I32AtomicRmw8XorU) String() string {
 func (self *I32AtomicRmw8XorU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5285,7 +5285,7 @@ func (self *I32AtomicRmw16XorU) String() string {
 func (self *I32AtomicRmw16XorU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5309,7 +5309,7 @@ func (self *I64AtomicRmw8XorU) String() string {
 func (self *I64AtomicRmw8XorU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5333,7 +5333,7 @@ func (self *I64AtomicRmw16XorU) String() string {
 func (self *I64AtomicRmw16XorU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x3f}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5357,7 +5357,7 @@ func (self *I64AtomicRmw32XorU) String() string {
 func (self *I64AtomicRmw32XorU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x40}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5381,7 +5381,7 @@ func (self *I32AtomicRmwXchg) String() string {
 func (self *I32AtomicRmwXchg) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x41}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5405,7 +5405,7 @@ func (self *I64AtomicRmwXchg) String() string {
 func (self *I64AtomicRmwXchg) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x42}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5429,7 +5429,7 @@ func (self *I32AtomicRmw8XchgU) String() string {
 func (self *I32AtomicRmw8XchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x43}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5453,7 +5453,7 @@ func (self *I32AtomicRmw16XchgU) String() string {
 func (self *I32AtomicRmw16XchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x44}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5477,7 +5477,7 @@ func (self *I64AtomicRmw8XchgU) String() string {
 func (self *I64AtomicRmw8XchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x45}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5501,7 +5501,7 @@ func (self *I64AtomicRmw16XchgU) String() string {
 func (self *I64AtomicRmw16XchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x46}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5525,7 +5525,7 @@ func (self *I64AtomicRmw32XchgU) String() string {
 func (self *I64AtomicRmw32XchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x47}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5549,7 +5549,7 @@ func (self *I32AtomicRmwCmpxchg) String() string {
 func (self *I32AtomicRmwCmpxchg) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x48}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5573,7 +5573,7 @@ func (self *I64AtomicRmwCmpxchg) String() string {
 func (self *I64AtomicRmwCmpxchg) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x49}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5597,7 +5597,7 @@ func (self *I32AtomicRmw8CmpxchgU) String() string {
 func (self *I32AtomicRmw8CmpxchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x4a}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5621,7 +5621,7 @@ func (self *I32AtomicRmw16CmpxchgU) String() string {
 func (self *I32AtomicRmw16CmpxchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x4b}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5645,7 +5645,7 @@ func (self *I64AtomicRmw8CmpxchgU) String() string {
 func (self *I64AtomicRmw8CmpxchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x4c}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5669,7 +5669,7 @@ func (self *I64AtomicRmw16CmpxchgU) String() string {
 func (self *I64AtomicRmw16CmpxchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x4d}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5693,7 +5693,7 @@ func (self *I64AtomicRmw32CmpxchgU) String() string {
 func (self *I64AtomicRmw32CmpxchgU) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfe,0x4e}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5717,7 +5717,7 @@ func (self *V128Load) String() string {
 func (self *V128Load) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0x0}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -5741,7 +5741,7 @@ func (self *V128Store) String() string {
 func (self *V128Store) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0x1}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8007,7 +8007,7 @@ func (self *V8x16LoadSplat) String() string {
 func (self *V8x16LoadSplat) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xc2}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8031,7 +8031,7 @@ func (self *V16x8LoadSplat) String() string {
 func (self *V16x8LoadSplat) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xc3}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8055,7 +8055,7 @@ func (self *V32x4LoadSplat) String() string {
 func (self *V32x4LoadSplat) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xc4}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8079,7 +8079,7 @@ func (self *V64x2LoadSplat) String() string {
 func (self *V64x2LoadSplat) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xc5}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8331,7 +8331,7 @@ func (self *I16x8Load8x8S) String() string {
 func (self *I16x8Load8x8S) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd2}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8355,7 +8355,7 @@ func (self *I16x8Load8x8U) String() string {
 func (self *I16x8Load8x8U) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd3}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8379,7 +8379,7 @@ func (self *I32x4Load16x4S) String() string {
 func (self *I32x4Load16x4S) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd4}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8403,7 +8403,7 @@ func (self *I32x4Load16x4U) String() string {
 func (self *I32x4Load16x4U) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd5}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8427,7 +8427,7 @@ func (self *I64x2Load32x2S) String() string {
 func (self *I64x2Load32x2S) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd6}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
@@ -8451,7 +8451,7 @@ func (self *I64x2Load32x2U) String() string {
 func (self *I64x2Load32x2U) Encode(sink *ZeroCopySink) {
 	inst := []byte{0xfd,0xd7}
 	sink.WriteBytes(inst)
-	self.MemArg.Encode()
+	self.MemArg.Encode(sink)
 
 }
 
