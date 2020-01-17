@@ -228,7 +228,6 @@ func parseQuoteModule(ps *parser.ParserBuffer) (QuoteModule, error) {
 
 func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 	kw, err := ps.ExpectKeyword()
-	fmt.Println("kw:", kw)
 	if err != nil {
 		return nil, err
 	}
