@@ -1,6 +1,5 @@
 package ast
 
-
 import (
 	"fmt"
 	"github.com/ontio/wast-parser/parser"
@@ -38,7 +37,6 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 
 	return wasts, nil
 }
-
 
 func TestWastParsing(t *testing.T) {
 	wasts, err := LoadWastFiles("../tests/spectestdata/")

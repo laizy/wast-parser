@@ -90,6 +90,7 @@ type WastDirective interface {
 }
 
 type implWastDirective struct{}
+
 func (self implWastDirective) wastDirective() {}
 
 type AssertInvalidDirective struct {
@@ -143,6 +144,7 @@ type WastExecute interface {
 	wastExecute()
 }
 type implWastExecute struct{}
+
 func (self implWastExecute) wastExecute() {}
 
 type WastInvoke struct {
@@ -195,6 +197,7 @@ type QuoteModule interface {
 }
 
 type implQuoteModule struct{}
+
 func (self implQuoteModule) quoteModule() {}
 
 type Quote struct {
@@ -350,7 +353,6 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 	}
 }
 
-
 func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 	kw, err := ps.ExpectKeyword()
 	if err != nil {
@@ -381,4 +383,3 @@ func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 		return nil, errors.New("parse wast execute error")
 	}
 }
-
