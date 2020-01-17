@@ -358,7 +358,6 @@ func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	switch kw {
 	case "invoke":
 		ps.StepBack(1)

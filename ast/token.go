@@ -182,9 +182,9 @@ func string2f64(val lexer.Float) (uint64, error) {
 			return math.Float64bits(f), nil
 		}
 		//TODO
-		//fmt.Println("todo: parse hex float not implemented yet")
-		return 0, nil
-		//panic("todo: parse hex float not implemented yet")
+		fmt.Printf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String())
+		//return 0, nil
+		panic(fmt.Sprintf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String()))
 	default:
 		panic("unreachable")
 	}
@@ -243,8 +243,8 @@ func string2f32(val lexer.Float) (uint32, error) {
 		}
 		//TODO
 		//fmt.Println("todo: parse hex float not implemented yet")
-		//panic("todo: parse hex float not implemented yet")
-		return 0, nil
+		panic(fmt.Sprintf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String()))
+		//return 0, nil
 	default:
 		panic("unreachable")
 	}
