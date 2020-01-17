@@ -33,6 +33,7 @@ func (self *Expression) String() string {
 type Instruction interface {
 	parseInstrBody(ps *parser.ParserBuffer) error
 	String() string
+	Encode(sink *ZeroCopySink)
 }
 
 type instructions struct {

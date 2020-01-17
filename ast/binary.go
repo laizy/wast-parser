@@ -340,9 +340,49 @@ func (t Data) Encode(sink *ZeroCopySink) {
 }
 
 func (t Func) Encode(sink *ZeroCopySink) {
+	switch t.Kind.(type) {
+	case FuncKindInline:
+		fun := t.Kind.(FuncKindInline)
+
+		type compressLocal struct {
+			num   uint32
+			local Local
+		}
+		tmpSink := NewZeroCopySink(nil)
+		var comL []compressLocal
+
+		for _, ct := range fun.Locals {
+			if len(comL) > 0 && ct.ValType == comL[len(comL)-1].local.ValType {
+				comL[len(comL)-1].num += 1
+				continue
+			}
+
+			comL = append(comL, compressLocal{
+				num:   1,
+				local: ct,
+			})
+		}
+
+		tmpSink.WriteUint32(uint32(len(comL)))
+		for _, v := range comL {
+			tmpSink.WriteUint32(v.num)
+			v.local.ValType.Encode(tmpSink)
+		}
+
+		fun.Expr.Encode(tmpSink)
+		sink.WriteVarBytes(tmpSink.Bytes())
+	default:
+		panic("should only have inline functions in emission")
+	}
+
 }
 
 func (t Expression) Encode(sink *ZeroCopySink) {
+	for _, inst := range t.Instrs {
+		inst.Encode(sink)
+	}
+
+	sink.WriteByte(byte(0x0b))
 }
 
 func (t TypeUse) Encode(sink *ZeroCopySink) {
