@@ -23,6 +23,13 @@ func (self *Block) String() string {
 	return "block"
 }
 
+func (self *Block) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2}
+	sink.WriteBytes(inst)
+	self.BlockType.Encode(sink)
+
+}
+
 type If struct {
 	BlockType BlockType
 }
@@ -40,6 +47,13 @@ func (self *If) String() string {
 	return "if"
 }
 
+func (self *If) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4}
+	sink.WriteBytes(inst)
+	self.BlockType.Encode(sink)
+
+}
+
 type Else struct {
 	Id OptionId
 }
@@ -52,6 +66,13 @@ func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *Else) String() string {
 	return "else"
+}
+
+func (self *Else) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5}
+	sink.WriteBytes(inst)
+	self.Id.Encode(sink)
+
 }
 
 type Loop struct {
@@ -71,6 +92,13 @@ func (self *Loop) String() string {
 	return "loop"
 }
 
+func (self *Loop) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3}
+	sink.WriteBytes(inst)
+	self.BlockType.Encode(sink)
+
+}
+
 type End struct {
 	Id OptionId
 }
@@ -85,6 +113,13 @@ func (self *End) String() string {
 	return "end"
 }
 
+func (self *End) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb}
+	sink.WriteBytes(inst)
+	self.Id.Encode(sink)
+
+}
+
 type Unreachable struct {
 }
 
@@ -97,6 +132,12 @@ func (self *Unreachable) String() string {
 	return "unreachable"
 }
 
+func (self *Unreachable) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x0}
+	sink.WriteBytes(inst)
+
+}
+
 type Nop struct {
 }
 
@@ -107,6 +148,12 @@ func (self *Nop) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *Nop) String() string {
 	return "nop"
+}
+
+func (self *Nop) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x1}
+	sink.WriteBytes(inst)
+
 }
 
 type Br struct {
@@ -126,6 +173,13 @@ func (self *Br) String() string {
 	return "br"
 }
 
+func (self *Br) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type BrIf struct {
 	Index Index
 }
@@ -141,6 +195,13 @@ func (self *BrIf) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *BrIf) String() string {
 	return "br_if"
+}
+
+func (self *BrIf) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xd}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type BrTable struct {
@@ -160,6 +221,13 @@ func (self *BrTable) String() string {
 	return "br_table"
 }
 
+func (self *BrTable) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xe}
+	sink.WriteBytes(inst)
+	self.Indices.Encode(sink)
+
+}
+
 type Return struct {
 }
 
@@ -170,6 +238,12 @@ func (self *Return) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *Return) String() string {
 	return "return"
+}
+
+func (self *Return) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xf}
+	sink.WriteBytes(inst)
+
 }
 
 type Call struct {
@@ -189,6 +263,13 @@ func (self *Call) String() string {
 	return "call"
 }
 
+func (self *Call) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x10}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type CallIndirect struct {
 	Impl CallIndirectInner
 }
@@ -204,6 +285,13 @@ func (self *CallIndirect) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *CallIndirect) String() string {
 	return "call_indirect"
+}
+
+func (self *CallIndirect) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x11}
+	sink.WriteBytes(inst)
+	self.Impl.Encode(sink)
+
 }
 
 type ReturnCall struct {
@@ -223,6 +311,13 @@ func (self *ReturnCall) String() string {
 	return "return_call"
 }
 
+func (self *ReturnCall) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x12}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type ReturnCallIndirect struct {
 	Impl CallIndirectInner
 }
@@ -240,6 +335,13 @@ func (self *ReturnCallIndirect) String() string {
 	return "return_call_indirect"
 }
 
+func (self *ReturnCallIndirect) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x13}
+	sink.WriteBytes(inst)
+	self.Impl.Encode(sink)
+
+}
+
 type Drop struct {
 }
 
@@ -250,6 +352,12 @@ func (self *Drop) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *Drop) String() string {
 	return "drop"
+}
+
+func (self *Drop) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x1a}
+	sink.WriteBytes(inst)
+
 }
 
 type Select struct {
@@ -269,6 +377,13 @@ func (self *Select) String() string {
 	return "select"
 }
 
+func (self *Select) Encode(sink *ZeroCopySink) {
+	inst := []byte{}
+	sink.WriteBytes(inst)
+	self.SelectTypes.Encode(sink)
+
+}
+
 type LocalGet struct {
 	Index Index
 }
@@ -284,6 +399,13 @@ func (self *LocalGet) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *LocalGet) String() string {
 	return "local.get"
+}
+
+func (self *LocalGet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x20}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type LocalSet struct {
@@ -303,6 +425,13 @@ func (self *LocalSet) String() string {
 	return "local.set"
 }
 
+func (self *LocalSet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x21}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type LocalTee struct {
 	Index Index
 }
@@ -318,6 +447,13 @@ func (self *LocalTee) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *LocalTee) String() string {
 	return "local.tee"
+}
+
+func (self *LocalTee) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x22}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type GlobalGet struct {
@@ -337,6 +473,13 @@ func (self *GlobalGet) String() string {
 	return "global.get"
 }
 
+func (self *GlobalGet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x23}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type GlobalSet struct {
 	Index Index
 }
@@ -352,6 +495,13 @@ func (self *GlobalSet) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *GlobalSet) String() string {
 	return "global.set"
+}
+
+func (self *GlobalSet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x24}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type TableGet struct {
@@ -371,6 +521,13 @@ func (self *TableGet) String() string {
 	return "table.get"
 }
 
+func (self *TableGet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x25}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type TableSet struct {
 	Index Index
 }
@@ -386,6 +543,13 @@ func (self *TableSet) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *TableSet) String() string {
 	return "table.set"
+}
+
+func (self *TableSet) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x26}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type I32Load struct {
@@ -405,6 +569,13 @@ func (self *I32Load) String() string {
 	return "i32.load"
 }
 
+func (self *I32Load) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x28}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Load struct {
 	MemArg MemArg
 }
@@ -420,6 +591,13 @@ func (self *I64Load) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Load) String() string {
 	return "i64.load"
+}
+
+func (self *I64Load) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x29}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type F32Load struct {
@@ -439,6 +617,13 @@ func (self *F32Load) String() string {
 	return "f32.load"
 }
 
+func (self *F32Load) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type F64Load struct {
 	MemArg MemArg
 }
@@ -454,6 +639,13 @@ func (self *F64Load) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Load) String() string {
 	return "f64.load"
+}
+
+func (self *F64Load) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32Load8s struct {
@@ -473,6 +665,13 @@ func (self *I32Load8s) String() string {
 	return "i32.load8_s"
 }
 
+func (self *I32Load8s) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32Load8u struct {
 	MemArg MemArg
 }
@@ -488,6 +687,13 @@ func (self *I32Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Load8u) String() string {
 	return "i32.load8_u"
+}
+
+func (self *I32Load8u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32Load16s struct {
@@ -507,6 +713,13 @@ func (self *I32Load16s) String() string {
 	return "i32.load16_s"
 }
 
+func (self *I32Load16s) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32Load16u struct {
 	MemArg MemArg
 }
@@ -522,6 +735,13 @@ func (self *I32Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Load16u) String() string {
 	return "i32.load16_u"
+}
+
+func (self *I32Load16u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x2f}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64Load8s struct {
@@ -541,6 +761,13 @@ func (self *I64Load8s) String() string {
 	return "i64.load8_s"
 }
 
+func (self *I64Load8s) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x30}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Load8u struct {
 	MemArg MemArg
 }
@@ -556,6 +783,13 @@ func (self *I64Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Load8u) String() string {
 	return "i64.load8_u"
+}
+
+func (self *I64Load8u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x31}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64Load16s struct {
@@ -575,6 +809,13 @@ func (self *I64Load16s) String() string {
 	return "i64.load16_s"
 }
 
+func (self *I64Load16s) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x32}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Load16u struct {
 	MemArg MemArg
 }
@@ -590,6 +831,13 @@ func (self *I64Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Load16u) String() string {
 	return "i64.load16_u"
+}
+
+func (self *I64Load16u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x33}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64Load32s struct {
@@ -609,6 +857,13 @@ func (self *I64Load32s) String() string {
 	return "i64.load32_s"
 }
 
+func (self *I64Load32s) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x34}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Load32u struct {
 	MemArg MemArg
 }
@@ -624,6 +879,13 @@ func (self *I64Load32u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Load32u) String() string {
 	return "i64.load32_u"
+}
+
+func (self *I64Load32u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x35}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32Store struct {
@@ -643,6 +905,13 @@ func (self *I32Store) String() string {
 	return "i32.store"
 }
 
+func (self *I32Store) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x36}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Store struct {
 	MemArg MemArg
 }
@@ -658,6 +927,13 @@ func (self *I64Store) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Store) String() string {
 	return "i64.store"
+}
+
+func (self *I64Store) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x37}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type F32Store struct {
@@ -677,6 +953,13 @@ func (self *F32Store) String() string {
 	return "f32.store"
 }
 
+func (self *F32Store) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x38}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type F64Store struct {
 	MemArg MemArg
 }
@@ -692,6 +975,13 @@ func (self *F64Store) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Store) String() string {
 	return "f64.store"
+}
+
+func (self *F64Store) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x39}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32Store8 struct {
@@ -711,6 +1001,13 @@ func (self *I32Store8) String() string {
 	return "i32.store8"
 }
 
+func (self *I32Store8) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32Store16 struct {
 	MemArg MemArg
 }
@@ -726,6 +1023,13 @@ func (self *I32Store16) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Store16) String() string {
 	return "i32.store16"
+}
+
+func (self *I32Store16) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64Store8 struct {
@@ -745,6 +1049,13 @@ func (self *I64Store8) String() string {
 	return "i64.store8"
 }
 
+func (self *I64Store8) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64Store16 struct {
 	MemArg MemArg
 }
@@ -760,6 +1071,13 @@ func (self *I64Store16) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Store16) String() string {
 	return "i64.store16"
+}
+
+func (self *I64Store16) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64Store32 struct {
@@ -779,6 +1097,13 @@ func (self *I64Store32) String() string {
 	return "i64.store32"
 }
 
+func (self *I64Store32) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type MemorySize struct {
 }
 
@@ -789,6 +1114,12 @@ func (self *MemorySize) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *MemorySize) String() string {
 	return "memory.size"
+}
+
+func (self *MemorySize) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x3f, 0x0}
+	sink.WriteBytes(inst)
+
 }
 
 type MemoryGrow struct {
@@ -803,6 +1134,12 @@ func (self *MemoryGrow) String() string {
 	return "memory.grow"
 }
 
+func (self *MemoryGrow) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x40, 0x0}
+	sink.WriteBytes(inst)
+
+}
+
 type MemoryCopy struct {
 }
 
@@ -815,6 +1152,12 @@ func (self *MemoryCopy) String() string {
 	return "memory.copy"
 }
 
+func (self *MemoryCopy) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0xa, 0x0, 0x0}
+	sink.WriteBytes(inst)
+
+}
+
 type MemoryFill struct {
 }
 
@@ -825,6 +1168,12 @@ func (self *MemoryFill) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *MemoryFill) String() string {
 	return "memory.fill"
+}
+
+func (self *MemoryFill) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0xb, 0x0}
+	sink.WriteBytes(inst)
+
 }
 
 type DataDrop struct {
@@ -844,6 +1193,13 @@ func (self *DataDrop) String() string {
 	return "data.drop"
 }
 
+func (self *DataDrop) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x9}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type ElemDrop struct {
 	Index Index
 }
@@ -861,6 +1217,13 @@ func (self *ElemDrop) String() string {
 	return "elem.drop"
 }
 
+func (self *ElemDrop) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0xd}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type TableCopy struct {
 }
 
@@ -871,6 +1234,12 @@ func (self *TableCopy) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *TableCopy) String() string {
 	return "table.copy"
+}
+
+func (self *TableCopy) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0xe, 0x0, 0x0}
+	sink.WriteBytes(inst)
+
 }
 
 type TableFill struct {
@@ -890,6 +1259,13 @@ func (self *TableFill) String() string {
 	return "table.fill"
 }
 
+func (self *TableFill) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x11}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type TableSize struct {
 	Index Index
 }
@@ -905,6 +1281,13 @@ func (self *TableSize) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *TableSize) String() string {
 	return "table.size"
+}
+
+func (self *TableSize) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x10}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type TableGrow struct {
@@ -924,6 +1307,13 @@ func (self *TableGrow) String() string {
 	return "table.grow"
 }
 
+func (self *TableGrow) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0xf}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
+}
+
 type RefNull struct {
 }
 
@@ -936,6 +1326,12 @@ func (self *RefNull) String() string {
 	return "ref.null"
 }
 
+func (self *RefNull) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xd0}
+	sink.WriteBytes(inst)
+
+}
+
 type RefIsNull struct {
 }
 
@@ -946,6 +1342,12 @@ func (self *RefIsNull) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *RefIsNull) String() string {
 	return "ref.is_null"
+}
+
+func (self *RefIsNull) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xd1}
+	sink.WriteBytes(inst)
+
 }
 
 type RefHost struct {
@@ -966,6 +1368,13 @@ func (self *RefHost) String() string {
 	return "ref.host"
 }
 
+func (self *RefHost) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xff}
+	sink.WriteBytes(inst)
+	sink.WriteInt32(self.Val)
+
+}
+
 type RefFunc struct {
 	Index Index
 }
@@ -981,6 +1390,13 @@ func (self *RefFunc) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *RefFunc) String() string {
 	return "ref.func"
+}
+
+func (self *RefFunc) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xd2}
+	sink.WriteBytes(inst)
+	self.Index.Encode(sink)
+
 }
 
 type I32Const struct {
@@ -1001,6 +1417,13 @@ func (self *I32Const) String() string {
 	return "i32.const"
 }
 
+func (self *I32Const) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x41}
+	sink.WriteBytes(inst)
+	sink.WriteInt32(self.Val)
+
+}
+
 type I64Const struct {
 	Val int64
 }
@@ -1017,6 +1440,13 @@ func (self *I64Const) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Const) String() string {
 	return "i64.const"
+}
+
+func (self *I64Const) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x42}
+	sink.WriteBytes(inst)
+	sink.WriteInt64(self.Val)
+
 }
 
 type F32Const struct {
@@ -1036,6 +1466,13 @@ func (self *F32Const) String() string {
 	return "f32.const"
 }
 
+func (self *F32Const) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x43}
+	sink.WriteBytes(inst)
+	self.Val.Encode(sink)
+
+}
+
 type F64Const struct {
 	Val Float64
 }
@@ -1053,6 +1490,13 @@ func (self *F64Const) String() string {
 	return "f64.const"
 }
 
+func (self *F64Const) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x44}
+	sink.WriteBytes(inst)
+	self.Val.Encode(sink)
+
+}
+
 type I32Clz struct {
 }
 
@@ -1063,6 +1507,12 @@ func (self *I32Clz) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Clz) String() string {
 	return "i32.clz"
+}
+
+func (self *I32Clz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x67}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Ctz struct {
@@ -1077,6 +1527,12 @@ func (self *I32Ctz) String() string {
 	return "i32.ctz"
 }
 
+func (self *I32Ctz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x68}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Pocnt struct {
 }
 
@@ -1087,6 +1543,12 @@ func (self *I32Pocnt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Pocnt) String() string {
 	return "i32.popcnt"
+}
+
+func (self *I32Pocnt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x69}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Add struct {
@@ -1101,6 +1563,12 @@ func (self *I32Add) String() string {
 	return "i32.add"
 }
 
+func (self *I32Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6a}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Sub struct {
 }
 
@@ -1111,6 +1579,12 @@ func (self *I32Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Sub) String() string {
 	return "i32.sub"
+}
+
+func (self *I32Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6b}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Mul struct {
@@ -1125,6 +1599,12 @@ func (self *I32Mul) String() string {
 	return "i32.mul"
 }
 
+func (self *I32Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6c}
+	sink.WriteBytes(inst)
+
+}
+
 type I32DivS struct {
 }
 
@@ -1135,6 +1615,12 @@ func (self *I32DivS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32DivS) String() string {
 	return "i32.div_s"
+}
+
+func (self *I32DivS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6d}
+	sink.WriteBytes(inst)
+
 }
 
 type I32DivU struct {
@@ -1149,6 +1635,12 @@ func (self *I32DivU) String() string {
 	return "i32.div_u"
 }
 
+func (self *I32DivU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6e}
+	sink.WriteBytes(inst)
+
+}
+
 type I32RemS struct {
 }
 
@@ -1159,6 +1651,12 @@ func (self *I32RemS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32RemS) String() string {
 	return "i32.rem_s"
+}
+
+func (self *I32RemS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x6f}
+	sink.WriteBytes(inst)
+
 }
 
 type I32RemU struct {
@@ -1173,6 +1671,12 @@ func (self *I32RemU) String() string {
 	return "i32.rem_u"
 }
 
+func (self *I32RemU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x70}
+	sink.WriteBytes(inst)
+
+}
+
 type I32And struct {
 }
 
@@ -1183,6 +1687,12 @@ func (self *I32And) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32And) String() string {
 	return "i32.and"
+}
+
+func (self *I32And) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x71}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Or struct {
@@ -1197,6 +1707,12 @@ func (self *I32Or) String() string {
 	return "i32.or"
 }
 
+func (self *I32Or) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x72}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Xor struct {
 }
 
@@ -1207,6 +1723,12 @@ func (self *I32Xor) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Xor) String() string {
 	return "i32.xor"
+}
+
+func (self *I32Xor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x73}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Shl struct {
@@ -1221,6 +1743,12 @@ func (self *I32Shl) String() string {
 	return "i32.shl"
 }
 
+func (self *I32Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x74}
+	sink.WriteBytes(inst)
+
+}
+
 type I32ShrS struct {
 }
 
@@ -1231,6 +1759,12 @@ func (self *I32ShrS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32ShrS) String() string {
 	return "i32.shr_s"
+}
+
+func (self *I32ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x75}
+	sink.WriteBytes(inst)
+
 }
 
 type I32ShrU struct {
@@ -1245,6 +1779,12 @@ func (self *I32ShrU) String() string {
 	return "i32.shr_u"
 }
 
+func (self *I32ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x76}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Rotl struct {
 }
 
@@ -1255,6 +1795,12 @@ func (self *I32Rotl) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Rotl) String() string {
 	return "i32.rotl"
+}
+
+func (self *I32Rotl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x77}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Rotr struct {
@@ -1269,6 +1815,12 @@ func (self *I32Rotr) String() string {
 	return "i32.rotr"
 }
 
+func (self *I32Rotr) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x78}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Clz struct {
 }
 
@@ -1279,6 +1831,12 @@ func (self *I64Clz) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Clz) String() string {
 	return "i64.clz"
+}
+
+func (self *I64Clz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x79}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Ctz struct {
@@ -1293,6 +1851,12 @@ func (self *I64Ctz) String() string {
 	return "i64.ctz"
 }
 
+func (self *I64Ctz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7a}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Popcnt struct {
 }
 
@@ -1303,6 +1867,12 @@ func (self *I64Popcnt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Popcnt) String() string {
 	return "i64.popcnt"
+}
+
+func (self *I64Popcnt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7b}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Add struct {
@@ -1317,6 +1887,12 @@ func (self *I64Add) String() string {
 	return "i64.add"
 }
 
+func (self *I64Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7c}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Sub struct {
 }
 
@@ -1327,6 +1903,12 @@ func (self *I64Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Sub) String() string {
 	return "i64.sub"
+}
+
+func (self *I64Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7d}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Mul struct {
@@ -1341,6 +1923,12 @@ func (self *I64Mul) String() string {
 	return "i64.mul"
 }
 
+func (self *I64Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7e}
+	sink.WriteBytes(inst)
+
+}
+
 type I64DivS struct {
 }
 
@@ -1351,6 +1939,12 @@ func (self *I64DivS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64DivS) String() string {
 	return "i64.div_s"
+}
+
+func (self *I64DivS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x7f}
+	sink.WriteBytes(inst)
+
 }
 
 type I64DivU struct {
@@ -1365,6 +1959,12 @@ func (self *I64DivU) String() string {
 	return "i64.div_u"
 }
 
+func (self *I64DivU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x80}
+	sink.WriteBytes(inst)
+
+}
+
 type I64RemS struct {
 }
 
@@ -1375,6 +1975,12 @@ func (self *I64RemS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64RemS) String() string {
 	return "i64.rem_s"
+}
+
+func (self *I64RemS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x81}
+	sink.WriteBytes(inst)
+
 }
 
 type I64RemU struct {
@@ -1389,6 +1995,12 @@ func (self *I64RemU) String() string {
 	return "i64.rem_u"
 }
 
+func (self *I64RemU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x82}
+	sink.WriteBytes(inst)
+
+}
+
 type I64And struct {
 }
 
@@ -1399,6 +2011,12 @@ func (self *I64And) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64And) String() string {
 	return "i64.and"
+}
+
+func (self *I64And) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x83}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Or struct {
@@ -1413,6 +2031,12 @@ func (self *I64Or) String() string {
 	return "i64.or"
 }
 
+func (self *I64Or) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x84}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Xor struct {
 }
 
@@ -1423,6 +2047,12 @@ func (self *I64Xor) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Xor) String() string {
 	return "i64.xor"
+}
+
+func (self *I64Xor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x85}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Shl struct {
@@ -1437,6 +2067,12 @@ func (self *I64Shl) String() string {
 	return "i64.shl"
 }
 
+func (self *I64Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x86}
+	sink.WriteBytes(inst)
+
+}
+
 type I64ShrS struct {
 }
 
@@ -1447,6 +2083,12 @@ func (self *I64ShrS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64ShrS) String() string {
 	return "i64.shr_s"
+}
+
+func (self *I64ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x87}
+	sink.WriteBytes(inst)
+
 }
 
 type I64ShrU struct {
@@ -1461,6 +2103,12 @@ func (self *I64ShrU) String() string {
 	return "i64.shr_u"
 }
 
+func (self *I64ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x88}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Rotl struct {
 }
 
@@ -1471,6 +2119,12 @@ func (self *I64Rotl) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Rotl) String() string {
 	return "i64.rotl"
+}
+
+func (self *I64Rotl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x89}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Rotr struct {
@@ -1485,6 +2139,12 @@ func (self *I64Rotr) String() string {
 	return "i64.rotr"
 }
 
+func (self *I64Rotr) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8a}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Abs struct {
 }
 
@@ -1495,6 +2155,12 @@ func (self *F32Abs) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Abs) String() string {
 	return "f32.abs"
+}
+
+func (self *F32Abs) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8b}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Neg struct {
@@ -1509,6 +2175,12 @@ func (self *F32Neg) String() string {
 	return "f32.neg"
 }
 
+func (self *F32Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8c}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Ceil struct {
 }
 
@@ -1519,6 +2191,12 @@ func (self *F32Ceil) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Ceil) String() string {
 	return "f32.ceil"
+}
+
+func (self *F32Ceil) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8d}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Floor struct {
@@ -1533,6 +2211,12 @@ func (self *F32Floor) String() string {
 	return "f32.floor"
 }
 
+func (self *F32Floor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8e}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Trunc struct {
 }
 
@@ -1543,6 +2227,12 @@ func (self *F32Trunc) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Trunc) String() string {
 	return "f32.trunc"
+}
+
+func (self *F32Trunc) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x8f}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Nearest struct {
@@ -1557,6 +2247,12 @@ func (self *F32Nearest) String() string {
 	return "f32.nearest"
 }
 
+func (self *F32Nearest) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x90}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Sqrt struct {
 }
 
@@ -1567,6 +2263,12 @@ func (self *F32Sqrt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Sqrt) String() string {
 	return "f32.sqrt"
+}
+
+func (self *F32Sqrt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x91}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Add struct {
@@ -1581,6 +2283,12 @@ func (self *F32Add) String() string {
 	return "f32.add"
 }
 
+func (self *F32Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x92}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Sub struct {
 }
 
@@ -1591,6 +2299,12 @@ func (self *F32Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Sub) String() string {
 	return "f32.sub"
+}
+
+func (self *F32Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x93}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Mul struct {
@@ -1605,6 +2319,12 @@ func (self *F32Mul) String() string {
 	return "f32.mul"
 }
 
+func (self *F32Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x94}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Div struct {
 }
 
@@ -1615,6 +2335,12 @@ func (self *F32Div) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Div) String() string {
 	return "f32.div"
+}
+
+func (self *F32Div) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x95}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Min struct {
@@ -1629,6 +2355,12 @@ func (self *F32Min) String() string {
 	return "f32.min"
 }
 
+func (self *F32Min) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x96}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Max struct {
 }
 
@@ -1639,6 +2371,12 @@ func (self *F32Max) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Max) String() string {
 	return "f32.max"
+}
+
+func (self *F32Max) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x97}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Copysign struct {
@@ -1653,6 +2391,12 @@ func (self *F32Copysign) String() string {
 	return "f32.copysign"
 }
 
+func (self *F32Copysign) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x98}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Abs struct {
 }
 
@@ -1663,6 +2407,12 @@ func (self *F64Abs) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Abs) String() string {
 	return "f64.abs"
+}
+
+func (self *F64Abs) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x99}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Neg struct {
@@ -1677,6 +2427,12 @@ func (self *F64Neg) String() string {
 	return "f64.neg"
 }
 
+func (self *F64Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9a}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Ceil struct {
 }
 
@@ -1687,6 +2443,12 @@ func (self *F64Ceil) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Ceil) String() string {
 	return "f64.ceil"
+}
+
+func (self *F64Ceil) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9b}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Floor struct {
@@ -1701,6 +2463,12 @@ func (self *F64Floor) String() string {
 	return "f64.floor"
 }
 
+func (self *F64Floor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9c}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Trunc struct {
 }
 
@@ -1711,6 +2479,12 @@ func (self *F64Trunc) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Trunc) String() string {
 	return "f64.trunc"
+}
+
+func (self *F64Trunc) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9d}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Nearest struct {
@@ -1725,6 +2499,12 @@ func (self *F64Nearest) String() string {
 	return "f64.nearest"
 }
 
+func (self *F64Nearest) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9e}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Sqrt struct {
 }
 
@@ -1735,6 +2515,12 @@ func (self *F64Sqrt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Sqrt) String() string {
 	return "f64.sqrt"
+}
+
+func (self *F64Sqrt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x9f}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Add struct {
@@ -1749,6 +2535,12 @@ func (self *F64Add) String() string {
 	return "f64.add"
 }
 
+func (self *F64Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa0}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Sub struct {
 }
 
@@ -1759,6 +2551,12 @@ func (self *F64Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Sub) String() string {
 	return "f64.sub"
+}
+
+func (self *F64Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa1}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Mul struct {
@@ -1773,6 +2571,12 @@ func (self *F64Mul) String() string {
 	return "f64.mul"
 }
 
+func (self *F64Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa2}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Div struct {
 }
 
@@ -1783,6 +2587,12 @@ func (self *F64Div) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Div) String() string {
 	return "f64.div"
+}
+
+func (self *F64Div) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa3}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Min struct {
@@ -1797,6 +2607,12 @@ func (self *F64Min) String() string {
 	return "f64.min"
 }
 
+func (self *F64Min) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa4}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Max struct {
 }
 
@@ -1807,6 +2623,12 @@ func (self *F64Max) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Max) String() string {
 	return "f64.max"
+}
+
+func (self *F64Max) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa5}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Copysign struct {
@@ -1821,6 +2643,12 @@ func (self *F64Copysign) String() string {
 	return "f64.copysign"
 }
 
+func (self *F64Copysign) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa6}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Eqz struct {
 }
 
@@ -1831,6 +2659,12 @@ func (self *I32Eqz) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Eqz) String() string {
 	return "i32.eqz"
+}
+
+func (self *I32Eqz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x45}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Eq struct {
@@ -1845,6 +2679,12 @@ func (self *I32Eq) String() string {
 	return "i32.eq"
 }
 
+func (self *I32Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x46}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Ne struct {
 }
 
@@ -1855,6 +2695,12 @@ func (self *I32Ne) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Ne) String() string {
 	return "i32.ne"
+}
+
+func (self *I32Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x47}
+	sink.WriteBytes(inst)
+
 }
 
 type I32LtS struct {
@@ -1869,6 +2715,12 @@ func (self *I32LtS) String() string {
 	return "i32.lt_s"
 }
 
+func (self *I32LtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x48}
+	sink.WriteBytes(inst)
+
+}
+
 type I32LtU struct {
 }
 
@@ -1879,6 +2731,12 @@ func (self *I32LtU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32LtU) String() string {
 	return "i32.lt_u"
+}
+
+func (self *I32LtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x49}
+	sink.WriteBytes(inst)
+
 }
 
 type I32GtS struct {
@@ -1893,6 +2751,12 @@ func (self *I32GtS) String() string {
 	return "i32.gt_s"
 }
 
+func (self *I32GtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4a}
+	sink.WriteBytes(inst)
+
+}
+
 type I32GtU struct {
 }
 
@@ -1903,6 +2767,12 @@ func (self *I32GtU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32GtU) String() string {
 	return "i32.gt_u"
+}
+
+func (self *I32GtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4b}
+	sink.WriteBytes(inst)
+
 }
 
 type I32LeS struct {
@@ -1917,6 +2787,12 @@ func (self *I32LeS) String() string {
 	return "i32.le_s"
 }
 
+func (self *I32LeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4c}
+	sink.WriteBytes(inst)
+
+}
+
 type I32LeU struct {
 }
 
@@ -1927,6 +2803,12 @@ func (self *I32LeU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32LeU) String() string {
 	return "i32.le_u"
+}
+
+func (self *I32LeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4d}
+	sink.WriteBytes(inst)
+
 }
 
 type I32GeS struct {
@@ -1941,6 +2823,12 @@ func (self *I32GeS) String() string {
 	return "i32.ge_s"
 }
 
+func (self *I32GeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4e}
+	sink.WriteBytes(inst)
+
+}
+
 type I32GeU struct {
 }
 
@@ -1951,6 +2839,12 @@ func (self *I32GeU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32GeU) String() string {
 	return "i32.ge_u"
+}
+
+func (self *I32GeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x4f}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Eqz struct {
@@ -1965,6 +2859,12 @@ func (self *I64Eqz) String() string {
 	return "i64.eqz"
 }
 
+func (self *I64Eqz) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x50}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Eq struct {
 }
 
@@ -1975,6 +2875,12 @@ func (self *I64Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Eq) String() string {
 	return "i64.eq"
+}
+
+func (self *I64Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x51}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Ne struct {
@@ -1989,6 +2895,12 @@ func (self *I64Ne) String() string {
 	return "i64.ne"
 }
 
+func (self *I64Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x52}
+	sink.WriteBytes(inst)
+
+}
+
 type I64LtS struct {
 }
 
@@ -1999,6 +2911,12 @@ func (self *I64LtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64LtS) String() string {
 	return "i64.lt_s"
+}
+
+func (self *I64LtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x53}
+	sink.WriteBytes(inst)
+
 }
 
 type I64LtU struct {
@@ -2013,6 +2931,12 @@ func (self *I64LtU) String() string {
 	return "i64.lt_u"
 }
 
+func (self *I64LtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x54}
+	sink.WriteBytes(inst)
+
+}
+
 type I64GtS struct {
 }
 
@@ -2023,6 +2947,12 @@ func (self *I64GtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64GtS) String() string {
 	return "i64.gt_s"
+}
+
+func (self *I64GtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x55}
+	sink.WriteBytes(inst)
+
 }
 
 type I64GtU struct {
@@ -2037,6 +2967,12 @@ func (self *I64GtU) String() string {
 	return "i64.gt_u"
 }
 
+func (self *I64GtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x56}
+	sink.WriteBytes(inst)
+
+}
+
 type I64LeS struct {
 }
 
@@ -2047,6 +2983,12 @@ func (self *I64LeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64LeS) String() string {
 	return "i64.le_s"
+}
+
+func (self *I64LeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x57}
+	sink.WriteBytes(inst)
+
 }
 
 type I64LeU struct {
@@ -2061,6 +3003,12 @@ func (self *I64LeU) String() string {
 	return "i64.le_u"
 }
 
+func (self *I64LeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x58}
+	sink.WriteBytes(inst)
+
+}
+
 type I64GeS struct {
 }
 
@@ -2071,6 +3019,12 @@ func (self *I64GeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64GeS) String() string {
 	return "i64.ge_s"
+}
+
+func (self *I64GeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x59}
+	sink.WriteBytes(inst)
+
 }
 
 type I64GeU struct {
@@ -2085,6 +3039,12 @@ func (self *I64GeU) String() string {
 	return "i64.ge_u"
 }
 
+func (self *I64GeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5a}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Eq struct {
 }
 
@@ -2095,6 +3055,12 @@ func (self *F32Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Eq) String() string {
 	return "f32.eq"
+}
+
+func (self *F32Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5b}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Ne struct {
@@ -2109,6 +3075,12 @@ func (self *F32Ne) String() string {
 	return "f32.ne"
 }
 
+func (self *F32Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5c}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Lt struct {
 }
 
@@ -2119,6 +3091,12 @@ func (self *F32Lt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Lt) String() string {
 	return "f32.lt"
+}
+
+func (self *F32Lt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5d}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Gt struct {
@@ -2133,6 +3111,12 @@ func (self *F32Gt) String() string {
 	return "f32.gt"
 }
 
+func (self *F32Gt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5e}
+	sink.WriteBytes(inst)
+
+}
+
 type F32Le struct {
 }
 
@@ -2143,6 +3127,12 @@ func (self *F32Le) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32Le) String() string {
 	return "f32.le"
+}
+
+func (self *F32Le) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x5f}
+	sink.WriteBytes(inst)
+
 }
 
 type F32Ge struct {
@@ -2157,6 +3147,12 @@ func (self *F32Ge) String() string {
 	return "f32.ge"
 }
 
+func (self *F32Ge) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x60}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Eq struct {
 }
 
@@ -2167,6 +3163,12 @@ func (self *F64Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Eq) String() string {
 	return "f64.eq"
+}
+
+func (self *F64Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x61}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Ne struct {
@@ -2181,6 +3183,12 @@ func (self *F64Ne) String() string {
 	return "f64.ne"
 }
 
+func (self *F64Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x62}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Lt struct {
 }
 
@@ -2191,6 +3199,12 @@ func (self *F64Lt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Lt) String() string {
 	return "f64.lt"
+}
+
+func (self *F64Lt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x63}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Gt struct {
@@ -2205,6 +3219,12 @@ func (self *F64Gt) String() string {
 	return "f64.gt"
 }
 
+func (self *F64Gt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x64}
+	sink.WriteBytes(inst)
+
+}
+
 type F64Le struct {
 }
 
@@ -2215,6 +3235,12 @@ func (self *F64Le) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Le) String() string {
 	return "f64.le"
+}
+
+func (self *F64Le) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x65}
+	sink.WriteBytes(inst)
+
 }
 
 type F64Ge struct {
@@ -2229,6 +3255,12 @@ func (self *F64Ge) String() string {
 	return "f64.ge"
 }
 
+func (self *F64Ge) Encode(sink *ZeroCopySink) {
+	inst := []byte{0x66}
+	sink.WriteBytes(inst)
+
+}
+
 type I32WrapI64 struct {
 }
 
@@ -2239,6 +3271,12 @@ func (self *I32WrapI64) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32WrapI64) String() string {
 	return "i32.wrap_i64"
+}
+
+func (self *I32WrapI64) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa7}
+	sink.WriteBytes(inst)
+
 }
 
 type I32TruncF32S struct {
@@ -2253,6 +3291,12 @@ func (self *I32TruncF32S) String() string {
 	return "i32.trunc_f32_s"
 }
 
+func (self *I32TruncF32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa8}
+	sink.WriteBytes(inst)
+
+}
+
 type I32TruncF32U struct {
 }
 
@@ -2263,6 +3307,12 @@ func (self *I32TruncF32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32TruncF32U) String() string {
 	return "i32.trunc_f32_u"
+}
+
+func (self *I32TruncF32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xa9}
+	sink.WriteBytes(inst)
+
 }
 
 type I32TruncF64S struct {
@@ -2277,6 +3327,12 @@ func (self *I32TruncF64S) String() string {
 	return "i32.trunc_f64_s"
 }
 
+func (self *I32TruncF64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xaa}
+	sink.WriteBytes(inst)
+
+}
+
 type I32TruncF64U struct {
 }
 
@@ -2287,6 +3343,12 @@ func (self *I32TruncF64U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32TruncF64U) String() string {
 	return "i32.trunc_f64_u"
+}
+
+func (self *I32TruncF64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xab}
+	sink.WriteBytes(inst)
+
 }
 
 type I64ExtendI32S struct {
@@ -2301,6 +3363,12 @@ func (self *I64ExtendI32S) String() string {
 	return "i64.extend_i32_s"
 }
 
+func (self *I64ExtendI32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xac}
+	sink.WriteBytes(inst)
+
+}
+
 type I64ExtendI32U struct {
 }
 
@@ -2311,6 +3379,12 @@ func (self *I64ExtendI32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64ExtendI32U) String() string {
 	return "i64.extend_i32_u"
+}
+
+func (self *I64ExtendI32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xad}
+	sink.WriteBytes(inst)
+
 }
 
 type I64TruncF32S struct {
@@ -2325,6 +3399,12 @@ func (self *I64TruncF32S) String() string {
 	return "i64.trunc_f32_s"
 }
 
+func (self *I64TruncF32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xae}
+	sink.WriteBytes(inst)
+
+}
+
 type I64TruncF32U struct {
 }
 
@@ -2335,6 +3415,12 @@ func (self *I64TruncF32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64TruncF32U) String() string {
 	return "i64.trunc_f32_u"
+}
+
+func (self *I64TruncF32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xaf}
+	sink.WriteBytes(inst)
+
 }
 
 type I64TruncF64S struct {
@@ -2349,6 +3435,12 @@ func (self *I64TruncF64S) String() string {
 	return "i64.trunc_f64_s"
 }
 
+func (self *I64TruncF64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb0}
+	sink.WriteBytes(inst)
+
+}
+
 type I64TruncF64U struct {
 }
 
@@ -2359,6 +3451,12 @@ func (self *I64TruncF64U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64TruncF64U) String() string {
 	return "i64.trunc_f64_u"
+}
+
+func (self *I64TruncF64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb1}
+	sink.WriteBytes(inst)
+
 }
 
 type F32ConvertI32S struct {
@@ -2373,6 +3471,12 @@ func (self *F32ConvertI32S) String() string {
 	return "f32.convert_i32_s"
 }
 
+func (self *F32ConvertI32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb2}
+	sink.WriteBytes(inst)
+
+}
+
 type F32ConvertI32U struct {
 }
 
@@ -2383,6 +3487,12 @@ func (self *F32ConvertI32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32ConvertI32U) String() string {
 	return "f32.convert_i32_u"
+}
+
+func (self *F32ConvertI32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb3}
+	sink.WriteBytes(inst)
+
 }
 
 type F32ConvertI64S struct {
@@ -2397,6 +3507,12 @@ func (self *F32ConvertI64S) String() string {
 	return "f32.convert_i64_s"
 }
 
+func (self *F32ConvertI64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb4}
+	sink.WriteBytes(inst)
+
+}
+
 type F32ConvertI64U struct {
 }
 
@@ -2407,6 +3523,12 @@ func (self *F32ConvertI64U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32ConvertI64U) String() string {
 	return "f32.convert_i64_u"
+}
+
+func (self *F32ConvertI64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb5}
+	sink.WriteBytes(inst)
+
 }
 
 type F32DemoteF64 struct {
@@ -2421,6 +3543,12 @@ func (self *F32DemoteF64) String() string {
 	return "f32.demote_f64"
 }
 
+func (self *F32DemoteF64) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb6}
+	sink.WriteBytes(inst)
+
+}
+
 type F64ConvertI32S struct {
 }
 
@@ -2431,6 +3559,12 @@ func (self *F64ConvertI32S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64ConvertI32S) String() string {
 	return "f64.convert_i32_s"
+}
+
+func (self *F64ConvertI32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb7}
+	sink.WriteBytes(inst)
+
 }
 
 type F64ConvertI32U struct {
@@ -2445,6 +3579,12 @@ func (self *F64ConvertI32U) String() string {
 	return "f64.convert_i32_u"
 }
 
+func (self *F64ConvertI32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb8}
+	sink.WriteBytes(inst)
+
+}
+
 type F64ConvertI64S struct {
 }
 
@@ -2455,6 +3595,12 @@ func (self *F64ConvertI64S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64ConvertI64S) String() string {
 	return "f64.convert_i64_s"
+}
+
+func (self *F64ConvertI64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xb9}
+	sink.WriteBytes(inst)
+
 }
 
 type F64ConvertI64U struct {
@@ -2469,6 +3615,12 @@ func (self *F64ConvertI64U) String() string {
 	return "f64.convert_i64_u"
 }
 
+func (self *F64ConvertI64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xba}
+	sink.WriteBytes(inst)
+
+}
+
 type F64PromoteF32 struct {
 }
 
@@ -2479,6 +3631,12 @@ func (self *F64PromoteF32) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64PromoteF32) String() string {
 	return "f64.promote_f32"
+}
+
+func (self *F64PromoteF32) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xbb}
+	sink.WriteBytes(inst)
+
 }
 
 type I32ReinterpretF32 struct {
@@ -2493,6 +3651,12 @@ func (self *I32ReinterpretF32) String() string {
 	return "i32.reinterpret_f32"
 }
 
+func (self *I32ReinterpretF32) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xbc}
+	sink.WriteBytes(inst)
+
+}
+
 type I64ReinterpretF64 struct {
 }
 
@@ -2503,6 +3667,12 @@ func (self *I64ReinterpretF64) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64ReinterpretF64) String() string {
 	return "i64.reinterpret_f64"
+}
+
+func (self *I64ReinterpretF64) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xbd}
+	sink.WriteBytes(inst)
+
 }
 
 type F32ReinterpretI32 struct {
@@ -2517,6 +3687,12 @@ func (self *F32ReinterpretI32) String() string {
 	return "f32.reinterpret_i32"
 }
 
+func (self *F32ReinterpretI32) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xbe}
+	sink.WriteBytes(inst)
+
+}
+
 type F64ReinterpretI64 struct {
 }
 
@@ -2527,6 +3703,12 @@ func (self *F64ReinterpretI64) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64ReinterpretI64) String() string {
 	return "f64.reinterpret_i64"
+}
+
+func (self *F64ReinterpretI64) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xbf}
+	sink.WriteBytes(inst)
+
 }
 
 type I32TruncSatF32S struct {
@@ -2541,6 +3723,12 @@ func (self *I32TruncSatF32S) String() string {
 	return "i32.trunc_sat_f32_s"
 }
 
+func (self *I32TruncSatF32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x0}
+	sink.WriteBytes(inst)
+
+}
+
 type I32TruncSatF32U struct {
 }
 
@@ -2551,6 +3739,12 @@ func (self *I32TruncSatF32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32TruncSatF32U) String() string {
 	return "i32.trunc_sat_f32_u"
+}
+
+func (self *I32TruncSatF32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x1}
+	sink.WriteBytes(inst)
+
 }
 
 type I32TruncSatF64S struct {
@@ -2565,6 +3759,12 @@ func (self *I32TruncSatF64S) String() string {
 	return "i32.trunc_sat_f64_s"
 }
 
+func (self *I32TruncSatF64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x2}
+	sink.WriteBytes(inst)
+
+}
+
 type I32TruncSatF64U struct {
 }
 
@@ -2575,6 +3775,12 @@ func (self *I32TruncSatF64U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32TruncSatF64U) String() string {
 	return "i32.trunc_sat_f64_u"
+}
+
+func (self *I32TruncSatF64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x3}
+	sink.WriteBytes(inst)
+
 }
 
 type I64TruncSatF32S struct {
@@ -2589,6 +3795,12 @@ func (self *I64TruncSatF32S) String() string {
 	return "i64.trunc_sat_f32_s"
 }
 
+func (self *I64TruncSatF32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x4}
+	sink.WriteBytes(inst)
+
+}
+
 type I64TruncSatF32U struct {
 }
 
@@ -2599,6 +3811,12 @@ func (self *I64TruncSatF32U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64TruncSatF32U) String() string {
 	return "i64.trunc_sat_f32_u"
+}
+
+func (self *I64TruncSatF32U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x5}
+	sink.WriteBytes(inst)
+
 }
 
 type I64TruncSatF64S struct {
@@ -2613,6 +3831,12 @@ func (self *I64TruncSatF64S) String() string {
 	return "i64.trunc_sat_f64_s"
 }
 
+func (self *I64TruncSatF64S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x6}
+	sink.WriteBytes(inst)
+
+}
+
 type I64TruncSatF64U struct {
 }
 
@@ -2623,6 +3847,12 @@ func (self *I64TruncSatF64U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64TruncSatF64U) String() string {
 	return "i64.trunc_sat_f64_u"
+}
+
+func (self *I64TruncSatF64U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfc, 0x7}
+	sink.WriteBytes(inst)
+
 }
 
 type I32Extend8S struct {
@@ -2637,6 +3867,12 @@ func (self *I32Extend8S) String() string {
 	return "i32.extend8_s"
 }
 
+func (self *I32Extend8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc0}
+	sink.WriteBytes(inst)
+
+}
+
 type I32Extend16S struct {
 }
 
@@ -2647,6 +3883,12 @@ func (self *I32Extend16S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Extend16S) String() string {
 	return "i32.extend16_s"
+}
+
+func (self *I32Extend16S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc1}
+	sink.WriteBytes(inst)
+
 }
 
 type I64Extend8S struct {
@@ -2661,6 +3903,12 @@ func (self *I64Extend8S) String() string {
 	return "i64.extend8_s"
 }
 
+func (self *I64Extend8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc2}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Extend16S struct {
 }
 
@@ -2673,6 +3921,12 @@ func (self *I64Extend16S) String() string {
 	return "i64.extend16_s"
 }
 
+func (self *I64Extend16S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc3}
+	sink.WriteBytes(inst)
+
+}
+
 type I64Extend32S struct {
 }
 
@@ -2683,6 +3937,12 @@ func (self *I64Extend32S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64Extend32S) String() string {
 	return "i64.extend32_s"
+}
+
+func (self *I64Extend32S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xc4}
+	sink.WriteBytes(inst)
+
 }
 
 type AtomicNotify struct {
@@ -2702,6 +3962,13 @@ func (self *AtomicNotify) String() string {
 	return "atomic.notify"
 }
 
+func (self *AtomicNotify) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x0}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicWait struct {
 	MemArg MemArg
 }
@@ -2717,6 +3984,13 @@ func (self *I32AtomicWait) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicWait) String() string {
 	return "i32.atomic.wait"
+}
+
+func (self *I32AtomicWait) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicWait struct {
@@ -2736,6 +4010,13 @@ func (self *I64AtomicWait) String() string {
 	return "i64.atomic.wait"
 }
 
+func (self *I64AtomicWait) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type AtomicFence struct {
 }
 
@@ -2746,6 +4027,12 @@ func (self *AtomicFence) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *AtomicFence) String() string {
 	return "atomic.fence"
+}
+
+func (self *AtomicFence) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3}
+	sink.WriteBytes(inst)
+
 }
 
 type I32AtomicLoad struct {
@@ -2765,6 +4052,13 @@ func (self *I32AtomicLoad) String() string {
 	return "i32.atomic.load"
 }
 
+func (self *I32AtomicLoad) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x10}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicLoad struct {
 	MemArg MemArg
 }
@@ -2780,6 +4074,13 @@ func (self *I64AtomicLoad) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicLoad) String() string {
 	return "i64.atomic.load"
+}
+
+func (self *I64AtomicLoad) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x11}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicLoad8u struct {
@@ -2799,6 +4100,13 @@ func (self *I32AtomicLoad8u) String() string {
 	return "i32.atomic.load8_u"
 }
 
+func (self *I32AtomicLoad8u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x12}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicLoad16u struct {
 	MemArg MemArg
 }
@@ -2814,6 +4122,13 @@ func (self *I32AtomicLoad16u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicLoad16u) String() string {
 	return "i32.atomic.load16_u"
+}
+
+func (self *I32AtomicLoad16u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x13}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicLoad8u struct {
@@ -2833,6 +4148,13 @@ func (self *I64AtomicLoad8u) String() string {
 	return "i64.atomic.load8_u"
 }
 
+func (self *I64AtomicLoad8u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x14}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicLoad16u struct {
 	MemArg MemArg
 }
@@ -2848,6 +4170,13 @@ func (self *I64AtomicLoad16u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicLoad16u) String() string {
 	return "i64.atomic.load16_u"
+}
+
+func (self *I64AtomicLoad16u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x15}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicLoad32u struct {
@@ -2867,6 +4196,13 @@ func (self *I64AtomicLoad32u) String() string {
 	return "i64.atomic.load32_u"
 }
 
+func (self *I64AtomicLoad32u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x16}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicStore struct {
 	MemArg MemArg
 }
@@ -2882,6 +4218,13 @@ func (self *I32AtomicStore) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicStore) String() string {
 	return "i32.atomic.store"
+}
+
+func (self *I32AtomicStore) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x17}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicStore struct {
@@ -2901,6 +4244,13 @@ func (self *I64AtomicStore) String() string {
 	return "i64.atomic.store"
 }
 
+func (self *I64AtomicStore) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x18}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicStore8 struct {
 	MemArg MemArg
 }
@@ -2916,6 +4266,13 @@ func (self *I32AtomicStore8) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicStore8) String() string {
 	return "i32.atomic.store8"
+}
+
+func (self *I32AtomicStore8) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x19}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicStore16 struct {
@@ -2935,6 +4292,13 @@ func (self *I32AtomicStore16) String() string {
 	return "i32.atomic.store16"
 }
 
+func (self *I32AtomicStore16) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicStore8 struct {
 	MemArg MemArg
 }
@@ -2950,6 +4314,13 @@ func (self *I64AtomicStore8) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicStore8) String() string {
 	return "i64.atomic.store8"
+}
+
+func (self *I64AtomicStore8) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicStore16 struct {
@@ -2969,6 +4340,13 @@ func (self *I64AtomicStore16) String() string {
 	return "i64.atomic.store16"
 }
 
+func (self *I64AtomicStore16) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicStore32 struct {
 	MemArg MemArg
 }
@@ -2984,6 +4362,13 @@ func (self *I64AtomicStore32) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicStore32) String() string {
 	return "i64.atomic.store32"
+}
+
+func (self *I64AtomicStore32) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmwAdd struct {
@@ -3003,6 +4388,13 @@ func (self *I32AtomicRmwAdd) String() string {
 	return "i32.atomic.rmw.add"
 }
 
+func (self *I32AtomicRmwAdd) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmwAdd struct {
 	MemArg MemArg
 }
@@ -3018,6 +4410,13 @@ func (self *I64AtomicRmwAdd) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmwAdd) String() string {
 	return "i64.atomic.rmw.add"
+}
+
+func (self *I64AtomicRmwAdd) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x1f}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw8AddU struct {
@@ -3037,6 +4436,13 @@ func (self *I32AtomicRmw8AddU) String() string {
 	return "i32.atomic.rmw8.add_u"
 }
 
+func (self *I32AtomicRmw8AddU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x20}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw16AddU struct {
 	MemArg MemArg
 }
@@ -3052,6 +4458,13 @@ func (self *I32AtomicRmw16AddU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw16AddU) String() string {
 	return "i32.atomic.rmw16.add_u"
+}
+
+func (self *I32AtomicRmw16AddU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x21}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw8AddU struct {
@@ -3071,6 +4484,13 @@ func (self *I64AtomicRmw8AddU) String() string {
 	return "i64.atomic.rmw8.add_u"
 }
 
+func (self *I64AtomicRmw8AddU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x22}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw16AddU struct {
 	MemArg MemArg
 }
@@ -3086,6 +4506,13 @@ func (self *I64AtomicRmw16AddU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw16AddU) String() string {
 	return "i64.atomic.rmw16.add_u"
+}
+
+func (self *I64AtomicRmw16AddU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x23}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw32AddU struct {
@@ -3105,6 +4532,13 @@ func (self *I64AtomicRmw32AddU) String() string {
 	return "i64.atomic.rmw32.add_u"
 }
 
+func (self *I64AtomicRmw32AddU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x24}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmwSub struct {
 	MemArg MemArg
 }
@@ -3120,6 +4554,13 @@ func (self *I32AtomicRmwSub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmwSub) String() string {
 	return "i32.atomic.rmw.sub"
+}
+
+func (self *I32AtomicRmwSub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x25}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmwSub struct {
@@ -3139,6 +4580,13 @@ func (self *I64AtomicRmwSub) String() string {
 	return "i64.atomic.rmw.sub"
 }
 
+func (self *I64AtomicRmwSub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x26}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw8SubU struct {
 	MemArg MemArg
 }
@@ -3154,6 +4602,13 @@ func (self *I32AtomicRmw8SubU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw8SubU) String() string {
 	return "i32.atomic.rmw8.sub_u"
+}
+
+func (self *I32AtomicRmw8SubU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x27}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw16SubU struct {
@@ -3173,6 +4628,13 @@ func (self *I32AtomicRmw16SubU) String() string {
 	return "i32.atomic.rmw16.sub_u"
 }
 
+func (self *I32AtomicRmw16SubU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x28}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw8SubU struct {
 	MemArg MemArg
 }
@@ -3188,6 +4650,13 @@ func (self *I64AtomicRmw8SubU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw8SubU) String() string {
 	return "i64.atomic.rmw8.sub_u"
+}
+
+func (self *I64AtomicRmw8SubU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x29}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw16SubU struct {
@@ -3207,6 +4676,13 @@ func (self *I64AtomicRmw16SubU) String() string {
 	return "i64.atomic.rmw16.sub_u"
 }
 
+func (self *I64AtomicRmw16SubU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw32SubU struct {
 	MemArg MemArg
 }
@@ -3222,6 +4698,13 @@ func (self *I64AtomicRmw32SubU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw32SubU) String() string {
 	return "i64.atomic.rmw32.sub_u"
+}
+
+func (self *I64AtomicRmw32SubU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmwAnd struct {
@@ -3241,6 +4724,13 @@ func (self *I32AtomicRmwAnd) String() string {
 	return "i32.atomic.rmw.and"
 }
 
+func (self *I32AtomicRmwAnd) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmwAnd struct {
 	MemArg MemArg
 }
@@ -3256,6 +4746,13 @@ func (self *I64AtomicRmwAnd) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmwAnd) String() string {
 	return "i64.atomic.rmw.and"
+}
+
+func (self *I64AtomicRmwAnd) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw8AndU struct {
@@ -3275,6 +4772,13 @@ func (self *I32AtomicRmw8AndU) String() string {
 	return "i32.atomic.rmw8.and_u"
 }
 
+func (self *I32AtomicRmw8AndU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw16AndU struct {
 	MemArg MemArg
 }
@@ -3290,6 +4794,13 @@ func (self *I32AtomicRmw16AndU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw16AndU) String() string {
 	return "i32.atomic.rmw16.and_u"
+}
+
+func (self *I32AtomicRmw16AndU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x2f}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw8AndU struct {
@@ -3309,6 +4820,13 @@ func (self *I64AtomicRmw8AndU) String() string {
 	return "i64.atomic.rmw8.and_u"
 }
 
+func (self *I64AtomicRmw8AndU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x30}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw16AndU struct {
 	MemArg MemArg
 }
@@ -3324,6 +4842,13 @@ func (self *I64AtomicRmw16AndU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw16AndU) String() string {
 	return "i64.atomic.rmw16.and_u"
+}
+
+func (self *I64AtomicRmw16AndU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x31}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw32AndU struct {
@@ -3343,6 +4868,13 @@ func (self *I64AtomicRmw32AndU) String() string {
 	return "i64.atomic.rmw32.and_u"
 }
 
+func (self *I64AtomicRmw32AndU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x32}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmwOr struct {
 	MemArg MemArg
 }
@@ -3358,6 +4890,13 @@ func (self *I32AtomicRmwOr) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmwOr) String() string {
 	return "i32.atomic.rmw.or"
+}
+
+func (self *I32AtomicRmwOr) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x33}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmwOr struct {
@@ -3377,6 +4916,13 @@ func (self *I64AtomicRmwOr) String() string {
 	return "i64.atomic.rmw.or"
 }
 
+func (self *I64AtomicRmwOr) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x34}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw8OrU struct {
 	MemArg MemArg
 }
@@ -3392,6 +4938,13 @@ func (self *I32AtomicRmw8OrU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw8OrU) String() string {
 	return "i32.atomic.rmw8.or_u"
+}
+
+func (self *I32AtomicRmw8OrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x35}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw16OrU struct {
@@ -3411,6 +4964,13 @@ func (self *I32AtomicRmw16OrU) String() string {
 	return "i32.atomic.rmw16.or_u"
 }
 
+func (self *I32AtomicRmw16OrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x36}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw8OrU struct {
 	MemArg MemArg
 }
@@ -3426,6 +4986,13 @@ func (self *I64AtomicRmw8OrU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw8OrU) String() string {
 	return "i64.atomic.rmw8.or_u"
+}
+
+func (self *I64AtomicRmw8OrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x37}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw16OrU struct {
@@ -3445,6 +5012,13 @@ func (self *I64AtomicRmw16OrU) String() string {
 	return "i64.atomic.rmw16.or_u"
 }
 
+func (self *I64AtomicRmw16OrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x38}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw32OrU struct {
 	MemArg MemArg
 }
@@ -3460,6 +5034,13 @@ func (self *I64AtomicRmw32OrU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw32OrU) String() string {
 	return "i64.atomic.rmw32.or_u"
+}
+
+func (self *I64AtomicRmw32OrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x39}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmwXor struct {
@@ -3479,6 +5060,13 @@ func (self *I32AtomicRmwXor) String() string {
 	return "i32.atomic.rmw.xor"
 }
 
+func (self *I32AtomicRmwXor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmwXor struct {
 	MemArg MemArg
 }
@@ -3494,6 +5082,13 @@ func (self *I64AtomicRmwXor) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmwXor) String() string {
 	return "i64.atomic.rmw.xor"
+}
+
+func (self *I64AtomicRmwXor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw8XorU struct {
@@ -3513,6 +5108,13 @@ func (self *I32AtomicRmw8XorU) String() string {
 	return "i32.atomic.rmw8.xor_u"
 }
 
+func (self *I32AtomicRmw8XorU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw16XorU struct {
 	MemArg MemArg
 }
@@ -3528,6 +5130,13 @@ func (self *I32AtomicRmw16XorU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw16XorU) String() string {
 	return "i32.atomic.rmw16.xor_u"
+}
+
+func (self *I32AtomicRmw16XorU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw8XorU struct {
@@ -3547,6 +5156,13 @@ func (self *I64AtomicRmw8XorU) String() string {
 	return "i64.atomic.rmw8.xor_u"
 }
 
+func (self *I64AtomicRmw8XorU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw16XorU struct {
 	MemArg MemArg
 }
@@ -3562,6 +5178,13 @@ func (self *I64AtomicRmw16XorU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw16XorU) String() string {
 	return "i64.atomic.rmw16.xor_u"
+}
+
+func (self *I64AtomicRmw16XorU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x3f}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw32XorU struct {
@@ -3581,6 +5204,13 @@ func (self *I64AtomicRmw32XorU) String() string {
 	return "i64.atomic.rmw32.xor_u"
 }
 
+func (self *I64AtomicRmw32XorU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x40}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmwXchg struct {
 	MemArg MemArg
 }
@@ -3596,6 +5226,13 @@ func (self *I32AtomicRmwXchg) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmwXchg) String() string {
 	return "i32.atomic.rmw.xchg"
+}
+
+func (self *I32AtomicRmwXchg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x41}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmwXchg struct {
@@ -3615,6 +5252,13 @@ func (self *I64AtomicRmwXchg) String() string {
 	return "i64.atomic.rmw.xchg"
 }
 
+func (self *I64AtomicRmwXchg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x42}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw8XchgU struct {
 	MemArg MemArg
 }
@@ -3630,6 +5274,13 @@ func (self *I32AtomicRmw8XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32AtomicRmw8XchgU) String() string {
 	return "i32.atomic.rmw8.xchg_u"
+}
+
+func (self *I32AtomicRmw8XchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x43}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw16XchgU struct {
@@ -3649,6 +5300,13 @@ func (self *I32AtomicRmw16XchgU) String() string {
 	return "i32.atomic.rmw16.xchg_u"
 }
 
+func (self *I32AtomicRmw16XchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x44}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw8XchgU struct {
 	MemArg MemArg
 }
@@ -3664,6 +5322,13 @@ func (self *I64AtomicRmw8XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw8XchgU) String() string {
 	return "i64.atomic.rmw8.xchg_u"
+}
+
+func (self *I64AtomicRmw8XchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x45}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw16XchgU struct {
@@ -3683,6 +5348,13 @@ func (self *I64AtomicRmw16XchgU) String() string {
 	return "i64.atomic.rmw16.xchg_u"
 }
 
+func (self *I64AtomicRmw16XchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x46}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw32XchgU struct {
 	MemArg MemArg
 }
@@ -3698,6 +5370,13 @@ func (self *I64AtomicRmw32XchgU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmw32XchgU) String() string {
 	return "i64.atomic.rmw32.xchg_u"
+}
+
+func (self *I64AtomicRmw32XchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x47}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmwCmpxchg struct {
@@ -3717,6 +5396,13 @@ func (self *I32AtomicRmwCmpxchg) String() string {
 	return "i32.atomic.rmw.cmpxchg"
 }
 
+func (self *I32AtomicRmwCmpxchg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x48}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmwCmpxchg struct {
 	MemArg MemArg
 }
@@ -3732,6 +5418,13 @@ func (self *I64AtomicRmwCmpxchg) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64AtomicRmwCmpxchg) String() string {
 	return "i64.atomic.rmw.cmpxchg"
+}
+
+func (self *I64AtomicRmwCmpxchg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x49}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32AtomicRmw8CmpxchgU struct {
@@ -3751,6 +5444,13 @@ func (self *I32AtomicRmw8CmpxchgU) String() string {
 	return "i32.atomic.rmw8.cmpxchg_u"
 }
 
+func (self *I32AtomicRmw8CmpxchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x4a}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32AtomicRmw16CmpxchgU struct {
 	MemArg MemArg
 }
@@ -3766,6 +5466,13 @@ func (self *I32AtomicRmw16CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) erro
 
 func (self *I32AtomicRmw16CmpxchgU) String() string {
 	return "i32.atomic.rmw16.cmpxchg_u"
+}
+
+func (self *I32AtomicRmw16CmpxchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x4b}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw8CmpxchgU struct {
@@ -3785,6 +5492,13 @@ func (self *I64AtomicRmw8CmpxchgU) String() string {
 	return "i64.atomic.rmw8.cmpxchg_u"
 }
 
+func (self *I64AtomicRmw8CmpxchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x4c}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64AtomicRmw16CmpxchgU struct {
 	MemArg MemArg
 }
@@ -3800,6 +5514,13 @@ func (self *I64AtomicRmw16CmpxchgU) parseInstrBody(ps *parser.ParserBuffer) erro
 
 func (self *I64AtomicRmw16CmpxchgU) String() string {
 	return "i64.atomic.rmw16.cmpxchg_u"
+}
+
+func (self *I64AtomicRmw16CmpxchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x4d}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64AtomicRmw32CmpxchgU struct {
@@ -3819,6 +5540,13 @@ func (self *I64AtomicRmw32CmpxchgU) String() string {
 	return "i64.atomic.rmw32.cmpxchg_u"
 }
 
+func (self *I64AtomicRmw32CmpxchgU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfe, 0x4e}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type V128Load struct {
 	MemArg MemArg
 }
@@ -3834,6 +5562,13 @@ func (self *V128Load) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V128Load) String() string {
 	return "v128.load"
+}
+
+func (self *V128Load) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x0}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type V128Store struct {
@@ -3853,6 +5588,13 @@ func (self *V128Store) String() string {
 	return "v128.store"
 }
 
+func (self *V128Store) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I8x16Eq struct {
 }
 
@@ -3863,6 +5605,12 @@ func (self *I8x16Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16Eq) String() string {
 	return "i8x16.eq"
+}
+
+func (self *I8x16Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x18}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16Ne struct {
@@ -3877,6 +5625,12 @@ func (self *I8x16Ne) String() string {
 	return "i8x16.ne"
 }
 
+func (self *I8x16Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x19}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16LtS struct {
 }
 
@@ -3887,6 +5641,12 @@ func (self *I8x16LtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16LtS) String() string {
 	return "i8x16.lt_s"
+}
+
+func (self *I8x16LtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1a}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16LtU struct {
@@ -3901,6 +5661,12 @@ func (self *I8x16LtU) String() string {
 	return "i8x16.lt_u"
 }
 
+func (self *I8x16LtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1b}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16GtS struct {
 }
 
@@ -3911,6 +5677,12 @@ func (self *I8x16GtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16GtS) String() string {
 	return "i8x16.gt_s"
+}
+
+func (self *I8x16GtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1c}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16GtU struct {
@@ -3925,6 +5697,12 @@ func (self *I8x16GtU) String() string {
 	return "i8x16.gt_u"
 }
 
+func (self *I8x16GtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1d}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16LeS struct {
 }
 
@@ -3935,6 +5713,12 @@ func (self *I8x16LeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16LeS) String() string {
 	return "i8x16.le_s"
+}
+
+func (self *I8x16LeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1e}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16LeU struct {
@@ -3949,6 +5733,12 @@ func (self *I8x16LeU) String() string {
 	return "i8x16.le_u"
 }
 
+func (self *I8x16LeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x1f}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16GeS struct {
 }
 
@@ -3959,6 +5749,12 @@ func (self *I8x16GeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16GeS) String() string {
 	return "i8x16.ge_s"
+}
+
+func (self *I8x16GeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x20}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16GeU struct {
@@ -3973,6 +5769,12 @@ func (self *I8x16GeU) String() string {
 	return "i8x16.ge_u"
 }
 
+func (self *I8x16GeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x21}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8Eq struct {
 }
 
@@ -3983,6 +5785,12 @@ func (self *I16x8Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8Eq) String() string {
 	return "i16x8.eq"
+}
+
+func (self *I16x8Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x22}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8Ne struct {
@@ -3997,6 +5805,12 @@ func (self *I16x8Ne) String() string {
 	return "i16x8.ne"
 }
 
+func (self *I16x8Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x23}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8LtS struct {
 }
 
@@ -4007,6 +5821,12 @@ func (self *I16x8LtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8LtS) String() string {
 	return "i16x8.lt_s"
+}
+
+func (self *I16x8LtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x24}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8LtU struct {
@@ -4021,6 +5841,12 @@ func (self *I16x8LtU) String() string {
 	return "i16x8.lt_u"
 }
 
+func (self *I16x8LtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x25}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8GtS struct {
 }
 
@@ -4031,6 +5857,12 @@ func (self *I16x8GtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8GtS) String() string {
 	return "i16x8.gt_s"
+}
+
+func (self *I16x8GtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x26}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8GtU struct {
@@ -4045,6 +5877,12 @@ func (self *I16x8GtU) String() string {
 	return "i16x8.gt_u"
 }
 
+func (self *I16x8GtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x27}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8LeS struct {
 }
 
@@ -4055,6 +5893,12 @@ func (self *I16x8LeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8LeS) String() string {
 	return "i16x8.le_s"
+}
+
+func (self *I16x8LeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x28}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8LeU struct {
@@ -4069,6 +5913,12 @@ func (self *I16x8LeU) String() string {
 	return "i16x8.le_u"
 }
 
+func (self *I16x8LeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x29}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8GeS struct {
 }
 
@@ -4079,6 +5929,12 @@ func (self *I16x8GeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8GeS) String() string {
 	return "i16x8.ge_s"
+}
+
+func (self *I16x8GeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2a}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8GeU struct {
@@ -4093,6 +5949,12 @@ func (self *I16x8GeU) String() string {
 	return "i16x8.ge_u"
 }
 
+func (self *I16x8GeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2b}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4Eq struct {
 }
 
@@ -4103,6 +5965,12 @@ func (self *I32x4Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4Eq) String() string {
 	return "i32x4.eq"
+}
+
+func (self *I32x4Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2c}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4Ne struct {
@@ -4117,6 +5985,12 @@ func (self *I32x4Ne) String() string {
 	return "i32x4.ne"
 }
 
+func (self *I32x4Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2d}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4LtS struct {
 }
 
@@ -4127,6 +6001,12 @@ func (self *I32x4LtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4LtS) String() string {
 	return "i32x4.lt_s"
+}
+
+func (self *I32x4LtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2e}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4LtU struct {
@@ -4141,6 +6021,12 @@ func (self *I32x4LtU) String() string {
 	return "i32x4.lt_u"
 }
 
+func (self *I32x4LtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x2f}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4GtS struct {
 }
 
@@ -4151,6 +6037,12 @@ func (self *I32x4GtS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4GtS) String() string {
 	return "i32x4.gt_s"
+}
+
+func (self *I32x4GtS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x30}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4GtU struct {
@@ -4165,6 +6057,12 @@ func (self *I32x4GtU) String() string {
 	return "i32x4.gt_u"
 }
 
+func (self *I32x4GtU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x31}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4LeS struct {
 }
 
@@ -4175,6 +6073,12 @@ func (self *I32x4LeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4LeS) String() string {
 	return "i32x4.le_s"
+}
+
+func (self *I32x4LeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x32}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4LeU struct {
@@ -4189,6 +6093,12 @@ func (self *I32x4LeU) String() string {
 	return "i32x4.le_u"
 }
 
+func (self *I32x4LeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x33}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4GeS struct {
 }
 
@@ -4199,6 +6109,12 @@ func (self *I32x4GeS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4GeS) String() string {
 	return "i32x4.ge_s"
+}
+
+func (self *I32x4GeS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x34}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4GeU struct {
@@ -4213,6 +6129,12 @@ func (self *I32x4GeU) String() string {
 	return "i32x4.ge_u"
 }
 
+func (self *I32x4GeU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x35}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Eq struct {
 }
 
@@ -4223,6 +6145,12 @@ func (self *F32x4Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Eq) String() string {
 	return "f32x4.eq"
+}
+
+func (self *F32x4Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x40}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Ne struct {
@@ -4237,6 +6165,12 @@ func (self *F32x4Ne) String() string {
 	return "f32x4.ne"
 }
 
+func (self *F32x4Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x41}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Lt struct {
 }
 
@@ -4247,6 +6181,12 @@ func (self *F32x4Lt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Lt) String() string {
 	return "f32x4.lt"
+}
+
+func (self *F32x4Lt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x42}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Gt struct {
@@ -4261,6 +6201,12 @@ func (self *F32x4Gt) String() string {
 	return "f32x4.gt"
 }
 
+func (self *F32x4Gt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x43}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Le struct {
 }
 
@@ -4271,6 +6217,12 @@ func (self *F32x4Le) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Le) String() string {
 	return "f32x4.le"
+}
+
+func (self *F32x4Le) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x44}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Ge struct {
@@ -4285,6 +6237,12 @@ func (self *F32x4Ge) String() string {
 	return "f32x4.ge"
 }
 
+func (self *F32x4Ge) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x45}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Eq struct {
 }
 
@@ -4295,6 +6253,12 @@ func (self *F64x2Eq) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Eq) String() string {
 	return "f64x2.eq"
+}
+
+func (self *F64x2Eq) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x46}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Ne struct {
@@ -4309,6 +6273,12 @@ func (self *F64x2Ne) String() string {
 	return "f64x2.ne"
 }
 
+func (self *F64x2Ne) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x47}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Lt struct {
 }
 
@@ -4319,6 +6289,12 @@ func (self *F64x2Lt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Lt) String() string {
 	return "f64x2.lt"
+}
+
+func (self *F64x2Lt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x48}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Gt struct {
@@ -4333,6 +6309,12 @@ func (self *F64x2Gt) String() string {
 	return "f64x2.gt"
 }
 
+func (self *F64x2Gt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x49}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Le struct {
 }
 
@@ -4343,6 +6325,12 @@ func (self *F64x2Le) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Le) String() string {
 	return "f64x2.le"
+}
+
+func (self *F64x2Le) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4a}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Ge struct {
@@ -4357,6 +6345,12 @@ func (self *F64x2Ge) String() string {
 	return "f64x2.ge"
 }
 
+func (self *F64x2Ge) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4b}
+	sink.WriteBytes(inst)
+
+}
+
 type V128Not struct {
 }
 
@@ -4367,6 +6361,12 @@ func (self *V128Not) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V128Not) String() string {
 	return "v128.not"
+}
+
+func (self *V128Not) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4c}
+	sink.WriteBytes(inst)
+
 }
 
 type V128And struct {
@@ -4381,6 +6381,12 @@ func (self *V128And) String() string {
 	return "v128.and"
 }
 
+func (self *V128And) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4d}
+	sink.WriteBytes(inst)
+
+}
+
 type V128Or struct {
 }
 
@@ -4391,6 +6397,12 @@ func (self *V128Or) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V128Or) String() string {
 	return "v128.or"
+}
+
+func (self *V128Or) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4e}
+	sink.WriteBytes(inst)
+
 }
 
 type V128Xor struct {
@@ -4405,6 +6417,12 @@ func (self *V128Xor) String() string {
 	return "v128.xor"
 }
 
+func (self *V128Xor) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x4f}
+	sink.WriteBytes(inst)
+
+}
+
 type V128Bitselect struct {
 }
 
@@ -4415,6 +6433,12 @@ func (self *V128Bitselect) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V128Bitselect) String() string {
 	return "v128.bitselect"
+}
+
+func (self *V128Bitselect) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x50}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16Neg struct {
@@ -4429,6 +6453,12 @@ func (self *I8x16Neg) String() string {
 	return "i8x16.neg"
 }
 
+func (self *I8x16Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x51}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16AnyTrue struct {
 }
 
@@ -4439,6 +6469,12 @@ func (self *I8x16AnyTrue) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16AnyTrue) String() string {
 	return "i8x16.any_true"
+}
+
+func (self *I8x16AnyTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x52}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16AllTrue struct {
@@ -4453,6 +6489,12 @@ func (self *I8x16AllTrue) String() string {
 	return "i8x16.all_true"
 }
 
+func (self *I8x16AllTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x53}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16Shl struct {
 }
 
@@ -4463,6 +6505,12 @@ func (self *I8x16Shl) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16Shl) String() string {
 	return "i8x16.shl"
+}
+
+func (self *I8x16Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x54}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16ShrS struct {
@@ -4477,6 +6525,12 @@ func (self *I8x16ShrS) String() string {
 	return "i8x16.shr_s"
 }
 
+func (self *I8x16ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x55}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16ShrU struct {
 }
 
@@ -4487,6 +6541,12 @@ func (self *I8x16ShrU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16ShrU) String() string {
 	return "i8x16.shr_u"
+}
+
+func (self *I8x16ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x56}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16Add struct {
@@ -4501,6 +6561,12 @@ func (self *I8x16Add) String() string {
 	return "i8x16.add"
 }
 
+func (self *I8x16Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x57}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16AddSaturateS struct {
 }
 
@@ -4511,6 +6577,12 @@ func (self *I8x16AddSaturateS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16AddSaturateS) String() string {
 	return "i8x16.add_saturate_s"
+}
+
+func (self *I8x16AddSaturateS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x58}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16AddSaturateU struct {
@@ -4525,6 +6597,12 @@ func (self *I8x16AddSaturateU) String() string {
 	return "i8x16.add_saturate_u"
 }
 
+func (self *I8x16AddSaturateU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x59}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16Sub struct {
 }
 
@@ -4535,6 +6613,12 @@ func (self *I8x16Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16Sub) String() string {
 	return "i8x16.sub"
+}
+
+func (self *I8x16Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x5a}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16SubSaturateS struct {
@@ -4549,6 +6633,12 @@ func (self *I8x16SubSaturateS) String() string {
 	return "i8x16.sub_saturate_s"
 }
 
+func (self *I8x16SubSaturateS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x5b}
+	sink.WriteBytes(inst)
+
+}
+
 type I8x16SubSaturateU struct {
 }
 
@@ -4559,6 +6649,12 @@ func (self *I8x16SubSaturateU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16SubSaturateU) String() string {
 	return "i8x16.sub_saturate_u"
+}
+
+func (self *I8x16SubSaturateU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x5c}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16Mul struct {
@@ -4573,6 +6669,12 @@ func (self *I8x16Mul) String() string {
 	return "i8x16.mul"
 }
 
+func (self *I8x16Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x5d}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8Neg struct {
 }
 
@@ -4583,6 +6685,12 @@ func (self *I16x8Neg) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8Neg) String() string {
 	return "i16x8.neg"
+}
+
+func (self *I16x8Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x62}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8AnyTrue struct {
@@ -4597,6 +6705,12 @@ func (self *I16x8AnyTrue) String() string {
 	return "i16x8.any_true"
 }
 
+func (self *I16x8AnyTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x63}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8AllTrue struct {
 }
 
@@ -4607,6 +6721,12 @@ func (self *I16x8AllTrue) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8AllTrue) String() string {
 	return "i16x8.all_true"
+}
+
+func (self *I16x8AllTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x64}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8Shl struct {
@@ -4621,6 +6741,12 @@ func (self *I16x8Shl) String() string {
 	return "i16x8.shl"
 }
 
+func (self *I16x8Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x65}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8ShrS struct {
 }
 
@@ -4631,6 +6757,12 @@ func (self *I16x8ShrS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8ShrS) String() string {
 	return "i16x8.shr_s"
+}
+
+func (self *I16x8ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x66}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8ShrU struct {
@@ -4645,6 +6777,12 @@ func (self *I16x8ShrU) String() string {
 	return "i16x8.shr_u"
 }
 
+func (self *I16x8ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x67}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8Add struct {
 }
 
@@ -4655,6 +6793,12 @@ func (self *I16x8Add) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8Add) String() string {
 	return "i16x8.add"
+}
+
+func (self *I16x8Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x68}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8AddSaturateS struct {
@@ -4669,6 +6813,12 @@ func (self *I16x8AddSaturateS) String() string {
 	return "i16x8.add_saturate_s"
 }
 
+func (self *I16x8AddSaturateS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x69}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8AddSaturateU struct {
 }
 
@@ -4679,6 +6829,12 @@ func (self *I16x8AddSaturateU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8AddSaturateU) String() string {
 	return "i16x8.add_saturate_u"
+}
+
+func (self *I16x8AddSaturateU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x6a}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8Sub struct {
@@ -4693,6 +6849,12 @@ func (self *I16x8Sub) String() string {
 	return "i16x8.sub"
 }
 
+func (self *I16x8Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x6b}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8SubSaturateS struct {
 }
 
@@ -4703,6 +6865,12 @@ func (self *I16x8SubSaturateS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8SubSaturateS) String() string {
 	return "i16x8.sub_saturate_s"
+}
+
+func (self *I16x8SubSaturateS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x6c}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8SubSaturateU struct {
@@ -4717,6 +6885,12 @@ func (self *I16x8SubSaturateU) String() string {
 	return "i16x8.sub_saturate_u"
 }
 
+func (self *I16x8SubSaturateU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x6d}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8Mul struct {
 }
 
@@ -4727,6 +6901,12 @@ func (self *I16x8Mul) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8Mul) String() string {
 	return "i16x8.mul"
+}
+
+func (self *I16x8Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x6e}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4Neg struct {
@@ -4741,6 +6921,12 @@ func (self *I32x4Neg) String() string {
 	return "i32x4.neg"
 }
 
+func (self *I32x4Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x73}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4AnyTrue struct {
 }
 
@@ -4751,6 +6937,12 @@ func (self *I32x4AnyTrue) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4AnyTrue) String() string {
 	return "i32x4.any_true"
+}
+
+func (self *I32x4AnyTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x74}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4AllTrue struct {
@@ -4765,6 +6957,12 @@ func (self *I32x4AllTrue) String() string {
 	return "i32x4.all_true"
 }
 
+func (self *I32x4AllTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x75}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4Shl struct {
 }
 
@@ -4775,6 +6973,12 @@ func (self *I32x4Shl) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4Shl) String() string {
 	return "i32x4.shl"
+}
+
+func (self *I32x4Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x76}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4ShrS struct {
@@ -4789,6 +6993,12 @@ func (self *I32x4ShrS) String() string {
 	return "i32x4.shr_s"
 }
 
+func (self *I32x4ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x77}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4ShrU struct {
 }
 
@@ -4799,6 +7009,12 @@ func (self *I32x4ShrU) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4ShrU) String() string {
 	return "i32x4.shr_u"
+}
+
+func (self *I32x4ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x78}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4Add struct {
@@ -4813,6 +7029,12 @@ func (self *I32x4Add) String() string {
 	return "i32x4.add"
 }
 
+func (self *I32x4Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x79}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4Sub struct {
 }
 
@@ -4823,6 +7045,12 @@ func (self *I32x4Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4Sub) String() string {
 	return "i32x4.sub"
+}
+
+func (self *I32x4Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x7c}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4Mul struct {
@@ -4837,6 +7065,12 @@ func (self *I32x4Mul) String() string {
 	return "i32x4.mul"
 }
 
+func (self *I32x4Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x7f}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2Neg struct {
 }
 
@@ -4847,6 +7081,12 @@ func (self *I64x2Neg) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2Neg) String() string {
 	return "i64x2.neg"
+}
+
+func (self *I64x2Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x84}
+	sink.WriteBytes(inst)
+
 }
 
 type I64x2AnyTrue struct {
@@ -4861,6 +7101,12 @@ func (self *I64x2AnyTrue) String() string {
 	return "i64x2.any_true"
 }
 
+func (self *I64x2AnyTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x85}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2AllTrue struct {
 }
 
@@ -4871,6 +7117,12 @@ func (self *I64x2AllTrue) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2AllTrue) String() string {
 	return "i64x2.all_true"
+}
+
+func (self *I64x2AllTrue) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x86}
+	sink.WriteBytes(inst)
+
 }
 
 type I64x2Shl struct {
@@ -4885,6 +7137,12 @@ func (self *I64x2Shl) String() string {
 	return "i64x2.shl"
 }
 
+func (self *I64x2Shl) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x87}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2ShrS struct {
 }
 
@@ -4895,6 +7153,12 @@ func (self *I64x2ShrS) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2ShrS) String() string {
 	return "i64x2.shr_s"
+}
+
+func (self *I64x2ShrS) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x88}
+	sink.WriteBytes(inst)
+
 }
 
 type I64x2ShrU struct {
@@ -4909,6 +7173,12 @@ func (self *I64x2ShrU) String() string {
 	return "i64x2.shr_u"
 }
 
+func (self *I64x2ShrU) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x89}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2Add struct {
 }
 
@@ -4919,6 +7189,12 @@ func (self *I64x2Add) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2Add) String() string {
 	return "i64x2.add"
+}
+
+func (self *I64x2Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x8a}
+	sink.WriteBytes(inst)
+
 }
 
 type I64x2Sub struct {
@@ -4933,6 +7209,12 @@ func (self *I64x2Sub) String() string {
 	return "i64x2.sub"
 }
 
+func (self *I64x2Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x8d}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2Mul struct {
 }
 
@@ -4943,6 +7225,12 @@ func (self *I64x2Mul) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2Mul) String() string {
 	return "i64x2.mul"
+}
+
+func (self *I64x2Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x90}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Abs struct {
@@ -4957,6 +7245,12 @@ func (self *F32x4Abs) String() string {
 	return "f32x4.abs"
 }
 
+func (self *F32x4Abs) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x95}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Neg struct {
 }
 
@@ -4967,6 +7261,12 @@ func (self *F32x4Neg) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Neg) String() string {
 	return "f32x4.neg"
+}
+
+func (self *F32x4Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x96}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Sqrt struct {
@@ -4981,6 +7281,12 @@ func (self *F32x4Sqrt) String() string {
 	return "f32x4.sqrt"
 }
 
+func (self *F32x4Sqrt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x97}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Add struct {
 }
 
@@ -4991,6 +7297,12 @@ func (self *F32x4Add) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Add) String() string {
 	return "f32x4.add"
+}
+
+func (self *F32x4Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9a}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Sub struct {
@@ -5005,6 +7317,12 @@ func (self *F32x4Sub) String() string {
 	return "f32x4.sub"
 }
 
+func (self *F32x4Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9b}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Mul struct {
 }
 
@@ -5015,6 +7333,12 @@ func (self *F32x4Mul) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Mul) String() string {
 	return "f32x4.mul"
+}
+
+func (self *F32x4Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9c}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Div struct {
@@ -5029,6 +7353,12 @@ func (self *F32x4Div) String() string {
 	return "f32x4.div"
 }
 
+func (self *F32x4Div) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9d}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4Min struct {
 }
 
@@ -5039,6 +7369,12 @@ func (self *F32x4Min) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4Min) String() string {
 	return "f32x4.min"
+}
+
+func (self *F32x4Min) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9e}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4Max struct {
@@ -5053,6 +7389,12 @@ func (self *F32x4Max) String() string {
 	return "f32x4.max"
 }
 
+func (self *F32x4Max) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0x9f}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Abs struct {
 }
 
@@ -5063,6 +7405,12 @@ func (self *F64x2Abs) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Abs) String() string {
 	return "f64x2.abs"
+}
+
+func (self *F64x2Abs) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa0}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Neg struct {
@@ -5077,6 +7425,12 @@ func (self *F64x2Neg) String() string {
 	return "f64x2.neg"
 }
 
+func (self *F64x2Neg) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa1}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Sqrt struct {
 }
 
@@ -5087,6 +7441,12 @@ func (self *F64x2Sqrt) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Sqrt) String() string {
 	return "f64x2.sqrt"
+}
+
+func (self *F64x2Sqrt) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa2}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Add struct {
@@ -5101,6 +7461,12 @@ func (self *F64x2Add) String() string {
 	return "f64x2.add"
 }
 
+func (self *F64x2Add) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa5}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Sub struct {
 }
 
@@ -5111,6 +7477,12 @@ func (self *F64x2Sub) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Sub) String() string {
 	return "f64x2.sub"
+}
+
+func (self *F64x2Sub) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa6}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Mul struct {
@@ -5125,6 +7497,12 @@ func (self *F64x2Mul) String() string {
 	return "f64x2.mul"
 }
 
+func (self *F64x2Mul) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa7}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Div struct {
 }
 
@@ -5135,6 +7513,12 @@ func (self *F64x2Div) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Div) String() string {
 	return "f64x2.div"
+}
+
+func (self *F64x2Div) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa8}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2Min struct {
@@ -5149,6 +7533,12 @@ func (self *F64x2Min) String() string {
 	return "f64x2.min"
 }
 
+func (self *F64x2Min) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xa9}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2Max struct {
 }
 
@@ -5159,6 +7549,12 @@ func (self *F64x2Max) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64x2Max) String() string {
 	return "f64x2.max"
+}
+
+func (self *F64x2Max) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xaa}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4TruncSatF32x4S struct {
@@ -5173,6 +7569,12 @@ func (self *I32x4TruncSatF32x4S) String() string {
 	return "i32x4.trunc_sat_f32x4_s"
 }
 
+func (self *I32x4TruncSatF32x4S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xab}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4TruncSatF32x4U struct {
 }
 
@@ -5183,6 +7585,12 @@ func (self *I32x4TruncSatF32x4U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4TruncSatF32x4U) String() string {
 	return "i32x4.trunc_sat_f32x4_u"
+}
+
+func (self *I32x4TruncSatF32x4U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xac}
+	sink.WriteBytes(inst)
+
 }
 
 type I64x2TruncSatF64x2S struct {
@@ -5197,6 +7605,12 @@ func (self *I64x2TruncSatF64x2S) String() string {
 	return "i64x2.trunc_sat_f64x2_s"
 }
 
+func (self *I64x2TruncSatF64x2S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xad}
+	sink.WriteBytes(inst)
+
+}
+
 type I64x2TruncSatF64x2U struct {
 }
 
@@ -5207,6 +7621,12 @@ func (self *I64x2TruncSatF64x2U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I64x2TruncSatF64x2U) String() string {
 	return "i64x2.trunc_sat_f64x2_u"
+}
+
+func (self *I64x2TruncSatF64x2U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xae}
+	sink.WriteBytes(inst)
+
 }
 
 type F32x4ConvertI32x4S struct {
@@ -5221,6 +7641,12 @@ func (self *F32x4ConvertI32x4S) String() string {
 	return "f32x4.convert_i32x4_s"
 }
 
+func (self *F32x4ConvertI32x4S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xaf}
+	sink.WriteBytes(inst)
+
+}
+
 type F32x4ConvertI32x4U struct {
 }
 
@@ -5231,6 +7657,12 @@ func (self *F32x4ConvertI32x4U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F32x4ConvertI32x4U) String() string {
 	return "f32x4.convert_i32x4_u"
+}
+
+func (self *F32x4ConvertI32x4U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xb0}
+	sink.WriteBytes(inst)
+
 }
 
 type F64x2ConvertI64x2S struct {
@@ -5245,6 +7677,12 @@ func (self *F64x2ConvertI64x2S) String() string {
 	return "f64x2.convert_i64x2_s"
 }
 
+func (self *F64x2ConvertI64x2S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xb1}
+	sink.WriteBytes(inst)
+
+}
+
 type F64x2ConvertI64x2U struct {
 }
 
@@ -5257,6 +7695,12 @@ func (self *F64x2ConvertI64x2U) String() string {
 	return "f64x2.convert_i64x2_u"
 }
 
+func (self *F64x2ConvertI64x2U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xb2}
+	sink.WriteBytes(inst)
+
+}
+
 type V8x16Swizzle struct {
 }
 
@@ -5267,6 +7711,12 @@ func (self *V8x16Swizzle) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V8x16Swizzle) String() string {
 	return "v8x16.swizzle"
+}
+
+func (self *V8x16Swizzle) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc0}
+	sink.WriteBytes(inst)
+
 }
 
 type V8x16LoadSplat struct {
@@ -5286,6 +7736,13 @@ func (self *V8x16LoadSplat) String() string {
 	return "v8x16.load_splat"
 }
 
+func (self *V8x16LoadSplat) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc2}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type V16x8LoadSplat struct {
 	MemArg MemArg
 }
@@ -5301,6 +7758,13 @@ func (self *V16x8LoadSplat) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V16x8LoadSplat) String() string {
 	return "v16x8.load_splat"
+}
+
+func (self *V16x8LoadSplat) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc3}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type V32x4LoadSplat struct {
@@ -5320,6 +7784,13 @@ func (self *V32x4LoadSplat) String() string {
 	return "v32x4.load_splat"
 }
 
+func (self *V32x4LoadSplat) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc4}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type V64x2LoadSplat struct {
 	MemArg MemArg
 }
@@ -5337,6 +7808,13 @@ func (self *V64x2LoadSplat) String() string {
 	return "v64x2.load_splat"
 }
 
+func (self *V64x2LoadSplat) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc5}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I8x16NarrowI16x8S struct {
 }
 
@@ -5347,6 +7825,12 @@ func (self *I8x16NarrowI16x8S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I8x16NarrowI16x8S) String() string {
 	return "i8x16.narrow_i16x8_s"
+}
+
+func (self *I8x16NarrowI16x8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc6}
+	sink.WriteBytes(inst)
+
 }
 
 type I8x16NarrowI16x8U struct {
@@ -5361,6 +7845,12 @@ func (self *I8x16NarrowI16x8U) String() string {
 	return "i8x16.narrow_i16x8_u"
 }
 
+func (self *I8x16NarrowI16x8U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc7}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8NarrowI32x4S struct {
 }
 
@@ -5371,6 +7861,12 @@ func (self *I16x8NarrowI32x4S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8NarrowI32x4S) String() string {
 	return "i16x8.narrow_i32x4_s"
+}
+
+func (self *I16x8NarrowI32x4S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc8}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8NarrowI32x4U struct {
@@ -5385,6 +7881,12 @@ func (self *I16x8NarrowI32x4U) String() string {
 	return "i16x8.narrow_i32x4_u"
 }
 
+func (self *I16x8NarrowI32x4U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xc9}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8WidenLowI8x16S struct {
 }
 
@@ -5395,6 +7897,12 @@ func (self *I16x8WidenLowI8x16S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8WidenLowI8x16S) String() string {
 	return "i16x8.widen_low_i8x16_s"
+}
+
+func (self *I16x8WidenLowI8x16S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xca}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8WidenHighI8x16S struct {
@@ -5409,6 +7917,12 @@ func (self *I16x8WidenHighI8x16S) String() string {
 	return "i16x8.widen_high_i8x16_s"
 }
 
+func (self *I16x8WidenHighI8x16S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xcb}
+	sink.WriteBytes(inst)
+
+}
+
 type I16x8WidenLowI8x16U struct {
 }
 
@@ -5419,6 +7933,12 @@ func (self *I16x8WidenLowI8x16U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8WidenLowI8x16U) String() string {
 	return "i16x8.widen_low_i8x16_u"
+}
+
+func (self *I16x8WidenLowI8x16U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xcc}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8WidenHighI8x16u struct {
@@ -5433,6 +7953,12 @@ func (self *I16x8WidenHighI8x16u) String() string {
 	return "i16x8.widen_high_i8x16_u"
 }
 
+func (self *I16x8WidenHighI8x16u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xcd}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4WidenLowI16x8S struct {
 }
 
@@ -5443,6 +7969,12 @@ func (self *I32x4WidenLowI16x8S) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4WidenLowI16x8S) String() string {
 	return "i32x4.widen_low_i16x8_s"
+}
+
+func (self *I32x4WidenLowI16x8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xce}
+	sink.WriteBytes(inst)
+
 }
 
 type I32x4WidenHighI16x8S struct {
@@ -5457,6 +7989,12 @@ func (self *I32x4WidenHighI16x8S) String() string {
 	return "i32x4.widen_high_i16x8_s"
 }
 
+func (self *I32x4WidenHighI16x8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xcf}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4WidenLowI16x8U struct {
 }
 
@@ -5469,6 +8007,12 @@ func (self *I32x4WidenLowI16x8U) String() string {
 	return "i32x4.widen_low_i16x8_u"
 }
 
+func (self *I32x4WidenLowI16x8U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd0}
+	sink.WriteBytes(inst)
+
+}
+
 type I32x4WidenHighI16x8u struct {
 }
 
@@ -5479,6 +8023,12 @@ func (self *I32x4WidenHighI16x8u) parseInstrBody(ps *parser.ParserBuffer) error 
 
 func (self *I32x4WidenHighI16x8u) String() string {
 	return "i32x4.widen_high_i16x8_u"
+}
+
+func (self *I32x4WidenHighI16x8u) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd1}
+	sink.WriteBytes(inst)
+
 }
 
 type I16x8Load8x8S struct {
@@ -5498,6 +8048,13 @@ func (self *I16x8Load8x8S) String() string {
 	return "i16x8.load8x8_s"
 }
 
+func (self *I16x8Load8x8S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd2}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I16x8Load8x8U struct {
 	MemArg MemArg
 }
@@ -5513,6 +8070,13 @@ func (self *I16x8Load8x8U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I16x8Load8x8U) String() string {
 	return "i16x8.load8x8_u"
+}
+
+func (self *I16x8Load8x8U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd3}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I32x4Load16x4S struct {
@@ -5532,6 +8096,13 @@ func (self *I32x4Load16x4S) String() string {
 	return "i32x4.load16x4_s"
 }
 
+func (self *I32x4Load16x4S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd4}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I32x4Load16x4U struct {
 	MemArg MemArg
 }
@@ -5547,6 +8118,13 @@ func (self *I32x4Load16x4U) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32x4Load16x4U) String() string {
 	return "i32x4.load16x4_u"
+}
+
+func (self *I32x4Load16x4U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd5}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
 }
 
 type I64x2Load32x2S struct {
@@ -5566,6 +8144,13 @@ func (self *I64x2Load32x2S) String() string {
 	return "i64x2.load32x2_s"
 }
 
+func (self *I64x2Load32x2S) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd6}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type I64x2Load32x2U struct {
 	MemArg MemArg
 }
@@ -5583,6 +8168,13 @@ func (self *I64x2Load32x2U) String() string {
 	return "i64x2.load32x2_u"
 }
 
+func (self *I64x2Load32x2U) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd7}
+	sink.WriteBytes(inst)
+	self.MemArg.Encode(sink)
+
+}
+
 type V128Andnot struct {
 }
 
@@ -5593,6 +8185,12 @@ func (self *V128Andnot) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *V128Andnot) String() string {
 	return "v128.andnot"
+}
+
+func (self *V128Andnot) Encode(sink *ZeroCopySink) {
+	inst := []byte{0xfd, 0xd8}
+	sink.WriteBytes(inst)
+
 }
 
 func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
@@ -6424,10 +9022,6 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &I64x2Load32x2U{}
 	case "v128.andnot":
 		inst = &V128Andnot{}
-	case "nan:canonical":
-		inst = &CanonicalNan{}
-	case "nan:arithmetic":
-		inst = &ArithmeticNan{}
 	default:
 		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}

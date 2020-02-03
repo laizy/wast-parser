@@ -49,14 +49,14 @@ func (self *OptionId) Parse(ps *parser.ParserBuffer) {
 }
 
 type Index struct {
-	isnum bool
+	Isnum bool
 	Num   uint32
 	Id    Id
 }
 
 func NewNumIndex(num uint32) Index {
 	return Index{
-		isnum: true,
+		Isnum: true,
 		Num:   num,
 	}
 }
@@ -107,7 +107,7 @@ func (self OptionIndex) ToIndexOr(ind Index) Index {
 func (self *Index) Parse(ps *parser.ParserBuffer) error {
 	id := ps.TryGetId()
 	if len(id) != 0 {
-		self.isnum = false
+		self.Isnum = false
 		self.Id = Id{Name: id}
 		return nil
 	}
@@ -116,7 +116,7 @@ func (self *Index) Parse(ps *parser.ParserBuffer) error {
 	if err != nil {
 		return err
 	}
-	self.isnum = true
+	self.Isnum = true
 	self.Num = uint32(num)
 
 	return nil

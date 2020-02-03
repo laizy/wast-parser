@@ -16,6 +16,7 @@ type Import struct {
 
 type ImportItem interface {
 	ImportType() string
+	Encode(sink *ZeroCopySink)
 }
 
 type ImportFunc struct {

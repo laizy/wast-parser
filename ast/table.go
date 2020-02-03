@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+
 	"github.com/ontio/wast-parser/lexer"
 	"github.com/ontio/wast-parser/parser"
 )
@@ -106,6 +107,7 @@ func (self *Table) Parse(ps *parser.ParserBuffer) error {
 
 type ElemPayload interface {
 	implElemPayload()
+	Encode(sink *ZeroCopySink)
 }
 
 func parseElemPayloadExprs(ps *parser.ParserBuffer, elemType TableElemType) (ElemPayload, error) {
