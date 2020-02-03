@@ -482,7 +482,7 @@ func main() {
 (F32ConvertI32S (0xb2) (f32.convert_i32_s f32.convert_s/i32))
 (F32ConvertI32U (0xb3) (f32.convert_i32_u f32.convert_u/i32))
 (F32ConvertI64S (0xb4) (f32.convert_i64_s f32.convert_s/i64))
-(F32ConvertI64U (0xb5) (f32.convert_i64.u f32.convert_u/i64))
+(F32ConvertI64U (0xb5) (f32.convert_i64_u f32.convert_u/i64))
 (F32DemoteF64 (0xb6) (f32.demote_f64 f32.demote/f64))
 (F64ConvertI32S (0xb7) (f64.convert_i32_s f64.convert_s/i32))
 (F64ConvertI32U (0xb8) (f64.convert_i32_u f64.convert_u/i32))

@@ -9022,10 +9022,6 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &I64x2Load32x2U{}
 	case "v128.andnot":
 		inst = &V128Andnot{}
-	case "nan:canonical":
-		inst = &CanonicalNan{}
-	case "nan:arithmetic":
-		inst = &ArithmeticNan{}
 	default:
 		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}

@@ -75,7 +75,7 @@ func TestWastParsing2(t *testing.T) {
 	wasts, err := LoadWastFiles("../tests/")
 	assert.Nil(t, err)
 	for name, content := range wasts {
-		fmt.Printf("test file name: %s\n", name)
+		fmt.Printf("2test file name: %s\n", name)
 		ps, err := parser.NewParserBuffer(string(content))
 		assert.Nil(t, err)
 		var wast Wast
