@@ -120,12 +120,14 @@ func (self Integer) String() string {
 }
 
 func (self *Integer) ToUint(bitSize int) (uint64, error) {
-	val, err := self.ToInt(bitSize)
+	val, err := self.ToInt(64)
 	if err != nil {
 		return 0, err
 	}
 
-	return uint64(val), nil
+	shift := 64 - uint(bitSize)
+
+	return (uint64(val) << shift) >> shift, nil
 }
 
 func (self *Integer) ToInt(bitSize int) (int64, error) {
@@ -133,8 +135,14 @@ func (self *Integer) ToInt(bitSize int) (int64, error) {
 	if self.Hex {
 		base = 16
 	}
-
-	return strconv.ParseInt(self.Val, base, bitSize)
+	if strings.HasPrefix(self.Val, "-") {
+		return strconv.ParseInt(self.Val, base, bitSize)
+	}
+	temp, err := strconv.ParseUint(self.Val, base, bitSize)
+	if err != nil {
+		return 0, err
+	}
+	return int64(temp), nil
 }
 
 type Float interface {

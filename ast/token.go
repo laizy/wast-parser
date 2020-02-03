@@ -181,8 +181,10 @@ func string2f64(val lexer.Float) (uint64, error) {
 
 			return math.Float64bits(f), nil
 		}
-
-		panic("todo: parse hex float not implemented yet")
+		//TODO
+		fmt.Printf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String())
+		//return 0, nil
+		panic(fmt.Sprintf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String()))
 	default:
 		panic("unreachable")
 	}
@@ -239,8 +241,10 @@ func string2f32(val lexer.Float) (uint32, error) {
 
 			return math.Float32bits(float32(f)), nil
 		}
-
-		panic("todo: parse hex float not implemented yet")
+		//TODO
+		//fmt.Println("todo: parse hex float not implemented yet")
+		panic(fmt.Sprintf("todo: parse hex float not implemented yet,type: %x, val: %s\n", val.Type(), val.String()))
+		//return 0, nil
 	default:
 		panic("unreachable")
 	}
@@ -263,8 +267,16 @@ func (self *Float32) Parse(ps *parser.ParserBuffer) error {
 		self.Bits, err = string2f32(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
+	if matchKeyword(token, "nan:canonical") || matchKeyword(token, "nan:arithmetic") {
+		return nil
+	}
 
-	return fmt.Errorf("parse float32 error. expect number type")
+	if token.Type() == lexer.ReservedType {
+		_ = ps.ExpectReserved()
+		return nil
+	}
+
+	return fmt.Errorf("parse float32 error. expect number type, type: %x, val: %s", token.Type(), token.String())
 }
 
 type Float64 struct {
@@ -288,24 +300,25 @@ func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 		self.Bits, err = string2f64(lexer.FloatVal{Hex: num.Hex, Integral: num.Val, Decimal: "", Exponent: ""})
 		return err
 	}
-
-	return fmt.Errorf("parse float64 error. expect number type")
+	if matchKeyword(token, "nan:canonical") || matchKeyword(token, "nan:arithmetic") {
+		return nil
+	}
+	if token.Type() == lexer.ReservedType {
+		_ = ps.ExpectReserved()
+		return nil
+	}
+	return fmt.Errorf("parse float64 error. expect number type, %x, val: %s", token.Type(), token.String())
 }
 
 type BlockType struct {
-	Label Id
+	Label OptionId
 	Ty    TypeUse
 }
 
 func (self *BlockType) Parse(ps *parser.ParserBuffer) error {
-	var id Id
-	err := id.Parse(ps)
-	if err != nil {
-		return err
-	}
-	self.Label = id
+	self.Label.Parse(ps)
 	ty := TypeUse{}
-	err = ty.ParseNoNames(ps)
+	err := ty.ParseNoNames(ps)
 	if err != nil {
 		return err
 	}
@@ -322,7 +335,7 @@ func (self *MemArg) Parse(ps *parser.ParserBuffer, defaultAlign uint32) error {
 	parseField := func(name string, ps *parser.ParserBuffer) (some bool, val uint32, err error) {
 		kw, err := ps.ExpectKeyword()
 		if err != nil {
-			return false, 0, err
+			return false, 0, nil
 		}
 		if strings.HasPrefix(kw, name) == false {
 			return false, 0, nil

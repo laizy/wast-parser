@@ -179,14 +179,14 @@ func (self *FunctionType) Parse(ps *parser.ParserBuffer) error {
 		return err
 	}
 
-	return self.ParseBody(ps)
+	return self.ParseBody(ps, true)
 }
 
 func matchKeyword(token lexer.Token, kw string) bool {
 	return token != nil && token.Type() == lexer.KeywordType && token.(lexer.Keyword).Val == kw
 }
 
-func (self *FunctionType) ParseBody(ps *parser.ParserBuffer) error {
+func (self *FunctionType) ParseBody(ps *parser.ParserBuffer, allowNames bool) error {
 	for {
 		token := ps.Peek2Token()
 		if !matchKeyword(token, "param") && !matchKeyword(token, "result") {
@@ -206,7 +206,9 @@ func (self *FunctionType) ParseBody(ps *parser.ParserBuffer) error {
 					return nil
 				}
 				var id OptionId
-				id.Parse(ps)
+				if allowNames {
+					id.Parse(ps)
+				}
 				more := !id.IsSome()
 				var valType ValType
 				err := valType.Parse(ps)
@@ -279,29 +281,23 @@ func (self *TypeUse) ParseNoNames(ps *parser.ParserBuffer) error {
 	return self.ParseAllowNames(ps, false)
 }
 
-func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allow_names bool) error {
-	panic("todo")
-}
-
-func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {
-	self.Index = NoneOptionIndex()
-	token := ps.Peek2Token()
-	if matchKeyword(token, "type") {
-		var ind Index
+func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allowNames bool) error {
+	if matchKeyword(ps.Peek2Token(), "type") {
 		err := ps.Parens(func(ps *parser.ParserBuffer) error {
-			err := ps.ExpectKeywordMatch("type")
-			if err != nil {
-				panic(err)
-			}
-			return ind.Parse(ps)
+			_ = ps.ExpectKeywordMatch("type")
+			self.Index.Parse(ps)
+			return nil
 		})
-
 		if err != nil {
 			return err
 		}
-
-		self.Index = NewOptionIndex(ind)
 	}
+	if matchKeyword(ps.Peek2Token(), "param") || matchKeyword(ps.Peek2Token(), "result") {
+		return self.Type.ParseBody(ps, allowNames)
+	}
+	return nil
+}
 
-	return self.Type.ParseBody(ps)
+func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {
+	return self.ParseAllowNames(ps, true)
 }

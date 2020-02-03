@@ -67,8 +67,12 @@ func (self *Global) Parse(ps *parser.ParserBuffer) error {
 
 		self.Kind = imp
 	} else {
+		err := self.ValType.Parse(ps)
+		if err != nil {
+			return err
+		}
 		var expr Expression
-		err := expr.Parse(ps)
+		err = expr.Parse(ps)
 		if err != nil {
 			return err
 		}

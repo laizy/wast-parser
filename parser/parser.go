@@ -58,6 +58,17 @@ func (self *ParserBuffer) ExpectString() (string, error) {
 	return str, nil
 }
 
+func (self *ParserBuffer) ExpectReserved() error {
+	cursor := self.Cursor()
+	_, err := cursor.Reserved()
+	if err != nil {
+		return err
+	}
+	self.curr = cursor.curr
+
+	return nil
+}
+
 func (self *ParserBuffer) ExpectKeywordMatch(expect string) error {
 	kw, err := self.ExpectKeyword()
 	if err != nil {
@@ -129,7 +140,6 @@ func (self *ParserBuffer) ExpectInt64() (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	return val.ToInt(64)
 }
 
@@ -138,7 +148,6 @@ func (self *ParserBuffer) ExpectUint32() (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
-
 	value, err := val.ToUint(32)
 	return uint32(value), err
 }
@@ -344,4 +353,32 @@ func (self *Cursor) String() (string, error) {
 	}
 
 	return "", errors.New("expect string token")
+}
+func (self *Cursor) Reserved() (string, error) {
+	if token := self.readToken(); token != nil {
+		if t, ok := token.(lexer.Reserved); ok {
+			return string(t.Val), nil
+		}
+	}
+
+	return "", errors.New("expect string token")
+}
+
+func (self *ParserBuffer) Dump() string {
+	tokens := self.tokens[self.curr:]
+
+	result := ""
+	for _, t := range tokens {
+		result += " " + t.String()
+	}
+	return result
+}
+
+func (self *ParserBuffer) DumpToStdout() {
+	str := self.Dump()
+	if len(str) > 100 {
+		str = str[:100]
+	}
+
+	fmt.Println(str)
 }

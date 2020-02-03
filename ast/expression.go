@@ -66,7 +66,7 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 			return err
 		}
 		switch val := instr.(type) {
-		case *Block: //loop
+		case *Block, *Loop: //loop
 			self.Instrs = append(self.Instrs, val)
 
 			err := self.parseFoldedInstrs(ps)
@@ -79,7 +79,10 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 				return fmt.Errorf("expected (")
 			}
 			if !matchKeyword(ps.Peek2Token(), "then") {
-				self.parseOneInstr(ps)
+				err := self.parseOneInstr(ps)
+				if err != nil {
+					return err
+				}
 			}
 			self.Instrs = append(self.Instrs, val)
 			if ps.PeekToken().Type() != lexer.LParenType {
@@ -87,10 +90,17 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 			}
 			if matchKeyword(ps.Peek2Token(), "then") {
 				err = ps.Parens(func(ps *parser.ParserBuffer) error {
+					_ = ps.ExpectKeywordMatch("then")
 					return self.parseFoldedInstrs(ps)
 				})
+				if err != nil {
+					return err
+				}
 			} else {
-				self.parseOneInstr(ps)
+				err := self.parseOneInstr(ps)
+				if err != nil {
+					return err
+				}
 			}
 			if ps.PeekToken().Type() == lexer.LParenType {
 				before := len(self.Instrs)
@@ -107,7 +117,10 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 						self.Instrs = self.Instrs[:before]
 					}
 				} else {
-					self.parseOneInstr(ps)
+					err := self.parseOneInstr(ps)
+					if err != nil {
+						return err
+					}
 				}
 			}
 			self.Instrs = append(self.Instrs, &End{})
@@ -136,10 +149,10 @@ func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
 	}
 	self.Labels = append(self.Labels, index)
 	for !ps.Empty() {
+
 		var index Index
-		err := index.Parse(ps)
-		if err != nil {
-			return err
+		if ps.TryParse(&index) != nil {
+			break
 		}
 
 		self.Labels = append(self.Labels, index)
