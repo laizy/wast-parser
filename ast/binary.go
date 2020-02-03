@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -9,7 +8,7 @@ type Section interface {
 	Encode(sink *ZeroCopySink)
 }
 
-func (self *Module) Encode() ([]byte, error) {
+func (self *Module) Encode() []byte {
 	var fields []ModuleField
 	if t, ok := self.Kind.(ModuleKindText); ok {
 		fields = t.Fields
@@ -31,31 +30,31 @@ func (self *Module) Encode() ([]byte, error) {
 	var elem []Section
 	var data []Section
 
-	for _, field := range fields {
-		switch field.(type) {
+	for _, item := range fields {
+		switch field := item.(type) {
 		case Type:
-			types = append(types, field.(Type))
+			types = append(types, field)
 		case Import:
-			imports = append(imports, field.(Import))
+			imports = append(imports, field)
 		case Func:
-			funcsTypes = append(funcsTypes, field.(Func).Type)
-			funcs = append(funcs, field.(Func))
+			funcsTypes = append(funcsTypes, field.Type)
+			funcs = append(funcs, field)
 		case Table:
-			tables = append(tables, field.(Table))
+			tables = append(tables, field)
 		case Memory:
-			memories = append(memories, field.(Memory))
+			memories = append(memories, field)
 		case Global:
-			globals = append(globals, field.(Global))
+			globals = append(globals, field)
 		case Export:
-			exports = append(exports, field.(Export))
+			exports = append(exports, field)
 		case StartField:
-			start = append(start, field.(StartField))
+			start = append(start, field)
 		case Elem:
-			elem = append(elem, field.(Elem))
+			elem = append(elem, field)
 		case Data:
-			data = append(data, field.(Data))
+			data = append(data, field)
 		default:
-			return nil, errors.New("err section")
+			panic(fmt.Errorf("invalid module field type: %v", field))
 		}
 	}
 
@@ -71,12 +70,12 @@ func (self *Module) Encode() ([]byte, error) {
 	SectionList(0xa, funcs, sink)
 	SectionList(0xb, data, sink)
 
-	return sink.Bytes(), nil
+	return sink.Bytes()
 }
 
-func SectionList(id byte, l []Section, sink *ZeroCopySink) error {
+func SectionList(id byte, l []Section, sink *ZeroCopySink) {
 	if len(l) == 0 {
-		return nil
+		return
 	}
 
 	tmpSink := NewZeroCopySink(nil)
@@ -84,8 +83,6 @@ func SectionList(id byte, l []Section, sink *ZeroCopySink) error {
 
 	sink.WriteByte(id)
 	sink.WriteVarBytes(tmpSink.Bytes())
-
-	return nil
 }
 
 func ListEncode(l []Section, sink *ZeroCopySink) {
