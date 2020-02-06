@@ -19,6 +19,17 @@ type ValType struct {
 	ty byte
 }
 
+func ValTypeFromByte( val byte) ValType {
+	if val > 6 {
+		panic("invalid byte to ValType")
+	}
+	return ValType{ty: val}
+}
+
+func (self *ValType)Byte() byte {
+	return self.ty
+}
+
 func (self *ValType) Parse(ps *parser.ParserBuffer) error {
 	kw, err := ps.ExpectKeyword()
 	if err != nil {

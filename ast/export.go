@@ -8,9 +8,9 @@ import (
 type ExportType byte
 
 const ExportFunc = ExportType(0)
-const ExportTable = iota
-const ExportMemory = iota
-const ExportGlobal = iota
+const ExportTable = ExportType(1)
+const ExportMemory = ExportType(2)
+const ExportGlobal = ExportType(3)
 
 type Export struct {
 	implModuleField
