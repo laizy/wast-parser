@@ -12,7 +12,7 @@ import (
 )
 
 func EvalExpr(expr Expression) (int64, error) {
-	if len(expr.Instrs) ==  1 {
+	if len(expr.Instrs) == 1 {
 		switch val := expr.Instrs[0].(type) {
 		case *I64Const:
 			return val.Val, nil
@@ -27,7 +27,7 @@ func EvalExpr(expr Expression) (int64, error) {
 }
 
 func EvalExprs(exprs []Expression) ([]int64, error) {
-	var result  [] int64
+	var result []int64
 	for _, expr := range exprs {
 		val, err := EvalExpr(expr)
 		if err != nil {
@@ -64,10 +64,3 @@ func TestEncode(t *testing.T) {
 		}
 	}
 }
-
-
-
-
-
-
-

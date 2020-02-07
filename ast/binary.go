@@ -428,8 +428,8 @@ func (t BlockType) Encode(sink *ZeroCopySink) {
 	}
 
 	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 0 {
-		 sink.WriteByte(byte(0x40))
-		 return
+		sink.WriteByte(byte(0x40))
+		return
 	}
 
 	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 1 {

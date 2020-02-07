@@ -2,17 +2,17 @@ package ast
 
 type TypeExpander struct {
 	toPrepend []ModuleField
-	types     map[[2]string] uint32
+	types     map[[2]string]uint32
 	ntypes    uint32
 }
 
 func NewTypeExpander() TypeExpander {
 	return TypeExpander{
-		types:make(map[[2]string]uint32),
+		types: make(map[[2]string]uint32),
 	}
 }
 
-func (self *TypeExpander)Expand(item ModuleField) ModuleField {
+func (self *TypeExpander) Expand(item ModuleField) ModuleField {
 	switch val := item.(type) {
 	case Type:
 		self.registerType(&val)
@@ -37,42 +37,42 @@ func (self *TypeExpander)Expand(item ModuleField) ModuleField {
 	}
 }
 
-func (self *TypeExpander)expandGlobal(global *Global) {
+func (self *TypeExpander) expandGlobal(global *Global) {
 	if inline, ok := global.Kind.(GlobalKindInline); ok {
 		self.expandExpression(&inline.Expr)
 		global.Kind = inline
 	}
 }
 
-func (self *TypeExpander)expandElem(elem *Elem) {
+func (self *TypeExpander) expandElem(elem *Elem) {
 	if inline, ok := elem.Kind.(ElemKindActive); ok {
 		self.expandExpression(&inline.Offset)
 		elem.Kind = inline
 	}
 }
 
-func (self *TypeExpander)expandData(data *Data) {
+func (self *TypeExpander) expandData(data *Data) {
 	if inline, ok := data.Kind.(DataKindActive); ok {
 		self.expandExpression(&inline.Offset)
 		data.Kind = inline
 	}
 }
 
-func (self *TypeExpander)expandFunc(fn *Func) {
+func (self *TypeExpander) expandFunc(fn *Func) {
 	self.expandTypeUse(&fn.Type)
-	if inline, ok :=  fn.Kind.(FuncKindInline); ok {
+	if inline, ok := fn.Kind.(FuncKindInline); ok {
 		self.expandExpression(&inline.Expr)
 		fn.Kind = inline
 	}
 }
 
-func (self *TypeExpander)expandExpression(expr *Expression) {
-	for i:= 0; i < len(expr.Instrs); i++ {
+func (self *TypeExpander) expandExpression(expr *Expression) {
+	for i := 0; i < len(expr.Instrs); i++ {
 		self.expandInstr(expr.Instrs[i])
 	}
 }
 
-func (self *TypeExpander)expandInstr(instr Instruction) {
+func (self *TypeExpander) expandInstr(instr Instruction) {
 	var blockType *BlockType
 	switch ins := instr.(type) {
 	case *Block:
@@ -115,7 +115,7 @@ func TypeToKey(ty FunctionType) [2]string {
 	return [2]string{string(params), string(results)}
 }
 
-func (self *TypeExpander)registerType(val *Type) {
+func (self *TypeExpander) registerType(val *Type) {
 	key := TypeToKey(val.Func)
 	if _, ok := self.types[key]; ok == false {
 		self.types[key] = self.ntypes
@@ -139,25 +139,25 @@ func (self *TypeExpander) expandTypeUse(val *TypeUse) {
 	if v, ok := self.types[key]; ok {
 		val.Index = NewOptionIndex(NewNumIndex(v))
 	} else {
-		val.Index = NewOptionIndex(NewNumIndex( self.prepend(key) ))
+		val.Index = NewOptionIndex(NewNumIndex(self.prepend(key)))
 	}
 }
 
-func (self *TypeExpander)prepend(key [2]string) uint32 {
-	params , results := decodeKey(key)
+func (self *TypeExpander) prepend(key [2]string) uint32 {
+	params, results := decodeKey(key)
 	var funcParams []FuncParam
 	for _, p := range params {
 		funcParams = append(funcParams, FuncParam{
-			Id  : NoneOptionId(),
-			Val : p,
+			Id:  NoneOptionId(),
+			Val: p,
 		})
 	}
 
 	self.toPrepend = append(self.toPrepend, Type{
 		Name: NoneOptionId(),
 		Func: FunctionType{
-			Params:funcParams,
-			Results:results,
+			Params:  funcParams,
+			Results: results,
 		},
 	})
 	self.types[key] = self.ntypes
@@ -166,7 +166,7 @@ func (self *TypeExpander)prepend(key [2]string) uint32 {
 	return self.ntypes - 1
 }
 
-func decodeKey(key [2]string) (params []ValType,  results []ValType) {
+func decodeKey(key [2]string) (params []ValType, results []ValType) {
 	for _, by := range []byte(key[0]) {
 		params = append(params, ValTypeFromByte(by))
 	}
@@ -176,4 +176,3 @@ func decodeKey(key [2]string) (params []ValType,  results []ValType) {
 
 	return
 }
-

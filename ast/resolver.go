@@ -8,13 +8,13 @@ import (
 func Resolve(module *Module) error {
 	switch kind := module.Kind.(type) {
 	case ModuleKindBinary:
-		return  nil
+		return nil
 	case ModuleKindText:
 		expander := Expander{}
-		kind.Fields = expander.Process(kind.Fields, func (expander *Expander, field ModuleField) ModuleField {
+		kind.Fields = expander.Process(kind.Fields, func(expander *Expander, field ModuleField) ModuleField {
 			return expander.ExpandImport(field)
 		})
-		kind.Fields = expander.Process(kind.Fields, func (expander *Expander, field ModuleField) ModuleField {
+		kind.Fields = expander.Process(kind.Fields, func(expander *Expander, field ModuleField) ModuleField {
 			return expander.ExpandExport(field)
 		})
 
@@ -45,10 +45,10 @@ func Resolve(module *Module) error {
 
 		moveImportFirst(kind.Fields)
 		namesResolver := NewNameResolver()
-		for i:=0; i < len(kind.Fields) ; i++ {
+		for i := 0; i < len(kind.Fields); i++ {
 			namesResolver.Register(kind.Fields[i])
 		}
-		for i:=0; i < len(kind.Fields) ; i++ {
+		for i := 0; i < len(kind.Fields); i++ {
 			var err error
 			kind.Fields[i], err = namesResolver.Resolve(kind.Fields[i])
 			if err != nil {
@@ -64,7 +64,7 @@ func Resolve(module *Module) error {
 }
 
 func moveImportFirst(fields []ModuleField) {
-	sort.SliceStable(fields, func (i,j int)bool {
+	sort.SliceStable(fields, func(i, j int) bool {
 		_, iok := fields[i].(Import)
 		_, jok := fields[j].(Import)
 		if iok && !jok {
@@ -76,7 +76,7 @@ func moveImportFirst(fields []ModuleField) {
 }
 
 func moveTypesFirst(fields []ModuleField) {
-	sort.SliceStable(fields, func (i,j int)bool {
+	sort.SliceStable(fields, func(i, j int) bool {
 		_, iok := fields[i].(Type)
 		_, jok := fields[j].(Type)
 		if iok && !jok {

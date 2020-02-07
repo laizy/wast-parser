@@ -5,23 +5,23 @@ import (
 )
 
 const (
-	NsData = 0
-	NsElem = 1
-	NsFunc = 2
+	NsData   = 0
+	NsElem   = 1
+	NsFunc   = 2
 	NsGlobal = 3
 	NsMemory = 4
-	NsTable = 5
-	NsType = 6
+	NsTable  = 5
+	NsType   = 6
 )
 
 type NameResolver struct {
- 	ns [7]Namespace
- 	types []FunctionType
+	ns    [7]Namespace
+	types []FunctionType
 }
 
 func NewNameResolver() NameResolver {
 	nr := NameResolver{}
-	for i:=0; i<7; i++ {
+	for i := 0; i < 7; i++ {
 		nr.ns[i] = NewNamespace()
 	}
 
@@ -29,7 +29,7 @@ func NewNameResolver() NameResolver {
 }
 
 type Namespace struct {
-	names map[Id] uint32
+	names map[Id]uint32
 	count uint32
 }
 
@@ -116,7 +116,7 @@ func (self *NameResolver) Resolve(field ModuleField) (ModuleField, error) {
 		}
 		switch payload := value.Payload.(type) {
 		case ElemPayloadIndices:
-			for i:=0; i< len(payload.Indices) ; i++ {
+			for i := 0; i < len(payload.Indices); i++ {
 				err := self.resolveIdx(&payload.Indices[i], NsFunc)
 				if err != nil {
 					return nil, err
@@ -124,7 +124,7 @@ func (self *NameResolver) Resolve(field ModuleField) (ModuleField, error) {
 			}
 			value.Payload = payload
 		case ElemPayloadExprs:
-			for i:=0; i< len(payload.Exprs); i++ {
+			for i := 0; i < len(payload.Exprs); i++ {
 				if payload.Exprs[i].IsSome() {
 					id := payload.Exprs[i].ToIndex()
 					err := self.resolveIdx(&id, NsFunc)
@@ -187,18 +187,17 @@ func (self *NameResolver) Resolve(field ModuleField) (ModuleField, error) {
 	}
 }
 
-func (self *NameResolver)resolveIdx(idx *Index, ns int) error {
+func (self *NameResolver) resolveIdx(idx *Index, ns int) error {
 	_, err := self.ns[ns].resolve(idx)
 	return err
 }
 
-func (self *NameResolver)resolveExpr(expr *Expression) error {
+func (self *NameResolver) resolveExpr(expr *Expression) error {
 	exprResolver := NewExprResolver(self)
 	return exprResolver.Resolve(expr)
 }
 
-
-func (self *NameResolver)resolveTypeUse(ty *TypeUse) (uint32, error) {
+func (self *NameResolver) resolveTypeUse(ty *TypeUse) (uint32, error) {
 	if !ty.Index.IsSome() {
 		panic("must be some index")
 	}
@@ -226,7 +225,7 @@ func (self *NameResolver)resolveTypeUse(ty *TypeUse) (uint32, error) {
 
 func NewNamespace() Namespace {
 	return Namespace{
-		names:make(map[Id]uint32),
+		names: make(map[Id]uint32),
 	}
 }
 func (self *Namespace) register(name OptionId) {
@@ -236,7 +235,7 @@ func (self *Namespace) register(name OptionId) {
 	self.count += 1
 }
 
-func (self *Namespace)resolve(idx *Index) (uint32, error) {
+func (self *Namespace) resolve(idx *Index) (uint32, error) {
 	if idx.Isnum {
 		return idx.Num, nil
 	}
@@ -252,19 +251,19 @@ func (self *Namespace)resolve(idx *Index) (uint32, error) {
 
 type ExprResolver struct {
 	resolver *NameResolver
-	locals Namespace
-	labels []OptionId
+	locals   Namespace
+	labels   []OptionId
 }
 
 func NewExprResolver(resolver *NameResolver) ExprResolver {
 	return ExprResolver{
-		resolver:resolver,
-		locals:NewNamespace(),
+		resolver: resolver,
+		locals:   NewNamespace(),
 	}
 }
 
-func (self *ExprResolver)Resolve(expr *Expression) error {
-	for i:=0; i< len(expr.Instrs); i++ {
+func (self *ExprResolver) Resolve(expr *Expression) error {
+	for i := 0; i < len(expr.Instrs); i++ {
 		err := self.resolveInstr(expr.Instrs[i])
 		if err != nil {
 			return err
@@ -274,8 +273,8 @@ func (self *ExprResolver)Resolve(expr *Expression) error {
 	return nil
 }
 
-func (self *ExprResolver)resolveInstr(instr Instruction) error {
-	handleBlockType := func (blockType *BlockType) error {
+func (self *ExprResolver) resolveInstr(instr Instruction) error {
+	handleBlockType := func(blockType *BlockType) error {
 		self.labels = append(self.labels, blockType.Label)
 		if blockType.Ty.Index.IsSome() {
 			ind, err := self.resolver.resolveTypeUse(&blockType.Ty)
@@ -286,7 +285,7 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 				return nil
 			}
 			ty := self.resolver.types[ind]
-			if len(ty.Params) == 0 && len(ty.Results) <= 1{
+			if len(ty.Params) == 0 && len(ty.Results) <= 1 {
 				blockType.Ty.Type.Params = nil
 				blockType.Ty.Type.Results = ty.Results
 				blockType.Ty.Index = NoneOptionIndex()
@@ -331,18 +330,18 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 	case *ReturnCall:
 		return self.resolver.resolveIdx(&inst.Index, NsFunc)
 	case *CallIndirect:
-		err :=  self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
+		err := self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
 		if err != nil {
 			return err
 		}
-		_, err =  self.resolver.resolveTypeUse(&inst.Impl.Type)
+		_, err = self.resolver.resolveTypeUse(&inst.Impl.Type)
 		return err
 	case *ReturnCallIndirect:
-		err :=  self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
+		err := self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
 		if err != nil {
 			return err
 		}
-		_, err =  self.resolver.resolveTypeUse(&inst.Impl.Type)
+		_, err = self.resolver.resolveTypeUse(&inst.Impl.Type)
 		return err
 	case *Block:
 		return handleBlockType(&inst.BlockType)
@@ -354,7 +353,7 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 		if len(self.labels) == 0 {
 			return nil
 		}
-		matching := self.labels[len(self.labels) - 1]
+		matching := self.labels[len(self.labels)-1]
 		label := &inst.Id
 
 		if !label.IsSome() || *label == matching {
@@ -366,8 +365,8 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 		if len(self.labels) == 0 {
 			return nil
 		}
-		matching := self.labels[len(self.labels) - 1]
-		self.labels = self.labels[:len(self.labels) - 1]
+		matching := self.labels[len(self.labels)-1]
+		self.labels = self.labels[:len(self.labels)-1]
 		label := &inst.Id
 
 		if !label.IsSome() || *label == matching {
@@ -380,7 +379,7 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 	case *BrIf:
 		return self.resolveLabel(&inst.Index)
 	case *BrTable:
-		for i:=0; i < len(inst.Indices.Labels); i++ {
+		for i := 0; i < len(inst.Indices.Labels); i++ {
 			err := self.resolveLabel(&inst.Indices.Labels[i])
 			if err != nil {
 				return err
@@ -393,12 +392,12 @@ func (self *ExprResolver)resolveInstr(instr Instruction) error {
 	}
 }
 
-func (self *ExprResolver)resolveLabel(label *Index) error {
+func (self *ExprResolver) resolveLabel(label *Index) error {
 	if label.Isnum {
 		return nil
 	}
 	id := label.Id
-	for i := len(self.labels)-1; i >=0; i-- {
+	for i := len(self.labels) - 1; i >= 0; i-- {
 		if self.labels[i].IsSome() && self.labels[i].ToId() == id {
 			*label = NewNumIndex(uint32(len(self.labels) - i - 1))
 			return nil
@@ -407,11 +406,3 @@ func (self *ExprResolver)resolveLabel(label *Index) error {
 
 	return errors.New("failed to resolve label")
 }
-
-
-
-
-
-
-
-

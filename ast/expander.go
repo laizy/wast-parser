@@ -1,16 +1,16 @@
 package ast
 
-const pageSize = 1<<16
+const pageSize = 1 << 16
 
 type Expander struct {
-	toAppend  []ModuleField
-	funcs uint32
+	toAppend []ModuleField
+	funcs    uint32
 	memories uint32
-	tables uint32
-	globals uint32
+	tables   uint32
+	globals  uint32
 }
 
-func (self *Expander)Process(fields []ModuleField, fn func (expander *Expander, field ModuleField) ModuleField) []ModuleField {
+func (self *Expander) Process(fields []ModuleField, fn func(expander *Expander, field ModuleField) ModuleField) []ModuleField {
 	cur := 0
 	for cur < len(fields) {
 		fields[cur] = fn(self, fields[cur])
@@ -26,7 +26,7 @@ func (self *Expander)Process(fields []ModuleField, fn func (expander *Expander, 
 	return fields
 }
 
-func (self *Expander)ExpandImport(item ModuleField) ModuleField {
+func (self *Expander) ExpandImport(item ModuleField) ModuleField {
 	switch value := item.(type) {
 	case Func:
 		switch kind := value.Kind.(type) {
@@ -135,7 +135,7 @@ func (self *Expander)ExpandImport(item ModuleField) ModuleField {
 	}
 }
 
-func (self *Expander)ExpandExport(item ModuleField) ModuleField {
+func (self *Expander) ExpandExport(item ModuleField) ModuleField {
 	switch value := item.(type) {
 	case Func:
 		for _, name := range value.Exports.Names {
@@ -248,4 +248,3 @@ func (self *Expander)ExpandExport(item ModuleField) ModuleField {
 		return value
 	}
 }
-
