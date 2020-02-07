@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-interpreter/wagon/wasm"
 	"github.com/ontio/wast-parser/parser"
 	"github.com/stretchr/testify/assert"
-	"github.com/ontio/wagon/wasm"
 )
 
 func EvalExpr(expr Expression) (int64, error) {
@@ -53,17 +53,16 @@ func TestEncode(t *testing.T) {
 		for _, item := range wast.Directives {
 			switch direc := item.(type) {
 			case Module:
-				encode := direc.Encode()
+				encode, err := direc.Encode()
+				assert.Nil(t, err)
 				r := bytes.NewReader(encode)
-				_, err := wasm.ReadModule(r, nil)
+				_, err = wasm.ReadModule(r, nil)
 				if err != nil {
 					t.Fatalf("error reading module %v", err)
 				}
-
 			}
 		}
 	}
-
 }
 
 

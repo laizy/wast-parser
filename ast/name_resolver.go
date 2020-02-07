@@ -1,8 +1,7 @@
-package resolve
+package ast
 
 import (
 	"errors"
-	"github.com/ontio/wast-parser/ast"
 )
 
 const (
@@ -17,65 +16,75 @@ const (
 
 type NameResolver struct {
  	ns [7]Namespace
- 	types []ast.FunctionType
+ 	types []FunctionType
+}
+
+func NewNameResolver() NameResolver {
+	nr := NameResolver{}
+	for i:=0; i<7; i++ {
+		nr.ns[i] = NewNamespace()
+	}
+
+	return nr
 }
 
 type Namespace struct {
-	names map[ast.Id] uint32
+	names map[Id] uint32
 	count uint32
 }
 
-func (self *NameResolver) Register(item ast.ModuleField) {
+func (self *NameResolver) Register(item ModuleField) {
 	switch value := item.(type) {
-	case ast.Import:
+	case Import:
 		switch value.Item.(type) {
-		case ast.ImportFunc:
+		case ImportFunc:
 			self.ns[NsFunc].register(value.Id)
-		case ast.ImportMemory:
+		case ImportMemory:
 			self.ns[NsMemory].register(value.Id)
-		case ast.ImportTable:
+		case ImportTable:
 			self.ns[NsTable].register(value.Id)
-		case ast.ImportGlobal:
+		case ImportGlobal:
 			self.ns[NsGlobal].register(value.Id)
 		default:
 			panic("unreachable")
 		}
-	case ast.Global:
+	case Global:
 		self.ns[NsGlobal].register(value.Name)
-	case ast.Memory:
+	case Memory:
 		self.ns[NsMemory].register(value.Name)
-	case ast.Func:
+	case Func:
 		self.ns[NsFunc].register(value.Name)
-	case ast.Table:
+	case Table:
 		self.ns[NsTable].register(value.Name)
-	case ast.Type:
+	case Type:
 		//todo
 		self.ns[NsType].register(value.Name)
-	case ast.Elem:
+	case Elem:
 		self.ns[NsElem].register(value.Name)
-	case ast.Data:
+	case Data:
 		self.ns[NsData].register(value.Name)
-	case ast.Export, ast.StartField:
+	case Export, StartField:
 
 	default:
 		panic("unreachable")
 	}
 }
 
-func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error) {
+func (self *NameResolver) Resolve(field ModuleField) (ModuleField, error) {
 	switch value := field.(type) {
-	case ast.Import:
-		if fn, ok := value.Item.(ast.ImportFunc); ok {
+	case Import:
+		if fn, ok := value.Item.(ImportFunc); ok {
 			_, err := self.resolveTypeUse(&fn.TypeUse)
+			value.Item = fn
 			return value, err
 		}
 		return value, nil
-	case ast.Func:
+	case Func:
 		_, err := self.resolveTypeUse(&value.Type)
 		if err != nil {
 			return value, err
 		}
-		if inline, ok := value.Kind.(ast.FuncKindInline); ok {
+		if inline, ok := value.Kind.(FuncKindInline); ok {
 			exprResolver := NewExprResolver(self)
 			for _, param := range value.Type.Type.Params {
 				exprResolver.locals.register(param.Id)
@@ -92,8 +101,8 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 		}
 
 		return value, nil
-	case ast.Elem:
-		if active, ok := value.Kind.(ast.ElemKindActive); ok {
+	case Elem:
+		if active, ok := value.Kind.(ElemKindActive); ok {
 			err := self.resolveIdx(&active.Table, NsTable)
 			if err != nil {
 				return nil, err
@@ -106,7 +115,7 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 			value.Kind = active
 		}
 		switch payload := value.Payload.(type) {
-		case ast.ElemPayloadIndices:
+		case ElemPayloadIndices:
 			for i:=0; i< len(payload.Indices) ; i++ {
 				err := self.resolveIdx(&payload.Indices[i], NsFunc)
 				if err != nil {
@@ -114,7 +123,7 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 				}
 			}
 			value.Payload = payload
-		case ast.ElemPayloadExprs:
+		case ElemPayloadExprs:
 			for i:=0; i< len(payload.Exprs); i++ {
 				if payload.Exprs[i].IsSome() {
 					id := payload.Exprs[i].ToIndex()
@@ -122,15 +131,15 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 					if err != nil {
 						return nil, err
 					}
-					payload.Exprs[i] = ast.NewOptionIndex(id)
+					payload.Exprs[i] = NewOptionIndex(id)
 				}
 			}
 			value.Payload = payload
 		}
 
 		return value, nil
-	case ast.Data:
-		if active, ok := value.Kind.(ast.DataKindActive); ok {
+	case Data:
+		if active, ok := value.Kind.(DataKindActive); ok {
 			err := self.resolveIdx(&active.Memory, NsMemory)
 			if err != nil {
 				return nil, err
@@ -143,26 +152,26 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 		}
 
 		return value, nil
-	case ast.StartField:
+	case StartField:
 		err := self.resolveIdx(&value.Index, NsFunc)
 		return value, err
-	case ast.Export:
+	case Export:
 		var err error
 		var ns int
 		switch value.Type {
-		case ast.ExportFunc:
+		case ExportFunc:
 			ns = NsFunc
-		case ast.ExportMemory:
+		case ExportMemory:
 			ns = NsMemory
-		case ast.ExportGlobal:
+		case ExportGlobal:
 			ns = NsGlobal
-		case ast.ExportTable:
+		case ExportTable:
 			ns = NsTable
 		}
 		err = self.resolveIdx(&value.Index, ns)
 		return value, err
-	case ast.Global:
-		if inline, ok := value.Kind.(ast.GlobalKindInline); ok {
+	case Global:
+		if inline, ok := value.Kind.(GlobalKindInline); ok {
 			err := self.resolveExpr(&inline.Expr)
 			if err != nil {
 				return nil, err
@@ -171,25 +180,25 @@ func (self *NameResolver) Resolve(field ast.ModuleField) (ast.ModuleField, error
 		}
 
 		return value, nil
-	case ast.Table, ast.Memory, ast.Type:
+	case Table, Memory, Type:
 		return value, nil
 	default:
 		panic("unreachable")
 	}
 }
 
-func (self *NameResolver)resolveIdx(idx *ast.Index, ns int) error {
+func (self *NameResolver)resolveIdx(idx *Index, ns int) error {
 	_, err := self.ns[ns].resolve(idx)
 	return err
 }
 
-func (self *NameResolver)resolveExpr(expr *ast.Expression) error {
+func (self *NameResolver)resolveExpr(expr *Expression) error {
 	exprResolver := NewExprResolver(self)
 	return exprResolver.Resolve(expr)
 }
 
 
-func (self *NameResolver)resolveTypeUse(ty *ast.TypeUse) (uint32, error) {
+func (self *NameResolver)resolveTypeUse(ty *TypeUse) (uint32, error) {
 	if !ty.Index.IsSome() {
 		panic("must be some index")
 	}
@@ -198,7 +207,7 @@ func (self *NameResolver)resolveTypeUse(ty *ast.TypeUse) (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
-	ty.Index = ast.NewOptionIndex(idx)
+	ty.Index = NewOptionIndex(idx)
 	if index >= uint32(len(self.types)) {
 		return index, nil
 	}
@@ -215,22 +224,28 @@ func (self *NameResolver)resolveTypeUse(ty *ast.TypeUse) (uint32, error) {
 	return index, nil
 }
 
-func (self *Namespace) register(name ast.OptionId) {
+func NewNamespace() Namespace {
+	return Namespace{
+		names:make(map[Id]uint32),
+	}
+}
+func (self *Namespace) register(name OptionId) {
 	if name.IsSome() {
 		self.names[name.ToId()] = self.count
 	}
 	self.count += 1
 }
 
-func (self *Namespace)resolve(idx *ast.Index) (uint32, error) {
+func (self *Namespace)resolve(idx *Index) (uint32, error) {
 	if idx.Isnum {
 		return idx.Num, nil
 	}
 
 	if n, ok := self.names[idx.Id]; ok {
-		*idx = ast.NewNumIndex(n)
+		*idx = NewNumIndex(n)
 		return n, nil
 	}
+	panic(errors.New("namespace can not resolve index"))
 
 	return 0, errors.New("namespace can not resolve index")
 }
@@ -238,17 +253,17 @@ func (self *Namespace)resolve(idx *ast.Index) (uint32, error) {
 type ExprResolver struct {
 	resolver *NameResolver
 	locals Namespace
-	labels []ast.OptionId
+	labels []OptionId
 }
 
 func NewExprResolver(resolver *NameResolver) ExprResolver {
 	return ExprResolver{
 		resolver:resolver,
-		locals:Namespace{},
+		locals:NewNamespace(),
 	}
 }
 
-func (self *ExprResolver)Resolve(expr *ast.Expression) error {
+func (self *ExprResolver)Resolve(expr *Expression) error {
 	for i:=0; i< len(expr.Instrs); i++ {
 		err := self.resolveInstr(expr.Instrs[i])
 		if err != nil {
@@ -259,8 +274,8 @@ func (self *ExprResolver)Resolve(expr *ast.Expression) error {
 	return nil
 }
 
-func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
-	handleBlockType := func (blockType *ast.BlockType) error {
+func (self *ExprResolver)resolveInstr(instr Instruction) error {
+	handleBlockType := func (blockType *BlockType) error {
 		self.labels = append(self.labels, blockType.Label)
 		if blockType.Ty.Index.IsSome() {
 			ind, err := self.resolver.resolveTypeUse(&blockType.Ty)
@@ -274,7 +289,7 @@ func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
 			if len(ty.Params) == 0 && len(ty.Results) <= 1{
 				blockType.Ty.Type.Params = nil
 				blockType.Ty.Type.Results = ty.Results
-				blockType.Ty.Index = ast.NoneOptionIndex()
+				blockType.Ty.Index = NoneOptionIndex()
 			}
 		}
 		return nil
@@ -282,60 +297,60 @@ func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
 
 	switch inst := instr.(type) {
 	//todo add TableInit, MemoryInit
-	case *ast.DataDrop:
+	case *DataDrop:
 		return self.resolver.resolveIdx(&inst.Index, NsData)
-	case *ast.ElemDrop:
+	case *ElemDrop:
 		return self.resolver.resolveIdx(&inst.Index, NsElem)
-	case *ast.TableFill:
+	case *TableFill:
 		return self.resolver.resolveIdx(&inst.Index, NsTable)
-	case *ast.TableSet:
+	case *TableSet:
 		return self.resolver.resolveIdx(&inst.Index, NsTable)
-	case *ast.TableGet:
+	case *TableGet:
 		return self.resolver.resolveIdx(&inst.Index, NsTable)
-	case *ast.TableSize:
+	case *TableSize:
 		return self.resolver.resolveIdx(&inst.Index, NsTable)
-	case *ast.TableGrow:
+	case *TableGrow:
 		return self.resolver.resolveIdx(&inst.Index, NsTable)
-	case *ast.GlobalSet:
+	case *GlobalSet:
 		return self.resolver.resolveIdx(&inst.Index, NsGlobal)
-	case *ast.GlobalGet:
+	case *GlobalGet:
 		return self.resolver.resolveIdx(&inst.Index, NsGlobal)
-	case *ast.LocalSet:
+	case *LocalSet:
 		_, err := self.locals.resolve(&inst.Index)
 		return err
-	case *ast.LocalGet:
+	case *LocalGet:
 		_, err := self.locals.resolve(&inst.Index)
 		return err
-	case *ast.LocalTee:
+	case *LocalTee:
 		_, err := self.locals.resolve(&inst.Index)
 		return err
-	case *ast.Call:
+	case *Call:
 		return self.resolver.resolveIdx(&inst.Index, NsFunc)
-	case *ast.RefFunc:
+	case *RefFunc:
 		return self.resolver.resolveIdx(&inst.Index, NsFunc)
-	case *ast.ReturnCall:
+	case *ReturnCall:
 		return self.resolver.resolveIdx(&inst.Index, NsFunc)
-	case *ast.CallIndirect:
+	case *CallIndirect:
 		err :=  self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
 		if err != nil {
 			return err
 		}
 		_, err =  self.resolver.resolveTypeUse(&inst.Impl.Type)
 		return err
-	case *ast.ReturnCallIndirect:
+	case *ReturnCallIndirect:
 		err :=  self.resolver.resolveIdx(&inst.Impl.Table, NsTable)
 		if err != nil {
 			return err
 		}
 		_, err =  self.resolver.resolveTypeUse(&inst.Impl.Type)
 		return err
-	case *ast.Block:
+	case *Block:
 		return handleBlockType(&inst.BlockType)
-	case *ast.If:
+	case *If:
 		return handleBlockType(&inst.BlockType)
-	case *ast.Loop:
+	case *Loop:
 		return handleBlockType(&inst.BlockType)
-	case *ast.Else:
+	case *Else:
 		if len(self.labels) == 0 {
 			return nil
 		}
@@ -347,7 +362,7 @@ func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
 		}
 
 		return errors.New("mismatching labels between block and end")
-	case *ast.End:
+	case *End:
 		if len(self.labels) == 0 {
 			return nil
 		}
@@ -360,11 +375,11 @@ func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
 		}
 
 		return errors.New("mismatching labels between block and end")
-	case *ast.Br:
+	case *Br:
 		return self.resolveLabel(&inst.Index)
-	case *ast.BrIf:
+	case *BrIf:
 		return self.resolveLabel(&inst.Index)
-	case *ast.BrTable:
+	case *BrTable:
 		for i:=0; i < len(inst.Indices.Labels); i++ {
 			err := self.resolveLabel(&inst.Indices.Labels[i])
 			if err != nil {
@@ -378,14 +393,14 @@ func (self *ExprResolver)resolveInstr(instr ast.Instruction) error {
 	}
 }
 
-func (self *ExprResolver)resolveLabel(label *ast.Index) error {
+func (self *ExprResolver)resolveLabel(label *Index) error {
 	if label.Isnum {
 		return nil
 	}
 	id := label.Id
 	for i := len(self.labels)-1; i >=0; i-- {
 		if self.labels[i].IsSome() && self.labels[i].ToId() == id {
-			*label = ast.NewNumIndex(uint32(len(self.labels) - i - 1))
+			*label = NewNumIndex(uint32(len(self.labels) - i - 1))
 			return nil
 		}
 	}

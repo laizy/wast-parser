@@ -8,7 +8,12 @@ type Section interface {
 	Encode(sink *ZeroCopySink)
 }
 
-func (self *Module) Encode() []byte {
+func (self *Module) Encode() ([]byte, error) {
+	err := Resolve(self)
+	if err != nil {
+		return nil, err
+	}
+
 	var fields []ModuleField
 	if t, ok := self.Kind.(ModuleKindText); ok {
 		fields = t.Fields
@@ -70,7 +75,7 @@ func (self *Module) Encode() []byte {
 	SectionList(0xa, funcs, sink)
 	SectionList(0xb, data, sink)
 
-	return sink.Bytes()
+	return sink.Bytes(), nil
 }
 
 func SectionList(id byte, l []Section, sink *ZeroCopySink) {
@@ -180,9 +185,8 @@ func (t MemoryType) Encode(sink *ZeroCopySink) {
 }
 
 func (t Table) Encode(sink *ZeroCopySink) {
-	// check why can not zero
-	if len(t.Exports.Names) == 0 {
-		panic("Name should not empty")
+	if len(t.Exports.Names) != 0 {
+		panic("table exports should be empty")
 	}
 
 	if x, ok := t.Kind.(TableKindNormal); ok {
@@ -222,9 +226,8 @@ func (t Import) Encode(sink *ZeroCopySink) {
 }
 
 func (t Global) Encode(sink *ZeroCopySink) {
-	// check why can not zero
-	if len(t.Exports.Names) == 0 {
-		panic("Name should not empty")
+	if len(t.Exports.Names) != 0 {
+		panic("global export should be empty")
 	}
 
 	t.ValType.Encode(sink)
@@ -425,11 +428,13 @@ func (t BlockType) Encode(sink *ZeroCopySink) {
 	}
 
 	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 0 {
-		sink.WriteByte(byte(0x40))
+		 sink.WriteByte(byte(0x40))
+		 return
 	}
 
 	if len(t.Ty.Type.Params) == 0 && len(t.Ty.Type.Results) == 1 {
 		t.Ty.Type.Results[0].Encode(sink)
+		return
 	}
 
 	panic("multi-value block types should have an index")
